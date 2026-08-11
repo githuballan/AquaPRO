@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Área de membros do AquaristaPRO para cadastro do aquário, acompanhamento de parâmetros e histórico." />
+  <title>Área de membros | AquaristaPRO</title>
+  <link rel="shortcut icon" href="imagens-treino/aqua-icone-ok.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-supabase-url="https://xktobjguguvvoagyteke.supabase.co" data-supabase-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4">
+ <nav id="site-nav" class="top-nav" aria-label="Navegação principal"></nav>
+  <header class="hero hero-small">
+    <div class="hero-content">
+      <p class="eyebrow">Área de membros</p>
+      <h1>Entre e comece a montar o perfil do seu aquário</h1>
+      <p>Após o login, você será levado ao cadastro do aquário para salvar os valores de referência do ambiente, com foco em temperatura, pH, GH e KH.</p>
+    </div>
+  </header>
+  <main class="page-shell">
+   
+    <section id="authCard" class="card">
+      <div id="notice" class="notice"></div>
+
+      <div id="authFormContainer" class="auth-container">
+        <form id="authForm" class="panel">
+          <h3>Entrar</h3>
+          <label>E-mail
+            <input type="email" name="email" required />
+          </label>
+          <label>Senha
+            <div class="password-input-wrapper">
+              <input id="loginPassword" type="password" name="password" required />
+              <button type="button" class="password-toggle-btn" data-target="loginPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
+            </div>
+          </label>
+          <button type="submit" class="button-submit">Entrar</button>
+          <button id="forgotPasswordButton" type="button" class="toggle-btn">Esqueci minha senha</button>
+          <button id="showRegisterButton" type="button" class="toggle-btn">Criar conta</button>
+        </form>
+
+        <form id="registerForm" class="panel hidden">
+          <h3>Criar conta</h3>
+          <label>Nome
+            <input type="text" name="name" required />
+          </label>
+          <label>E-mail
+            <input type="email" name="email" required />
+          </label>
+          <label>Senha
+            <div class="password-input-wrapper">
+              <input id="registerPassword" type="password" name="password" required />
+              <button type="button" class="password-toggle-btn" data-target="registerPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
+            </div>
+          </label>
+          <label>Confirmar senha
+            <div class="password-input-wrapper">
+              <input id="confirmPassword" type="password" name="confirmPassword" required />
+              <button type="button" class="password-toggle-btn" data-target="confirmPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
+            </div>
+          </label>
+          <button type="submit" class="button-submit">Criar conta</button>
+          <button id="showLoginButton" type="button" class="toggle-btn hidden">Entrar</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="memberPanel" class="card hidden">
+      <div class="member-header">
+        <h2>Seu painel</h2>
+        <button id="logoutButton" type="button">Sair</button>
+      </div>
+      <div id="memberNotice" class="notice"></div>
+      <p id="memberGreeting"></p>
+
+      <button id="toggleChangePasswordButton" type="button" class="button-secondary">Alterar senha</button>
+
+      <form id="changePasswordForm" class="panel hidden">
+        <h3>Alterar senha</h3>
+        <label>Nova senha
+          <div class="password-input-wrapper">
+            <input id="memberNewPassword" type="password" name="newPassword" required minlength="6" />
+            <button type="button" class="password-toggle-btn" data-target="memberNewPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
+          </div>
+        </label>
+        <label>Confirmar nova senha
+          <div class="password-input-wrapper">
+            <input id="memberConfirmPassword" type="password" name="confirmNewPassword" required minlength="6" />
+            <button type="button" class="password-toggle-btn" data-target="memberConfirmPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
+          </div>
+        </label>
+        <button type="submit" class="button-submit">Salvar nova senha</button>
+      </form>
+    </section>
+
+    <section id="aquario" class="card hidden">
+      <h2>Cadastro do aquário</h2>
+      <form id="aquariumForm" class="panel">
+        <div class="form-grid">
+          <label>Nome do aquário
+            <input type="text" name="aquariumName" />
+          </label>
+          <label>Volume (L)
+            <input type="number" name="volume" step="1" />
+          </label>
+          <label>Tipo de aquário
+            <input type="text" name="type" placeholder="Community, betta, plantado..." />
+          </label>
+          <label>Temperatura (ideal)
+            <input type="number" name="temperature" step="0.1" />
+          </label>
+          <label>pH (ideal)
+            <input type="number" name="ph" step="0.1" />
+          </label>
+          <label>GH (ideal)
+            <select name="gh">
+              <option value="">Selecione</option>
+              <option value="muito mole">Muito mole</option>
+              <option value="mole">Mole</option>
+              <option value="semi-dura">Semi-dura</option>
+              <option value="dura">Dura</option>
+              <option value="muito dura">Muito dura</option>
+            </select>
+          </label>
+          <label>KH (ideal)
+            <input type="number" name="kh" step="0.1" />
+          </label>
+        </div>
+        <label>Observações
+          <textarea name="notes" rows="3"></textarea>
+        </label>
+        <button type="submit">Salvar aquário</button>
+      </form>
+      <div id="aquariumSummary" class="summary"></div>
+      <button id="deleteAquariumButton" type="button" class="button-secondary">Excluir aquário</button>
+    </section>
+
+    <section id="readingSection" class="card hidden">
+      <div class="member-header member-header-stack">
+        <div>
+          <h2>Registrar leituras</h2>
+          <p>Use este formulário para salvar novas medições e acompanhar a variação real do aquário.</p>
+        </div>
+        <button id="toggleReadingFormButton" type="button">Nova medição</button>
+      </div>
+
+      <form id="readingForm" class="panel hidden">
+        <div class="form-grid">
+          <label>Data e hora da medição
+            <input type="datetime-local" name="measuredAt" />
+          </label>
+          <label>Temperatura
+            <input type="number" name="temperature" step="0.1" />
+          </label>
+          <label>pH
+            <input type="number" name="ph" step="0.1" />
+          </label>
+          <label>GH
+            <select name="gh">
+              <option value="">Selecione</option>
+              <option value="muito mole">Muito mole</option>
+              <option value="mole">Mole</option>
+              <option value="semi-dura">Semi-dura</option>
+              <option value="dura">Dura</option>
+              <option value="muito dura">Muito dura</option>
+            </select>
+          </label>
+          <label>KH
+            <input type="number" name="kh" step="0.1" min="0" />
+          </label>
+          <label>Nitrito
+            <input type="number" name="nitrite" step="0.01" min="0" />
+          </label>
+          <label>Amônia
+            <input type="number" name="ammonia" step="0.01" min="0" />
+          </label>
+          <label>CO2
+            <select name="co2Enabled">
+              <option value="">Selecione</option>
+              <option value="ligado">Ligado</option>
+              <option value="desligado">Desligado</option>
+            </select>
+          </label>
+          <label>Cor do drop checker
+            <select name="dropCheckerColor">
+              <option value="">Selecione</option>
+              <option value="azul">Azul</option>
+              <option value="verde">Verde</option>
+              <option value="amarelo">Amarelo</option>
+            </select>
+          </label>
+        </div>
+        <label>Observações da medição
+          <textarea name="notes" rows="3"></textarea>
+        </label>
+        <div class="inline-actions">
+          <button type="submit">Salvar medição</button>
+          <button id="cancelReadingFormButton" type="button" class="button-secondary">Cancelar</button>
+        </div>
+      </form>
+
+      <div id="latestReadingSummary" class="summary"></div>
+      <div id="readingHistory" class="reading-history"></div>
+    </section>
+
+    <section id="chartSection" class="card hidden">
+      <h2>Gráfico de parâmetros</h2>
+      <label>Parâmetro
+        <select id="chartParam">
+          <option value="temperature">Temperatura</option>
+          <option value="ph">pH</option>
+          <option value="gh">GH</option>
+          <option value="kh">KH</option>
+          <option value="nitrite">Nitrito</option>
+          <option value="ammonia">Amônia</option>
+        </select>
+      </label>
+      <canvas id="chartCanvas" width="600" height="280"></canvas>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 AquaristaPRO — conteúdo educativo para aquarismo de água doce.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

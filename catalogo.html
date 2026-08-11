@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catálogo de peixes de água doce com filtros por pH, temperatura, GH, KH, origem e dificuldade." />
+  <title>Catálogo de peixes | AquaristaPRO</title>
+  <link rel="shortcut icon" href="imagens-treino/aqua-icone-ok.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-supabase-url="https://xktobjguguvvoagyteke.supabase.co" data-supabase-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4">
+<nav id="site-nav" class="top-nav" aria-label="Navegação principal"></nav>
+  <header class="hero hero-small">
+   
+    <div class="hero-content">
+      <p class="eyebrow">AquaristaPRO</p>
+      <h1>Encontre peixes compatíveis com o seu aquário</h1>
+    </div>
+  </header>
+  <main class="page-shell catalog-layout">
+   
+    <aside class="card filters-card">
+      <div class="filters-card-header">
+        <h2>Filtros</h2>
+        <button id="closeFiltersButton" type="button" class="filters-close-btn" aria-label="Fechar filtros">&times;</button>
+      </div>
+      <form id="filtersForm" class="filter-form">
+        <label>Busca
+          <input type="text" name="search" placeholder="Nome, origem ou descrição" />
+        </label>
+        <label>Origem
+          <select name="origin"></select>
+        </label>
+        <label>Temperamento
+          <select name="temperament"></select>
+        </label>
+        <label>Alimentação
+          <select name="diet"></select>
+        </label>
+        <label>Nível de dificuldade
+          <select name="difficulty"></select>
+        </label>
+        <label>Temperatura mínima
+          <input type="number" name="tempMin" step="0.1" />
+        </label>
+        <label>Temperatura máxima
+          <input type="number" name="tempMax" step="0.1" />
+        </label>
+        <label>pH mínimo
+          <input type="number" name="phMin" step="0.1" />
+        </label>
+        <label>pH máximo
+          <input type="number" name="phMax" step="0.1" />
+        </label>
+        <label>GH mínimo
+          <input type="number" name="ghMin" step="0.1" />
+        </label>
+        <label>GH máximo
+          <input type="number" name="ghMax" step="0.1" />
+        </label>
+        <label>KH mínimo
+          <input type="number" name="khMin" step="0.1" />
+        </label>
+        <label>KH máximo
+          <input type="number" name="khMax" step="0.1" />
+        </label>
+        <label>Tamanho mínimo do aquário (L)
+          <input type="number" name="aquariumMin" step="1" />
+        </label>
+        <button type="submit">Aplicar filtros</button>
+      </form>
+    </aside>
+    <div id="filtersBackdrop" class="filters-backdrop hidden" aria-hidden="true"></div>
+
+    <section class="catalog-results">
+      <div id="fishCards" class="fish-grid"></div>
+      <div id="merchantCard" class="merchant-card hidden"></div>
+      <section id="printSheetSection" class="card hidden">
+        <div class="print-sheet-toolbar">
+          <button id="printSheetPreviewButton" type="button" class="print-sheet-preview-btn">
+            <span class="print-sheet-preview-icon" aria-hidden="true">
+              <svg viewBox="0 0 64 64" role="img" focusable="false">
+                <rect x="14" y="8" width="28" height="38" rx="3"></rect>
+                <line x1="20" y1="18" x2="36" y2="18"></line>
+                <line x1="20" y1="25" x2="36" y2="25"></line>
+                <circle cx="42" cy="42" r="9"></circle>
+                <line x1="48" y1="48" x2="57" y2="57"></line>
+              </svg>
+            </span>
+            Visualizar folha A4
+          </button>
+          <button id="printSheetButton" type="button" class="button-secondary">Imprimir folha A4</button>
+        </div>
+        <div id="printSheetCanvas" class="print-sheet-canvas hidden">
+          <div class="print-sheet-page">
+            <div id="printSheetCards" class="print-sheet-cards"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 AquaristaPRO — conteúdo educativo para aquarismo de água doce.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

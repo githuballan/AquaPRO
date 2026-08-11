@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redefina sua senha</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5fcff;font-family:Arial,Helvetica,sans-serif;color:#12313f;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;visibility:hidden;">
+    Recebemos um pedido para redefinir sua senha no AquaristaPRO.
+  </div>
+
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:linear-gradient(180deg,#f7fdff 0%,#edf9fb 100%);margin:0;padding:24px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:640px;background-color:#ffffff;border-radius:28px;overflow:hidden;border:1px solid #d7ebf2;box-shadow:0 16px 40px rgba(11,122,138,0.16);">
+          <tr>
+            <td style="background:linear-gradient(135deg,#0f8ea6 0%,#7bd3e6 100%);padding:36px 28px 30px;text-align:center;">
+              <h1 style="margin:18px 0 10px;font-size:32px;line-height:1.2;color:#ffffff;">AquaristaPRO</h1>
+              <p style="margin:0 auto;max-width:420px;font-size:16px;line-height:1.7;color:#eafcff;">
+                Vamos proteger o seu aquário digital e colocar seu acesso de volta nos trilhos.
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:32px 28px 12px;">
+              <p style="margin:0 0 18px;font-size:18px;line-height:1.7;color:#12313f;">
+                Olá{{ if index .Data "name" }}, {{ index .Data "name" }}{{ end }}.
+              </p>
+
+              <p style="margin:0 0 18px;font-size:16px;line-height:1.8;color:#365563;">
+                Recebemos um pedido para redefinir a senha da conta vinculada ao e-mail <strong>{{ .Email }}</strong>. Se foi você, use o botão abaixo para cadastrar uma nova senha com segurança.
+              </p>
+
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:26px 0 28px;">
+                <tr>
+                  <td align="center" style="border-radius:999px;background-color:#0b7a8a;">
+                    <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:16px 28px;font-size:16px;font-weight:bold;line-height:1;color:#ffffff;text-decoration:none;border-radius:999px;background:linear-gradient(135deg,#0b7a8a 0%,#1095aa 100%);">
+                      Redefinir minha senha
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <div style="padding:18px 20px;border-radius:18px;background-color:#f1fbfe;border:1px solid #d7ebf2;">
+                <p style="margin:0 0 8px;font-size:14px;font-weight:bold;line-height:1.5;color:#0b7a8a;">
+                  Como funciona?
+                </p>
+                <p style="margin:0;font-size:14px;line-height:1.7;color:#4e6975;">
+                  O link vai abrir a tela segura de redefinição para você escolher uma nova senha e voltar ao painel da sua conta.
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:12px 28px 0;">
+              <p style="margin:0 0 14px;font-size:14px;line-height:1.8;color:#5b7380;">
+                Se o botão não funcionar, copie e cole este link no navegador:
+              </p>
+              <p style="margin:0;padding:14px 16px;border-radius:14px;background-color:#f8fcfd;border:1px solid #d7ebf2;word-break:break-all;font-size:13px;line-height:1.7;color:#365563;">
+                <a href="{{ .ConfirmationURL }}" style="color:#0b7a8a;text-decoration:none;">{{ .ConfirmationURL }}</a>
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:28px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top:1px solid #d7ebf2;padding-top:18px;">
+                <tr>
+                  <td style="padding-top:18px;">
+                    <p style="margin:0 0 10px;font-size:14px;line-height:1.8;color:#5b7380;">
+                      Se você não pediu a redefinição, pode ignorar esta mensagem. Sua senha atual continuará a mesma até que uma nova seja salva.
+                    </p>
+                    <p style="margin:0;font-size:12px;line-height:1.7;color:#7a919c;">
+                      AquaristaPRO • Conteúdo educativo para aquarismo.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
