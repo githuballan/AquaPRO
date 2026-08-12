@@ -2476,7 +2476,7 @@ function renderMerchantCard() {
         <div class="merchant-card-qr-column">
           <p class="merchant-qr-caption">Saiba mais...</p>
           <div class="qr-code-box">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://aquaristapro.pages.dev/?fish=${state.selectedFish.slug}`)}" alt="QR code do peixe" />
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://aquaristapro.com/?fish=${state.selectedFish.slug}`)}" alt="QR code do peixe" />
           </div>
           <p class="merchant-brand">AquaristaPRO</p>
         </div>
@@ -2550,7 +2550,7 @@ function renderPrintSheet() {
       <div class="merchant-card-qr-column">
         <p class="merchant-qr-caption">Saiba mais...</p>
         <div class="qr-code-box">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent('https://aquaristapro.pages.dev/?fish=')}${encodeURIComponent(item.fish.slug)}" alt="QR code do peixe" />
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent('https://aquaristapro.com/?fish=')}${encodeURIComponent(item.fish.slug)}" alt="QR code do peixe" />
         </div>
         <p class="merchant-brand">AquaristaPRO</p>
       </div>
