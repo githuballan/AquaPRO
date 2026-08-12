@@ -201,7 +201,7 @@ function normalizeFishCatalogData(items) {
 
 async function fetchFishCatalogFromSupabase() {
   if (!supabaseClient) {
-    return [];
+    throw new Error('Cliente Supabase indisponível para carregar o catálogo.');
   }
 
   const { data, error } = await supabaseClient
@@ -214,17 +214,6 @@ async function fetchFishCatalogFromSupabase() {
   }
 
   return normalizeFishCatalogData(data || []);
-}
-
-async function fetchFishCatalogFallback() {
-  const response = await fetch(resolveSitePath('data/fishes.json'));
-
-  if (!response.ok) {
-    throw new Error(`Não foi possível carregar ${response.url}`);
-  }
-
-  const data = await response.json();
-  return normalizeFishCatalogData(data);
 }
 
 function getInitialSearchQuery() {
@@ -1219,6 +1208,22 @@ function buildCatalogSearchUrl(fishSlug, searchText = '') {
   return `${resolveSitePath('catalogo.html')}?${params.toString()}`;
 }
 
+function getPublicSiteOrigin() {
+  return 'https://aquaristapro.com';
+}
+
+function buildFishPublicUrl(fish) {
+  if (!fish) {
+    return getPublicSiteOrigin();
+  }
+
+  if (fish.URL) {
+    return new URL(resolveSitePath(fish.URL), getPublicSiteOrigin()).toString();
+  }
+
+  return new URL(buildCatalogSearchUrl(fish.slug, fish.name), getPublicSiteOrigin()).toString();
+}
+
 function buildSearchResultsUrl(query) {
   const params = new URLSearchParams();
   params.set('q', query.trim());
@@ -1861,18 +1866,7 @@ function renderAquariumSummary() {
 
 async function loadFishCatalog() {
   try {
-    let data;
-
-    if (supabaseClient) {
-      try {
-        data = await fetchFishCatalogFromSupabase();
-      } catch (error) {
-        console.error('Erro ao carregar fichas de peixe do Supabase, usando fallback local.', error);
-        data = await fetchFishCatalogFallback();
-      }
-    } else {
-      data = await fetchFishCatalogFallback();
-    }
+    const data = await fetchFishCatalogFromSupabase();
 
     state.fishes = data;
     if (fishSelect) {
@@ -1900,10 +1894,10 @@ async function loadFishCatalog() {
   } catch (error) {
     console.error('Erro ao carregar fichas de peixe', error);
     if (fishDetails) {
-      fishDetails.innerHTML = '<p>Não foi possível carregar o catálogo no momento.</p>';
+      fishDetails.innerHTML = '<p>Não foi possível carregar o catálogo do Supabase no momento.</p>';
     }
     if (fishCards) {
-      fishCards.innerHTML = '<p>Não foi possível carregar o catálogo no momento.</p>';
+      fishCards.innerHTML = '<p>Não foi possível carregar o catálogo do Supabase no momento.</p>';
     }
 
     renderSearchResultsPage();
@@ -2476,7 +2470,7 @@ function renderMerchantCard() {
         <div class="merchant-card-qr-column">
           <p class="merchant-qr-caption">Saiba mais...</p>
           <div class="qr-code-box">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(`https://aquaristapro.com/?fish=${state.selectedFish.slug}`)}" alt="QR code do peixe" />
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(buildFishPublicUrl(state.selectedFish))}" alt="QR code do peixe" />
           </div>
           <p class="merchant-brand">AquaristaPRO</p>
         </div>
@@ -2550,7 +2544,7 @@ function renderPrintSheet() {
       <div class="merchant-card-qr-column">
         <p class="merchant-qr-caption">Saiba mais...</p>
         <div class="qr-code-box">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent('https://aquaristapro.com/?fish=')}${encodeURIComponent(item.fish.slug)}" alt="QR code do peixe" />
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(buildFishPublicUrl(item.fish))}" alt="QR code do peixe" />
         </div>
         <p class="merchant-brand">AquaristaPRO</p>
       </div>

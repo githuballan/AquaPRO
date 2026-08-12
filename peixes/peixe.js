@@ -83,7 +83,7 @@ function mapSupabaseFishRow(row) {
 
 async function fetchFishBySlugFromSupabase(slug) {
   if (!fishPageSupabaseClient) {
-    return null;
+    throw new Error('Cliente Supabase indisponível para carregar a ficha do peixe.');
   }
 
   const { data, error } = await fishPageSupabaseClient
@@ -97,17 +97,6 @@ async function fetchFishBySlugFromSupabase(slug) {
   }
 
   return data ? mapSupabaseFishRow(data) : null;
-}
-
-async function fetchFishBySlugFromJson(slug) {
-  const response = await fetch('../data/fishes.json');
-
-  if (!response.ok) {
-    throw new Error('Não foi possível carregar o catálogo local.');
-  }
-
-  const fishes = await response.json();
-  return fishes.find((entry) => entry.slug === slug) || null;
 }
 
 function buildFishParameterText(parameter) {
@@ -250,18 +239,7 @@ async function loadFishPage() {
   }
 
   try {
-    let fish;
-
-    if (fishPageSupabaseClient) {
-      try {
-        fish = await fetchFishBySlugFromSupabase(slug);
-      } catch (error) {
-        console.error('Erro ao carregar peixe do Supabase, usando fallback local.', error);
-        fish = await fetchFishBySlugFromJson(slug);
-      }
-    } else {
-      fish = await fetchFishBySlugFromJson(slug);
-    }
+    const fish = await fetchFishBySlugFromSupabase(slug);
 
     if (!fish) {
       showFishPageError('Não foi possível localizar os dados deste peixe.');
@@ -271,7 +249,7 @@ async function loadFishPage() {
     renderFishPage(fish);
   } catch (error) {
     console.error('Não foi possível carregar os dados do peixe.', error);
-    showFishPageError('Não foi possível carregar os dados do peixe no momento.');
+    showFishPageError('Não foi possível carregar os dados do peixe no Supabase no momento.');
   }
 }
 
