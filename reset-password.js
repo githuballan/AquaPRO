@@ -7,6 +7,10 @@ const resetPasswordClient = window.supabase?.createClient && resetPageSupabaseUr
   ? window.supabase.createClient(resetPageSupabaseUrl, resetPageSupabaseAnonKey)
   : null;
 
+const RESET_PASSWORD_MAX_LENGTH = 72;
+const RESET_PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,72}$/;
+const RESET_PASSWORD_HELP_TEXT = 'Use de 8 a 72 caracteres com pelo menos uma letra maiúscula, uma minúscula e um número.';
+
 function showResetNotice(message, type) {
   if (!resetNotice) {
     return;
@@ -52,6 +56,68 @@ function showResetForm() {
   resetIntro?.classList.add('hidden');
 }
 
+function validateResetPasswordStrength(password) {
+  const normalizedPassword = String(password || '');
+
+  if (!normalizedPassword) {
+    return 'Preencha a nova senha.';
+  }
+
+  if (normalizedPassword.length < 8) {
+    return 'A nova senha deve ter pelo menos 8 caracteres.';
+  }
+
+  if (normalizedPassword.length > RESET_PASSWORD_MAX_LENGTH) {
+    return `A nova senha deve ter no máximo ${RESET_PASSWORD_MAX_LENGTH} caracteres.`;
+  }
+
+  if (!RESET_PASSWORD_PATTERN.test(normalizedPassword)) {
+    return RESET_PASSWORD_HELP_TEXT;
+  }
+
+  return '';
+}
+
+function updateResetCounter(field, counter) {
+  const maxLength = Number(field?.getAttribute('maxlength'));
+  if (!field || !counter || !Number.isFinite(maxLength) || maxLength <= 0) {
+    return;
+  }
+
+  const currentLength = field.value.length;
+  const remaining = maxLength - currentLength;
+  counter.textContent = `${currentLength}/${maxLength}`;
+  counter.classList.toggle('is-near-limit', remaining <= Math.max(10, Math.floor(maxLength * 0.1)));
+}
+
+function initResetPasswordCounters() {
+  resetPasswordForm?.querySelectorAll('input[maxlength]').forEach((field) => {
+    if (field.dataset.counterReady === 'true') {
+      return;
+    }
+
+    const counter = document.createElement('div');
+    counter.className = 'field-counter';
+    counter.setAttribute('aria-live', 'polite');
+
+    const anchor = field.closest('.password-input-wrapper') || field;
+    anchor.insertAdjacentElement('afterend', counter);
+
+    field.addEventListener('input', () => {
+      field.setCustomValidity('');
+      updateResetCounter(field, counter);
+    });
+
+    field.addEventListener('change', () => {
+      field.setCustomValidity('');
+      updateResetCounter(field, counter);
+    });
+
+    updateResetCounter(field, counter);
+    field.dataset.counterReady = 'true';
+  });
+}
+
 async function handleResetPasswordSubmit(event) {
   event.preventDefault();
 
@@ -64,17 +130,26 @@ async function handleResetPasswordSubmit(event) {
   const password = String(formData.get('password') || '');
   const confirmPassword = String(formData.get('confirmPassword') || '');
 
+  if (!resetPasswordForm.reportValidity()) {
+    return;
+  }
+
   if (!password || !confirmPassword) {
     showResetNotice('Preencha os dois campos de senha.', 'alert');
     return;
   }
 
-  if (password.length < 6) {
-    showResetNotice('A nova senha deve ter pelo menos 6 caracteres.', 'alert');
+  const passwordValidationMessage = validateResetPasswordStrength(password);
+  if (passwordValidationMessage) {
+    resetPasswordForm.querySelector('[name="password"]')?.setCustomValidity(passwordValidationMessage);
+    resetPasswordForm.reportValidity();
+    showResetNotice(passwordValidationMessage, 'alert');
     return;
   }
 
   if (password !== confirmPassword) {
+    resetPasswordForm.querySelector('[name="confirmPassword"]')?.setCustomValidity('As senhas não coincidem.');
+    resetPasswordForm.reportValidity();
     showResetNotice('As senhas não coincidem.', 'alert');
     return;
   }
@@ -136,6 +211,8 @@ async function initResetPasswordPage() {
       updateResetPasswordToggleButton(button, isPassword);
     });
   });
+
+  initResetPasswordCounters();
 
   resetPasswordForm?.addEventListener('submit', handleResetPasswordSubmit);
 }

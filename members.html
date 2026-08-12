@@ -26,11 +26,11 @@
         <form id="authForm" class="panel">
           <h3>Entrar</h3>
           <label>E-mail
-            <input type="email" name="email" required />
+            <input type="email" name="email" required maxlength="120" autocomplete="email" inputmode="email" />
           </label>
           <label>Senha
             <div class="password-input-wrapper">
-              <input id="loginPassword" type="password" name="password" required />
+              <input id="loginPassword" type="password" name="password" required minlength="8" maxlength="72" autocomplete="current-password" />
               <button type="button" class="password-toggle-btn" data-target="loginPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
             </div>
           </label>
@@ -42,20 +42,20 @@
         <form id="registerForm" class="panel hidden">
           <h3>Criar conta</h3>
           <label>Nome
-            <input type="text" name="name" required />
+            <input type="text" name="name" required minlength="2" maxlength="60" autocomplete="name" />
           </label>
           <label>E-mail
-            <input type="email" name="email" required />
+            <input type="email" name="email" required maxlength="120" autocomplete="email" inputmode="email" />
           </label>
           <label>Senha
             <div class="password-input-wrapper">
-              <input id="registerPassword" type="password" name="password" required />
+              <input id="registerPassword" type="password" name="password" required minlength="8" maxlength="72" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,72}" title="Use de 8 a 72 caracteres com pelo menos uma letra maiúscula, uma minúscula e um número." autocomplete="new-password" />
               <button type="button" class="password-toggle-btn" data-target="registerPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
             </div>
           </label>
           <label>Confirmar senha
             <div class="password-input-wrapper">
-              <input id="confirmPassword" type="password" name="confirmPassword" required />
+              <input id="confirmPassword" type="password" name="confirmPassword" required minlength="8" maxlength="72" autocomplete="new-password" />
               <button type="button" class="password-toggle-btn" data-target="confirmPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
             </div>
           </label>
@@ -79,13 +79,13 @@
         <h3>Alterar senha</h3>
         <label>Nova senha
           <div class="password-input-wrapper">
-            <input id="memberNewPassword" type="password" name="newPassword" required minlength="6" />
+            <input id="memberNewPassword" type="password" name="newPassword" required minlength="8" maxlength="72" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,72}" title="Use de 8 a 72 caracteres com pelo menos uma letra maiúscula, uma minúscula e um número." autocomplete="new-password" />
             <button type="button" class="password-toggle-btn" data-target="memberNewPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
           </div>
         </label>
         <label>Confirmar nova senha
           <div class="password-input-wrapper">
-            <input id="memberConfirmPassword" type="password" name="confirmNewPassword" required minlength="6" />
+            <input id="memberConfirmPassword" type="password" name="confirmNewPassword" required minlength="8" maxlength="72" autocomplete="new-password" />
             <button type="button" class="password-toggle-btn" data-target="memberConfirmPassword" aria-label="Mostrar senha" title="Mostrar senha"></button>
           </div>
         </label>
@@ -94,23 +94,26 @@
     </section>
 
     <section id="aquario" class="card hidden">
-      <h2>Cadastro do aquário</h2>
+      <div class="member-header">
+        <h2>Cadastro do aquário</h2>
+        <button id="toggleAquariumFormButton" type="button" class="button-secondary hidden">Atualizar aquário</button>
+      </div>
       <form id="aquariumForm" class="panel">
         <div class="form-grid">
           <label>Nome do aquário
-            <input type="text" name="aquariumName" />
+            <input type="text" name="aquariumName" minlength="2" maxlength="60" />
           </label>
           <label>Volume (L)
-            <input type="number" name="volume" step="1" />
+            <input type="number" name="volume" step="1" min="1" max="50000" />
           </label>
           <label>Tipo de aquário
-            <input type="text" name="type" placeholder="Community, betta, plantado..." />
+            <input type="text" name="type" placeholder="Community, betta, plantado..." maxlength="40" />
           </label>
           <label>Temperatura (ideal)
-            <input type="number" name="temperature" step="0.1" />
+            <input type="number" name="temperature" step="0.1" min="0" max="40" />
           </label>
           <label>pH (ideal)
-            <input type="number" name="ph" step="0.1" />
+            <input type="number" name="ph" step="0.1" min="0" max="14" />
           </label>
           <label>GH (ideal)
             <select name="gh">
@@ -123,11 +126,11 @@
             </select>
           </label>
           <label>KH (ideal)
-            <input type="number" name="kh" step="0.1" />
+            <input type="number" name="kh" step="0.1" min="0" max="40" />
           </label>
         </div>
         <label>Observações
-          <textarea name="notes" rows="3"></textarea>
+          <textarea name="notes" rows="3" maxlength="300"></textarea>
         </label>
         <button type="submit">Salvar aquário</button>
       </form>
@@ -150,10 +153,10 @@
             <input type="datetime-local" name="measuredAt" />
           </label>
           <label>Temperatura
-            <input type="number" name="temperature" step="0.1" />
+            <input type="number" name="temperature" step="0.1" min="0" max="40" />
           </label>
           <label>pH
-            <input type="number" name="ph" step="0.1" />
+            <input type="number" name="ph" step="0.1" min="0" max="14" />
           </label>
           <label>GH
             <select name="gh">
@@ -166,13 +169,13 @@
             </select>
           </label>
           <label>KH
-            <input type="number" name="kh" step="0.1" min="0" />
+            <input type="number" name="kh" step="0.1" min="0" max="40" />
           </label>
           <label>Nitrito
-            <input type="number" name="nitrite" step="0.01" min="0" />
+            <input type="number" name="nitrite" step="0.01" min="0" max="10" />
           </label>
           <label>Amônia
-            <input type="number" name="ammonia" step="0.01" min="0" />
+            <input type="number" name="ammonia" step="0.01" min="0" max="10" />
           </label>
           <label>CO2
             <select name="co2Enabled">
@@ -191,7 +194,7 @@
           </label>
         </div>
         <label>Observações da medição
-          <textarea name="notes" rows="3"></textarea>
+          <textarea name="notes" rows="3" maxlength="300"></textarea>
         </label>
         <div class="inline-actions">
           <button type="submit">Salvar medição</button>

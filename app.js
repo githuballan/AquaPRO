@@ -5,6 +5,29 @@ const STORAGE_KEYS = {
   history: 'aquainfo-aquarium-history'
 };
 
+const TEXT_LIMITS = {
+  email: 120,
+  password: 72,
+  name: 60,
+  aquariumName: 60,
+  aquariumType: 40,
+  aquariumNotes: 300,
+  readingNotes: 300
+};
+
+const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,72}$/;
+const PASSWORD_INPUT_PATTERN = '(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,72}';
+const PASSWORD_HELP_TEXT = 'Use de 8 a 72 caracteres com pelo menos uma letra maiúscula, uma minúscula e um número.';
+
+const NUMERIC_LIMITS = {
+  volume: { min: 1, max: 50000 },
+  temperature: { min: 0, max: 40 },
+  ph: { min: 0, max: 14 },
+  kh: { min: 0, max: 40 },
+  nitrite: { min: 0, max: 10 },
+  ammonia: { min: 0, max: 10 }
+};
+
 const navigationItems = [
   { label: 'AquaristaPRO', href: 'index.html', page: 'index' },
   { label: 'Área de membros', href: 'members.html', page: 'members' },
@@ -55,7 +78,8 @@ const state = {
     hasGlobalListener: false
   },
   ui: {
-    isMobileLayout: null
+    isMobileLayout: null,
+    hasNavOutsideListener: false
   }
 };
 
@@ -93,6 +117,7 @@ const memberGreeting = document.getElementById('memberGreeting');
 const changePasswordForm = document.getElementById('changePasswordForm');
 const toggleChangePasswordButton = document.getElementById('toggleChangePasswordButton');
 const aquariumSummary = document.getElementById('aquariumSummary');
+const toggleAquariumFormButton = document.getElementById('toggleAquariumFormButton');
 const deleteAquariumButton = document.getElementById('deleteAquariumButton');
 const merchantCard = document.getElementById('merchantCard');
 const merchantCardButton = document.getElementById('merchantCardButton');
@@ -132,6 +157,210 @@ function normalizeSearchValue(value) {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
+}
+
+function normalizeBoundedText(value, maxLength) {
+  return String(value ?? '').trim().slice(0, maxLength);
+}
+
+function validatePasswordStrength(password) {
+  const normalizedPassword = String(password || '');
+
+  if (!normalizedPassword) {
+    return 'Preencha a senha.';
+  }
+
+  if (normalizedPassword.length < 8) {
+    return 'A senha deve ter pelo menos 8 caracteres.';
+  }
+
+  if (normalizedPassword.length > TEXT_LIMITS.password) {
+    return `A senha deve ter no máximo ${TEXT_LIMITS.password} caracteres.`;
+  }
+
+  if (!PASSWORD_PATTERN.test(normalizedPassword)) {
+    return PASSWORD_HELP_TEXT;
+  }
+
+  return '';
+}
+
+function applyInputAttributes(field, attributes) {
+  if (!field) {
+    return;
+  }
+
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (value === null || value === undefined || value === false) {
+      field.removeAttribute(key);
+      return;
+    }
+
+    field.setAttribute(key, String(value));
+  });
+}
+
+function applyFormFieldConstraints() {
+  applyInputAttributes(authForm?.querySelector('[name="email"]'), {
+    maxlength: TEXT_LIMITS.email,
+    autocomplete: 'email',
+    inputmode: 'email'
+  });
+  applyInputAttributes(authForm?.querySelector('[name="password"]'), {
+    maxlength: TEXT_LIMITS.password,
+    minlength: 8,
+    autocomplete: 'current-password'
+  });
+
+  applyInputAttributes(registerForm?.querySelector('[name="name"]'), {
+    minlength: 2,
+    maxlength: TEXT_LIMITS.name,
+    autocomplete: 'name'
+  });
+  applyInputAttributes(registerForm?.querySelector('[name="email"]'), {
+    maxlength: TEXT_LIMITS.email,
+    autocomplete: 'email',
+    inputmode: 'email'
+  });
+  applyInputAttributes(registerForm?.querySelector('[name="password"]'), {
+    minlength: 8,
+    maxlength: TEXT_LIMITS.password,
+    pattern: PASSWORD_INPUT_PATTERN,
+    title: PASSWORD_HELP_TEXT,
+    autocomplete: 'new-password'
+  });
+  applyInputAttributes(registerForm?.querySelector('[name="confirmPassword"]'), {
+    minlength: 8,
+    maxlength: TEXT_LIMITS.password,
+    autocomplete: 'new-password'
+  });
+
+  applyInputAttributes(changePasswordForm?.querySelector('[name="newPassword"]'), {
+    minlength: 8,
+    maxlength: TEXT_LIMITS.password,
+    pattern: PASSWORD_INPUT_PATTERN,
+    title: PASSWORD_HELP_TEXT,
+    autocomplete: 'new-password'
+  });
+  applyInputAttributes(changePasswordForm?.querySelector('[name="confirmNewPassword"]'), {
+    minlength: 8,
+    maxlength: TEXT_LIMITS.password,
+    autocomplete: 'new-password'
+  });
+
+  applyInputAttributes(aquariumForm?.querySelector('[name="aquariumName"]'), {
+    minlength: 2,
+    maxlength: TEXT_LIMITS.aquariumName
+  });
+  applyInputAttributes(aquariumForm?.querySelector('[name="volume"]'), {
+    min: NUMERIC_LIMITS.volume.min,
+    max: NUMERIC_LIMITS.volume.max
+  });
+  applyInputAttributes(aquariumForm?.querySelector('[name="type"]'), {
+    maxlength: TEXT_LIMITS.aquariumType
+  });
+  applyInputAttributes(aquariumForm?.querySelector('[name="temperature"]'), {
+    min: NUMERIC_LIMITS.temperature.min,
+    max: NUMERIC_LIMITS.temperature.max
+  });
+  applyInputAttributes(aquariumForm?.querySelector('[name="ph"]'), {
+    min: NUMERIC_LIMITS.ph.min,
+    max: NUMERIC_LIMITS.ph.max
+  });
+  applyInputAttributes(aquariumForm?.querySelector('[name="kh"]'), {
+    min: NUMERIC_LIMITS.kh.min,
+    max: NUMERIC_LIMITS.kh.max
+  });
+  applyInputAttributes(aquariumForm?.querySelector('[name="notes"]'), {
+    maxlength: TEXT_LIMITS.aquariumNotes
+  });
+
+  applyInputAttributes(readingForm?.querySelector('[name="temperature"]'), {
+    min: NUMERIC_LIMITS.temperature.min,
+    max: NUMERIC_LIMITS.temperature.max
+  });
+  applyInputAttributes(readingForm?.querySelector('[name="ph"]'), {
+    min: NUMERIC_LIMITS.ph.min,
+    max: NUMERIC_LIMITS.ph.max
+  });
+  applyInputAttributes(readingForm?.querySelector('[name="kh"]'), {
+    min: NUMERIC_LIMITS.kh.min,
+    max: NUMERIC_LIMITS.kh.max
+  });
+  applyInputAttributes(readingForm?.querySelector('[name="nitrite"]'), {
+    min: NUMERIC_LIMITS.nitrite.min,
+    max: NUMERIC_LIMITS.nitrite.max
+  });
+  applyInputAttributes(readingForm?.querySelector('[name="ammonia"]'), {
+    min: NUMERIC_LIMITS.ammonia.min,
+    max: NUMERIC_LIMITS.ammonia.max
+  });
+  applyInputAttributes(readingForm?.querySelector('[name="notes"]'), {
+    maxlength: TEXT_LIMITS.readingNotes
+  });
+}
+
+function updateCharacterCounter(field, counter) {
+  if (!field || !counter) {
+    return;
+  }
+
+  const maxLength = Number(field.getAttribute('maxlength'));
+  if (!Number.isFinite(maxLength) || maxLength <= 0) {
+    return;
+  }
+
+  const currentLength = field.value.length;
+  const remaining = maxLength - currentLength;
+  counter.textContent = `${currentLength}/${maxLength}`;
+  counter.classList.toggle('is-near-limit', remaining <= Math.max(10, Math.floor(maxLength * 0.1)));
+}
+
+function initCharacterCounters() {
+  document.querySelectorAll('input[maxlength], textarea[maxlength]').forEach((field) => {
+    if (field.dataset.counterReady === 'true') {
+      return;
+    }
+
+    const maxLength = Number(field.getAttribute('maxlength'));
+    if (!Number.isFinite(maxLength) || maxLength <= 0) {
+      return;
+    }
+
+    const counter = document.createElement('div');
+    counter.className = 'field-counter';
+    counter.setAttribute('aria-live', 'polite');
+
+    const anchor = field.closest('.password-input-wrapper') || field;
+    anchor.insertAdjacentElement('afterend', counter);
+
+    field.addEventListener('input', () => {
+      field.setCustomValidity('');
+      updateCharacterCounter(field, counter);
+    });
+
+    field.addEventListener('change', () => {
+      field.setCustomValidity('');
+      updateCharacterCounter(field, counter);
+    });
+
+    updateCharacterCounter(field, counter);
+    field.dataset.counterReady = 'true';
+  });
+}
+
+function refreshFormCounters(form) {
+  if (!form) {
+    return;
+  }
+
+  form.querySelectorAll('input[maxlength], textarea[maxlength]').forEach((field) => {
+    const anchor = field.closest('.password-input-wrapper') || field;
+    const counter = anchor.nextElementSibling;
+    if (counter?.classList.contains('field-counter')) {
+      updateCharacterCounter(field, counter);
+    }
+  });
 }
 
 function getSiteRootPrefix() {
@@ -193,6 +422,153 @@ function mapSupabaseFishRow(row) {
       }
     }
   };
+}
+
+function mapSupabaseAquariumRow(row) {
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    aquariumName: row.name || 'Aquário principal',
+    volume: parseNumericValue(row.volume_l),
+    type: row.type || row.type_label || '',
+    temperature: parseNumericValue(row.target_temperature),
+    ph: parseNumericValue(row.target_ph),
+    gh: parseNumericValue(row.target_gh),
+      ghLabel: formatGhValue(row.target_gh_label || row.gh_label || row.target_gh) || '',
+    kh: parseNumericValue(row.target_kh),
+    notes: row.notes || ''
+  };
+}
+
+function normalizeCo2State(value) {
+  if (value === true || value === 'true') {
+    return 'ligado';
+  }
+
+  if (value === false || value === 'false') {
+    return 'desligado';
+  }
+
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (normalized === 'ligado') {
+    return 'ligado';
+  }
+
+  if (normalized === 'desligado') {
+    return 'desligado';
+  }
+
+  return '';
+}
+
+function mapCo2StateToDatabase(value) {
+  const normalized = normalizeCo2State(value);
+  if (normalized === 'ligado') {
+    return true;
+  }
+
+  if (normalized === 'desligado') {
+    return false;
+  }
+
+  return null;
+}
+
+function mapSupabaseReadingRow(row) {
+  return {
+    id: row.id,
+    measuredAt: row.measured_at,
+    temperature: parseNumericValue(row.temperature),
+    ph: parseNumericValue(row.ph),
+    gh: parseNumericValue(row.gh),
+    ghLabel: formatGhValue(row.gh_label || row.target_gh_label || row.gh) || '',
+    kh: parseNumericValue(row.kh),
+    nitrite: parseNumericValue(row.nitrite),
+    ammonia: parseNumericValue(row.ammonia),
+    co2Enabled: normalizeCo2State(row.co2_enabled),
+    dropCheckerColor: row.drop_checker_color || '',
+    notes: row.notes || ''
+  };
+}
+
+function buildAquariumPayload(data) {
+  return {
+    user_id: state.activeUser.id,
+    name: normalizeBoundedText(data.aquariumName || 'Aquário principal', TEXT_LIMITS.aquariumName) || 'Aquário principal',
+    volume_l: parseNumericValue(data.volume),
+    type: normalizeBoundedText(data.type, TEXT_LIMITS.aquariumType),
+    target_temperature: parseNumericValue(data.temperature),
+    target_ph: parseNumericValue(data.ph),
+    target_gh: parseGhValue(data.gh),
+    target_kh: parseNumericValue(data.kh),
+    notes: normalizeBoundedText(data.notes, TEXT_LIMITS.aquariumNotes)
+  };
+}
+
+function buildReadingPayload(data) {
+  return {
+    aquarium_id: state.aquarium.id,
+    measured_at: data.measuredAt || getLocalDateTimeValue(),
+    temperature: parseNumericValue(data.temperature),
+    ph: parseNumericValue(data.ph),
+    gh: parseGhValue(data.gh),
+    kh: parseNumericValue(data.kh),
+    nitrite: parseNumericValue(data.nitrite),
+    ammonia: parseNumericValue(data.ammonia),
+    co2_enabled: mapCo2StateToDatabase(data.co2Enabled),
+    drop_checker_color: data.dropCheckerColor || null,
+    notes: normalizeBoundedText(data.notes, TEXT_LIMITS.readingNotes)
+  };
+}
+
+async function loadPrivateAquariumFromSupabase() {
+  if (!supabaseClient || !state.activeUser?.id) {
+    state.aquarium = null;
+    state.history = [];
+    return;
+  }
+
+  const { data: aquariums, error: aquariumError } = await supabaseClient
+    .from('aquariums')
+    .select('*')
+    .eq('user_id', state.activeUser.id)
+    .order('created_at', { ascending: true })
+    .limit(1);
+
+  if (aquariumError) {
+    console.error('Erro ao carregar aquário no Supabase', aquariumError);
+    state.aquarium = null;
+    state.history = [];
+    return;
+  }
+
+  const aquarium = mapSupabaseAquariumRow(aquariums?.[0] || null);
+  state.aquarium = aquarium;
+
+  if (!aquarium?.id) {
+    state.history = [];
+    return;
+  }
+
+  const { data: readings, error: readingsError } = await supabaseClient
+    .from('aquarium_readings')
+    .select('*')
+    .eq('aquarium_id', aquarium.id)
+    .order('measured_at', { ascending: false })
+    .limit(20);
+
+  if (readingsError) {
+    console.error('Erro ao carregar leituras no Supabase', readingsError);
+    state.history = [];
+    return;
+  }
+
+  state.history = (readings || [])
+    .map(mapSupabaseReadingRow)
+    .sort((first, second) => new Date(first.measuredAt || 0).getTime() - new Date(second.measuredAt || 0).getTime());
 }
 
 function normalizeFishCatalogData(items) {
@@ -296,8 +672,8 @@ function getAuthErrorMessage(error, fallbackMessage) {
     return 'Muitas tentativas em pouco tempo. Aguarde um pouco antes de pedir outro e-mail.';
   }
 
-  if (/password/i.test(message) && /6|weak|length/i.test(message)) {
-    return 'A senha precisa ser mais forte. Use pelo menos 6 caracteres.';
+  if (/password/i.test(message) && /6|8|weak|length/i.test(message)) {
+    return `A senha precisa ser mais forte. ${PASSWORD_HELP_TEXT}`;
   }
 
   if (/signup.*disabled|signups not allowed/i.test(message)) {
@@ -324,6 +700,7 @@ async function syncAuthSession() {
   }
 
   applySessionUser(data.session?.user || null);
+  await loadProtectedState();
 }
 
 function bindSupabaseAuthListener() {
@@ -331,9 +708,9 @@ function bindSupabaseAuthListener() {
     return;
   }
 
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
+  supabaseClient.auth.onAuthStateChange(async (_event, session) => {
     applySessionUser(session?.user || null);
-    loadProtectedState();
+    await loadProtectedState();
     refreshProtectedViews();
   });
 }
@@ -388,8 +765,9 @@ async function changeCurrentUserPassword(newPassword, confirmPassword) {
     return;
   }
 
-  if (normalizedPassword.length < 6) {
-    showNotice('A nova senha deve ter pelo menos 6 caracteres.', 'alert');
+  const passwordValidationMessage = validatePasswordStrength(normalizedPassword);
+  if (passwordValidationMessage) {
+    showNotice(passwordValidationMessage, 'alert');
     return;
   }
 
@@ -489,6 +867,30 @@ function formatGhValue(value) {
   };
 
   return numericLabels[value] || value;
+}
+
+function getGhDisplayValue(ghValue, ghLabel = '') {
+  const normalizedLabel = String(ghLabel || '').trim();
+  if (normalizedLabel) {
+    const numericFromLabel = parseNumericValue(normalizedLabel);
+    if (numericFromLabel !== null) {
+      return formatGhValue(numericFromLabel) || normalizedLabel;
+    }
+
+    return formatGhValue(normalizedLabel) || normalizedLabel;
+  }
+
+  const numericValue = parseNumericValue(ghValue);
+  if (numericValue !== null) {
+    return formatGhValue(numericValue) || String(numericValue);
+  }
+
+  return '--';
+}
+
+function getGhFormValue(ghValue, ghLabel = '') {
+  const displayValue = getGhDisplayValue(ghValue, ghLabel);
+  return displayValue === '--' ? '' : displayValue.toLowerCase();
 }
 
 function escapeHtml(value) {
@@ -634,8 +1036,8 @@ function getCorrectionTips(aquarium) {
     }
   };
 
-  addTip('temperature', 'Temperatura', parseNumericValue(latestReading.temperature), parseNumericValue(aquarium.temperature), 'correcoes.html#temperatura', '°C', 0.6);
-  addTip('ph', 'pH', parseNumericValue(latestReading.ph), parseNumericValue(aquarium.ph), 'correcoes.html#ph', '', 0.2);
+  addTip('temperature', 'Temperatura', parseNumericValue(latestReading.temperature), parseNumericValue(aquarium.temperature), 'correcoes.html#temperatura', '°C', 2);
+  addTip('ph', 'pH', parseNumericValue(latestReading.ph), parseNumericValue(aquarium.ph), 'correcoes.html#ph', '', 0.5);
   addTip('gh', 'GH', parseNumericValue(latestReading.gh), parseNumericValue(aquarium.gh), 'correcoes.html#gh-e-kh', '', 1);
   addTip('kh', 'KH', parseNumericValue(latestReading.kh), parseNumericValue(aquarium.kh), 'correcoes.html#gh-e-kh', '', 1);
 
@@ -693,34 +1095,62 @@ function toggleReadingForm(forceOpen) {
   }
 }
 
-function saveReadingData() {
+function syncAquariumFormVisibility(forceOpen) {
+  if (!aquariumForm) {
+    return;
+  }
+
+  const hasAquarium = Boolean(state.aquarium);
+  const shouldOpen = hasAquarium ? Boolean(forceOpen) : true;
+
+  if (!hasAquarium) {
+    aquariumForm.reset();
+    refreshFormCounters(aquariumForm);
+  }
+
+  aquariumForm.classList.toggle('hidden', !shouldOpen);
+
+  if (toggleAquariumFormButton) {
+    toggleAquariumFormButton.classList.toggle('hidden', !hasAquarium);
+    toggleAquariumFormButton.textContent = shouldOpen && hasAquarium ? 'Fechar atualização' : 'Atualizar aquário';
+  }
+
+  if (deleteAquariumButton) {
+    deleteAquariumButton.classList.toggle('hidden', !hasAquarium);
+  }
+}
+
+async function saveReadingData() {
   if (!readingForm || !state.aquarium) {
+    return;
+  }
+
+  if (!supabaseClient || !state.aquarium.id) {
+    showNotice('Salve um aquário no Supabase antes de registrar medições.', 'alert');
     return;
   }
 
   const formData = new FormData(readingForm);
   const data = Object.fromEntries(formData.entries());
-  const measuredAt = data.measuredAt || getLocalDateTimeValue();
+  const payload = buildReadingPayload(data);
 
-  const reading = {
-    id: createReadingId(),
-    measuredAt,
-    temperature: parseNumericValue(data.temperature),
-    ph: parseNumericValue(data.ph),
-    gh: parseGhValue(data.gh),
-    ghLabel: data.gh || '',
-    kh: parseNumericValue(data.kh),
-    nitrite: parseNumericValue(data.nitrite),
-    ammonia: parseNumericValue(data.ammonia),
-    co2Enabled: data.co2Enabled || '',
-    dropCheckerColor: data.dropCheckerColor || '',
-    notes: data.notes || ''
-  };
+  const { data: insertedReading, error } = await supabaseClient
+    .from('aquarium_readings')
+    .insert(payload)
+    .select('*')
+    .single();
+
+  if (error) {
+    console.error('Erro ao salvar leitura no Supabase', error);
+    showNotice('Não foi possível salvar a medição no Supabase agora.', 'alert');
+    return;
+  }
+
+  const reading = mapSupabaseReadingRow(insertedReading);
 
   state.history = [...state.history, reading]
     .sort((first, second) => new Date(first.measuredAt || 0).getTime() - new Date(second.measuredAt || 0).getTime())
     .slice(-20);
-  saveState();
   readingForm.reset();
   toggleReadingForm(false);
   refreshProtectedViews();
@@ -733,6 +1163,23 @@ async function deleteReading(readingId) {
     return;
   }
 
+  if (!supabaseClient || !state.aquarium?.id) {
+    showNotice('Não foi possível excluir a medição no momento.', 'alert');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('aquarium_readings')
+    .delete()
+    .eq('id', readingId)
+    .eq('aquarium_id', state.aquarium.id);
+
+  if (error) {
+    console.error('Erro ao excluir leitura no Supabase', error);
+    showNotice('Não foi possível excluir a medição agora.', 'alert');
+    return;
+  }
+
   const nextHistory = state.history.filter((entry) => entry.id !== readingId);
 
   if (nextHistory.length === state.history.length) {
@@ -741,7 +1188,6 @@ async function deleteReading(readingId) {
   }
 
   state.history = nextHistory;
-  saveState();
   refreshProtectedViews();
   showNotice('Medição excluída com sucesso.', 'success');
 }
@@ -774,7 +1220,7 @@ function renderReadingSummary() {
       </article>
       <article>
         <strong>GH / KH</strong>
-        <p>${formatGhValue(latestReading.ghLabel || latestReading.gh) ?? '--'} / ${latestReading.kh ?? '--'}</p>
+        <p>${getGhDisplayValue(latestReading.gh, latestReading.ghLabel)} / ${latestReading.kh ?? '--'}</p>
       </article>
       <article>
         <strong>Nitrito / Amônia</strong>
@@ -812,7 +1258,7 @@ function renderReadingHistory() {
             <strong>${formatDateTime(entry.measuredAt)}</strong>
             <button type="button" class="button-secondary reading-delete-button" data-reading-id="${entry.id}">Excluir</button>
           </div>
-          <p>Temp: ${entry.temperature ?? '--'} °C • pH: ${entry.ph ?? '--'} • GH/KH: ${formatGhValue(entry.ghLabel || entry.gh) ?? '--'}/${entry.kh ?? '--'}</p>
+          <p>Temp: ${entry.temperature ?? '--'} °C • pH: ${entry.ph ?? '--'} • GH/KH: ${getGhDisplayValue(entry.gh, entry.ghLabel)}/${entry.kh ?? '--'}</p>
           <p>Nitrito: ${entry.nitrite ?? '--'} • Amônia: ${entry.ammonia ?? '--'}</p>
           <p>CO2: ${entry.co2Enabled || '--'} • Drop checker: ${entry.dropCheckerColor || '--'}</p>
         </article>
@@ -939,11 +1385,21 @@ async function init() {
 }
 
 function bindEvents() {
+  applyFormFieldConstraints();
+  initCharacterCounters();
+
   if (authForm) {
     authForm.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (!authForm.reportValidity()) {
+        return;
+      }
+
       const formData = new FormData(authForm);
-      await loginUser(formData.get('email'), formData.get('password'));
+      await loginUser(
+        normalizeBoundedText(formData.get('email'), TEXT_LIMITS.email).toLowerCase(),
+        String(formData.get('password') || '')
+      );
     });
   }
 
@@ -956,17 +1412,34 @@ function bindEvents() {
       const password = formData.get('password');
       const confirmPassword = formData.get('confirmPassword');
 
+      if (!registerForm.reportValidity()) {
+        return;
+      }
+
       if (!name || !email || !password || !confirmPassword) {
         showNotice('Preencha todos os campos para criar a conta.', 'alert');
         return;
       }
 
+      const passwordValidationMessage = validatePasswordStrength(password);
+      if (passwordValidationMessage) {
+        registerForm.querySelector('[name="password"]')?.setCustomValidity(passwordValidationMessage);
+        registerForm.reportValidity();
+        return;
+      }
+
       if (password !== confirmPassword) {
+        registerForm.querySelector('[name="confirmPassword"]')?.setCustomValidity('As senhas não coincidem.');
+        registerForm.reportValidity();
         showNotice('As senhas não coincidem.', 'alert');
         return;
       }
 
-      await createUser(name, email, password);
+      await createUser(
+        normalizeBoundedText(name, TEXT_LIMITS.name),
+        normalizeBoundedText(email, TEXT_LIMITS.email).toLowerCase(),
+        String(password || '')
+      );
     });
   }
 
@@ -1014,23 +1487,48 @@ function bindEvents() {
   });
 
   if (aquariumForm) {
-    aquariumForm.addEventListener('submit', (event) => {
+    aquariumForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      saveAquariumData();
+      if (!aquariumForm.reportValidity()) {
+        return;
+      }
+
+      await saveAquariumData();
     });
   }
 
   if (readingForm) {
-    readingForm.addEventListener('submit', (event) => {
+    readingForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      saveReadingData();
+      if (!readingForm.reportValidity()) {
+        return;
+      }
+
+      await saveReadingData();
     });
   }
 
   if (changePasswordForm) {
     changePasswordForm.addEventListener('submit', async (event) => {
       event.preventDefault();
+      if (!changePasswordForm.reportValidity()) {
+        return;
+      }
+
       const formData = new FormData(changePasswordForm);
+      const passwordValidationMessage = validatePasswordStrength(formData.get('newPassword'));
+      if (passwordValidationMessage) {
+        changePasswordForm.querySelector('[name="newPassword"]')?.setCustomValidity(passwordValidationMessage);
+        changePasswordForm.reportValidity();
+        return;
+      }
+
+      if (String(formData.get('newPassword') || '') !== String(formData.get('confirmNewPassword') || '')) {
+        changePasswordForm.querySelector('[name="confirmNewPassword"]')?.setCustomValidity('As senhas não coincidem.');
+        changePasswordForm.reportValidity();
+        return;
+      }
+
       await changeCurrentUserPassword(
         formData.get('newPassword'),
         formData.get('confirmNewPassword')
@@ -1047,6 +1545,16 @@ function bindEvents() {
   if (toggleReadingFormButton) {
     toggleReadingFormButton.addEventListener('click', () => {
       toggleReadingForm();
+    });
+  }
+
+  if (toggleAquariumFormButton) {
+    toggleAquariumFormButton.addEventListener('click', () => {
+      const shouldOpen = aquariumForm?.classList.contains('hidden');
+      syncAquariumFormVisibility(shouldOpen);
+      if (shouldOpen) {
+        fillAquariumForm();
+      }
     });
   }
 
@@ -1174,6 +1682,23 @@ function bindResponsiveNavigation() {
       }
     });
   });
+
+  if (!state.ui.hasNavOutsideListener) {
+    document.addEventListener('click', (event) => {
+      if (!isMobileLayout()) {
+        return;
+      }
+
+      const nav = document.getElementById('site-nav');
+      if (!nav?.classList.contains('menu-open') || nav.contains(event.target)) {
+        return;
+      }
+
+      setMobileNavState(false);
+    });
+
+    state.ui.hasNavOutsideListener = true;
+  }
 }
 
 function getSearchEntries() {
@@ -1495,37 +2020,29 @@ function setupResponsiveSurface() {
 
 function loadState() {
   try {
-    const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+    localStorage.removeItem(STORAGE_KEYS.users);
+    localStorage.removeItem(STORAGE_KEYS.activeUser);
 
     if (!supabaseClient) {
-      const activeUser = JSON.parse(localStorage.getItem(STORAGE_KEYS.activeUser) || 'null');
-      state.activeUser = activeUser;
+      state.activeUser = null;
+      state.users = [];
+      state.aquarium = null;
+      state.history = [];
+      return;
     }
-    state.users = users;
-    loadProtectedState();
+
+    state.users = [];
   } catch (error) {
     console.error('Erro ao carregar dados do localStorage', error);
   }
 }
 
-function loadProtectedState() {
-  const aquarium = JSON.parse(localStorage.getItem(getScopedStorageKey(STORAGE_KEYS.aquarium)) || 'null');
-  const history = JSON.parse(localStorage.getItem(getScopedStorageKey(STORAGE_KEYS.history)) || '[]').map((entry) => ({
-    ...entry,
-    id: entry.id || createReadingId()
-  }));
-
-  state.aquarium = aquarium;
-  state.history = history;
+async function loadProtectedState() {
+  await loadPrivateAquariumFromSupabase();
 }
 
 function saveState() {
-  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(state.users || []));
-  if (!supabaseClient) {
-    localStorage.setItem(STORAGE_KEYS.activeUser, JSON.stringify(state.activeUser));
-  }
-  localStorage.setItem(getScopedStorageKey(STORAGE_KEYS.aquarium), JSON.stringify(state.aquarium));
-  localStorage.setItem(getScopedStorageKey(STORAGE_KEYS.history), JSON.stringify(state.history));
+  return;
 }
 
 function refreshProtectedViews() {
@@ -1540,76 +2057,43 @@ function refreshProtectedViews() {
 }
 
 async function createUser(name, email, password) {
-  if (supabaseClient) {
-    const normalizedName = String(name || '').trim();
-    const normalizedEmail = String(email || '').trim().toLowerCase();
+  if (!supabaseClient) {
+    showNotice('Não foi possível conectar ao Supabase para criar a conta.', 'alert');
+    return;
+  }
 
-    const result = await supabaseClient.auth.signUp({
-      email: normalizedEmail,
-      password,
-      options: {
-        data: { name: normalizedName },
-        emailRedirectTo: getAuthRedirectUrl()
-      }
+  const normalizedName = String(name || '').trim();
+  const normalizedEmail = String(email || '').trim().toLowerCase();
+
+  const result = await supabaseClient.auth.signUp({
+    email: normalizedEmail,
+    password,
+    options: {
+      data: { name: normalizedName },
+      emailRedirectTo: getAuthRedirectUrl()
+    }
+  });
+
+  if (result.error) {
+    console.error('Erro ao criar conta', {
+      message: result.error.message,
+      status: result.error.status,
+      code: result.error.code,
+      redirectUrl: getAuthRedirectUrl(),
+      email: normalizedEmail
     });
-
-    if (result.error) {
-      console.error('Erro ao criar conta', {
-        message: result.error.message,
-        status: result.error.status,
-        code: result.error.code,
-        redirectUrl: getAuthRedirectUrl(),
-        email: normalizedEmail
-      });
-      showNotice(getAuthErrorMessage(result.error, 'Não foi possível criar sua conta agora.'), 'alert');
-      return;
-    }
-
-    showNotice(
-      isEmailConfirmationPending(result)
-        ? 'Conta criada. Verifique seu e-mail para confirmar o cadastro antes de entrar.'
-        : 'Cadastro realizado com sucesso. Você já pode entrar.',
-      'success'
-    );
-    if (registerForm) {
-      registerForm.reset();
-    }
-    if (authForm) {
-      authForm.classList.remove('hidden');
-    }
-    if (registerForm) {
-      registerForm.classList.add('hidden');
-    }
-    if (showLoginButton && showRegisterButton) {
-      showLoginButton.classList.add('hidden');
-      showRegisterButton.classList.remove('hidden');
-      showLoginButton.classList.remove('active');
-      showRegisterButton.classList.remove('active');
-    }
+    showNotice(getAuthErrorMessage(result.error, 'Não foi possível criar sua conta agora.'), 'alert');
     return;
   }
 
-  const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
-  const exists = users.some((item) => item.email.toLowerCase() === email.toLowerCase());
-
-  if (exists) {
-    showNotice('Esse e-mail já está cadastrado.', 'alert');
-    return;
-  }
-
-  users.push({ name, email, password });
-  localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
-  state.users = users;
-  showNotice('Cadastro realizado com sucesso. Faça login para continuar.', 'success');
+  showNotice(
+    isEmailConfirmationPending(result)
+      ? 'Conta criada. Verifique seu e-mail para confirmar o cadastro antes de entrar.'
+      : 'Cadastro realizado com sucesso. Você já pode entrar.',
+    'success'
+  );
   if (registerForm) {
     registerForm.reset();
-  }
-  if (changePasswordForm) {
-    changePasswordForm.reset();
-    changePasswordForm.classList.add('hidden');
-  }
-  if (toggleChangePasswordButton) {
-    toggleChangePasswordButton.textContent = 'Alterar senha';
   }
   if (authForm) {
     authForm.classList.remove('hidden');
@@ -1626,37 +2110,22 @@ async function createUser(name, email, password) {
 }
 
 async function loginUser(email, password) {
-  if (supabaseClient) {
-    const result = await supabaseClient.auth.signInWithPassword({ email, password });
-
-    if (result.error) {
-      showNotice(getAuthErrorMessage(result.error, 'Não foi possível entrar agora.'), 'alert');
-      return;
-    }
-
-    applySessionUser(result.data.user);
-    loadProtectedState();
-    refreshProtectedViews();
-    showNotice(`Bem-vindo, ${getUserDisplayName(result.data.user)}!`, 'success');
-    if (authForm) {
-      authForm.reset();
-    }
+  if (!supabaseClient) {
+    showNotice('Não foi possível conectar ao Supabase para entrar na conta.', 'alert');
     return;
   }
 
-  const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
-  const found = users.find((item) => item.email.toLowerCase() === email.toLowerCase() && item.password === password);
+  const result = await supabaseClient.auth.signInWithPassword({ email, password });
 
-  if (!found) {
-    showNotice('E-mail ou senha inválidos.', 'alert');
+  if (result.error) {
+    showNotice(getAuthErrorMessage(result.error, 'Não foi possível entrar agora.'), 'alert');
     return;
   }
 
-  state.activeUser = { name: found.name, email: found.email };
-  localStorage.setItem(STORAGE_KEYS.activeUser, JSON.stringify(state.activeUser));
-  loadState();
+  applySessionUser(result.data.user);
+  await loadProtectedState();
   refreshProtectedViews();
-  showNotice(`Bem-vindo, ${found.name}!`, 'success');
+  showNotice(`Bem-vindo, ${getUserDisplayName(result.data.user)}!`, 'success');
   if (authForm) {
     authForm.reset();
   }
@@ -1678,9 +2147,6 @@ async function logoutUser() {
   state.activeUser = null;
   state.aquarium = null;
   state.history = [];
-  if (!supabaseClient) {
-    localStorage.removeItem(STORAGE_KEYS.activeUser);
-  }
   localStorage.removeItem(aquariumStorageKey);
   localStorage.removeItem(historyStorageKey);
   if (aquariumForm) {
@@ -1714,14 +2180,28 @@ async function deleteAquariumData() {
     return;
   }
 
+  if (!supabaseClient || !state.activeUser?.id || !state.aquarium?.id) {
+    showNotice('Não foi possível localizar um aquário salvo no Supabase para excluir.', 'alert');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('aquariums')
+    .delete()
+    .eq('id', state.aquarium.id)
+    .eq('user_id', state.activeUser.id);
+
+  if (error) {
+    console.error('Erro ao excluir aquário no Supabase', error);
+    showNotice('Não foi possível excluir o aquário agora.', 'alert');
+    return;
+  }
+
   state.aquarium = null;
   state.history = [];
   localStorage.removeItem(getScopedStorageKey(STORAGE_KEYS.aquarium));
   localStorage.removeItem(getScopedStorageKey(STORAGE_KEYS.history));
-  renderAuthState();
-  renderChart();
-  renderFishCards();
-  renderCompatibility();
+  refreshProtectedViews();
   showNotice('Aquário excluído com sucesso.', 'success');
 }
 
@@ -1756,12 +2236,14 @@ function renderAuthState() {
 
   if (isLogged) {
     fillAquariumForm();
+    syncAquariumFormVisibility(false);
     renderAquariumSummary();
     renderReadingSummary();
     renderReadingHistory();
     renderCompatibility();
   } else if (aquariumSummary) {
     aquariumSummary.innerHTML = '<p>Entre na área de membros para salvar seu aquário.</p>';
+    syncAquariumFormVisibility(true);
     if (latestReadingSummary) {
       latestReadingSummary.innerHTML = '';
     }
@@ -1781,37 +2263,61 @@ function fillAquariumForm() {
     const input = aquariumForm.querySelector(`[name="${field}"]`);
     if (input) {
       if (field === 'gh') {
-        input.value = state.aquarium.ghLabel || formatGhValue(state.aquarium.gh) || '';
+        input.value = getGhFormValue(state.aquarium.gh, state.aquarium.ghLabel);
       } else {
         input.value = state.aquarium[field] ?? '';
       }
     }
   });
+
+  const notesInput = aquariumForm.querySelector('[name="notes"]');
+  if (notesInput) {
+    notesInput.value = state.aquarium.notes || '';
+  }
+
+  refreshFormCounters(aquariumForm);
 }
 
-function saveAquariumData() {
+async function saveAquariumData() {
   if (!aquariumForm) {
+    return;
+  }
+
+  if (!supabaseClient || !state.activeUser?.id) {
+    showNotice('Entre na sua conta para salvar o aquário no Supabase.', 'alert');
     return;
   }
 
   const formData = new FormData(aquariumForm);
   const data = Object.fromEntries(formData.entries());
+  const payload = buildAquariumPayload(data);
 
-  const normalized = {
-    aquariumName: data.aquariumName || 'Aquário principal',
-    volume: parseNumericValue(data.volume),
-    type: data.type,
-    temperature: parseNumericValue(data.temperature),
-    ph: parseNumericValue(data.ph),
-    gh: parseGhValue(data.gh),
-    ghLabel: data.gh || '',
-    kh: parseNumericValue(data.kh),
-    notes: data.notes || ''
-  };
+  let result;
+  if (state.aquarium?.id) {
+    result = await supabaseClient
+      .from('aquariums')
+      .update(payload)
+      .eq('id', state.aquarium.id)
+      .eq('user_id', state.activeUser.id)
+      .select('*')
+      .single();
+  } else {
+    result = await supabaseClient
+      .from('aquariums')
+      .insert(payload)
+      .select('*')
+      .single();
+  }
 
-  state.aquarium = normalized;
-  saveState();
+  if (result.error) {
+    console.error('Erro ao salvar aquário no Supabase', result.error);
+    showNotice('Não foi possível salvar o aquário no Supabase agora.', 'alert');
+    return;
+  }
+
+  state.aquarium = mapSupabaseAquariumRow(result.data);
   refreshProtectedViews();
+  syncAquariumFormVisibility(false);
   showNotice('Aquário salvo com sucesso.', 'success');
 }
 
@@ -1856,7 +2362,7 @@ function renderAquariumSummary() {
       </article>
       <article>
         <strong>GH / KH</strong>
-        <p>${formatGhValue(state.aquarium.ghLabel || state.aquarium.gh) ?? '--'} / ${state.aquarium.kh ?? '--'}</p>
+        <p>${getGhDisplayValue(state.aquarium.gh, state.aquarium.ghLabel)} / ${state.aquarium.kh ?? '--'}</p>
       </article>
     </div>
     <p class="summary-caption">Os valores acima representam a referência ideal cadastrada para este aquário.</p>
