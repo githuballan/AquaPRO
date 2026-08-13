@@ -1,0 +1,100 @@
+[{
+  "slug": "acara-bandeira",
+  "scientific_name": "Pterophyllum scalare",
+  "popular_names": ["Bandeira", "Acará-bandeira"],
+  "family_name": "Cichlidae",
+  "biome_origin": "Bacia Amazônica",
+  "tank_length_min_cm": 100,
+  "water_flow_label": "Moderado",
+  "social_behavior": "Pode viver em grupo quando jovem, mas exige atenção à hierarquia",
+  "school_min_count": 5,
+  "aquarium_zone": "Meio e superior",
+  "compatible_species": ["Corydoras", "Tetras maiores"],
+  "incompatible_species": ["Peixes muito pequenos", "Beliscadores de nadadeira"],
+  "feeding_acceptance": "Aceita rações, alimentos congelados e vivos",
+  "feeding_frequency_text": "Alimente 1 a 2 vezes ao dia em porções moderadas",
+  "sexual_dimorphism": "Difícil de distinguir visualmente fora do período reprodutivo",
+  "reproduction_type": "Ovíparo em superfície",
+  "reproduction_difficulty": "Intermediária",
+  "plant_compatibility": "Compatível com plantas",
+  "substrate_recommendation": "Substrato neutro",
+  "hiding_need": "Gosta de troncos, folhas largas e áreas altas",
+  "adult_size_cm_min": 12,
+  "adult_size_cm_max": 15,
+  "lifespan_years_min": 8,
+  "lifespan_years_max": 10,
+  "hero_summary": "Ciclídeo ornamental popular, elegante e sensível à lotação e à compatibilidade.",
+  "section_3_notes": "Adultos podem formar casais e defender território.",
+  "section_4_text": "Dieta variada ajuda no crescimento e na reprodução.",
+  "section_5_text": "Casais costumam limpar superfícies antes da postura.",
+  "section_6_text": "Layouts verticais valorizam o porte e o comportamento.",
+  "section_7_notes": "Espécie de porte médio com forte presença visual.",
+  "faq_items": [
+    {
+      "question": "Quantos bandeiras posso colocar em 200 litros?",
+      "answer": "Depende do layout e dos companheiros, mas grupos pequenos de juvenis costumam funcionar melhor que misturas improvisadas."
+    }
+  ],
+  "seo_title": "Acará-bandeira: ficha completa, parâmetros e compatibilidade",
+  "seo_description": "Veja a ficha completa do acará-bandeira com parâmetros da água, dieta, comportamento e compatibilidade."
+},
+  {
+    "slug": "betta",
+    "scientific_name": "Betta splendens",
+    "popular_names": [
+      "Peixe-beta",
+      "Peixe de briga siamês"
+    ],
+    "family_name": "Osphronemidae",
+    "biome_origin": "Sudeste Asiático, águas calmas e rasas",
+    "tank_length_min_cm": 40,
+    "water_flow_label": "Lento a calmo, sem correnteza forte",
+    "social_behavior": "Machos devem viver sozinhos; fêmeas exigem manejo criterioso em grupos maiores e layout bem distribuído.",
+    "school_min_count": null,
+    "aquarium_zone": "Superfície e meia-água",
+    "compatible_species": [
+      "Corydoras pacíficas",
+      "Otocinclus",
+      "Caramujos"
+    ],
+    "incompatible_species": [
+      "Outros bettas machos",
+      "Peixes agressivos",
+      "Espécies beliscadoras de nadadeiras"
+    ],
+    "feeding_acceptance": "Aceita bem ração específica em grânulos pequenos, além de artêmia, bloodworms e alimentos congelados.",
+    "feeding_frequency_text": "Ofereça pequenas porções uma ou duas vezes ao dia para evitar excesso e preservar a qualidade da água.",
+    "sexual_dimorphism": "Machos costumam ter cores mais intensas e nadadeiras maiores; fêmeas tendem a ser menores e com nadadeiras mais curtas.",
+    "reproduction_type": "Ovíparo em ninho de bolhas",
+    "reproduction_difficulty": "Intermediária, exige aquário separado e acompanhamento do casal.",
+    "plant_compatibility": "Preserva plantas e se beneficia de aquários densamente plantados com folhas largas e áreas de sombra.",
+    "substrate_recommendation": "Substrato neutro ou fino",
+    "hiding_need": "Prefere troncos, vegetação e pontos calmos próximos à superfície para descanso.",
+    "adult_size_cm_min": 6,
+    "adult_size_cm_max": 7,
+    "lifespan_years_min": 3,
+    "lifespan_years_max": 5,
+    "hero_summary": "Peixe ornamental muito popular, territorial e melhor adaptado a montagens calmas, aquecidas e com convivência cuidadosamente planejada.",
+    "section_3_notes": "A compatibilidade depende menos do volume isolado e mais da combinação entre temperamento, layout e velocidade dos companheiros.",
+    "section_4_text": "Como carnívoro, responde melhor a uma alimentação proteica e variada, sempre com observação da aceitação e do tamanho da boca.",
+    "section_5_text": "A reprodução em cativeiro é possível, mas exige leitura constante do comportamento e preparo de um aquário de apoio.",
+    "section_6_text": "Folhas largas, raízes e áreas de sombra ajudam a reduzir estresse e melhoram a ocupação da superfície.",
+    "section_7_notes": "Peixe pequeno em tamanho, mas com presença visual muito forte no aquário e alta demanda por estabilidade ambiental.",
+    "faq_items": [
+      {
+        "question": "Quantos bettas posso colocar em 20 litros?",
+        "answer": "Para machos, a recomendação prática é manter apenas um exemplar por aquário nesse volume. A tentativa de manter mais de um tende a gerar conflito territorial."
+      },
+      {
+        "question": "O betta precisa de aquecedor?",
+        "answer": "Na maioria dos cenários, sim. É uma espécie tropical e se beneficia de temperatura estável, principalmente fora de regiões naturalmente quentes durante todo o ano."
+      },
+      {
+        "question": "Por que meu betta fica parado no fundo?",
+        "answer": "Isso pode indicar estresse, frio, correnteza excessiva, má qualidade da água ou problema de saúde. O ideal é revisar temperatura, amônia, nitrito e comportamento geral."
+      }
+    ],
+    "seo_title": "Betta splendens: ficha completa, parâmetros, compatibilidade e cuidados",
+    "seo_description": "Veja a ficha completa do Betta splendens com parâmetros da água, comportamento, alimentação, reprodução e compatibilidade no aquário."
+  }
+]
