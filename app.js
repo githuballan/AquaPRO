@@ -2697,7 +2697,10 @@ function renderFishCards() {
     return `
       <article class="fish-card">
         ${renderFishPhoto(fish)}
-        <h3>${fish.name}</h3>
+        <div class="fish-card-header-row">
+          <h3>${fish.name}</h3>
+          <button type="button" class="fish-card-inline-button" data-fish-slug="${fish.slug}">Ver ficha</button>
+        </div>
         <p>${fish.description}</p>
         <p><strong>Origem:</strong> ${fish.origin}</p>
         <p><strong>Temperamento:</strong> ${fish.temperament}</p>
@@ -2709,7 +2712,6 @@ function renderFishCards() {
           ${state.aquarium ? renderCompatibilityChecks(compatibility.checks) : '<p>Cadastre seu aquário para ver os parâmetros.</p>'}
         </div>
         <div class="fish-card-actions">
-          <button type="button" data-fish-slug="${fish.slug}">Ver ficha</button>
           <button type="button" data-merchant-slug="${fish.slug}">Card Lojistas</button>
         </div>
       </article>

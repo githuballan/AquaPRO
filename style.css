@@ -851,6 +851,32 @@ textarea {
   border-style: solid;
 }
 
+.fish-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.fish-card-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.fish-card-header-row h3 {
+  margin: 0;
+}
+
+.fish-card-inline-button {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.fish-card > p {
+  margin-top: 0;
+}
+
 .fish-card-actions {
   display: flex;
   flex-wrap: wrap;
