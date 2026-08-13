@@ -820,9 +820,30 @@ textarea {
   gap: 1rem;
 }
 
+.catalog-layout > * {
+  min-width: 0;
+}
+
+.filters-card {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 .filter-form {
   display: grid;
   gap: 0.9rem;
+}
+
+.filter-form label {
+  min-width: 0;
+}
+
+.filter-form input,
+.filter-form select,
+.filter-form textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .fish-photo {
