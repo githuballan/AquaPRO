@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{{META_DESCRICAO}}" />
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="{{URL_CANONICA}}" />
+
+  <!-- Open Graph / compartilhamento social -->
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{{TITULO}}" />
+  <meta property="og:description" content="{{META_DESCRICAO}}" />
+  <meta property="og:image" content="{{IMAGEM_DESTAQUE}}" />
+  <meta property="og:url" content="{{URL_CANONICA}}" />
+
+  <title>{{TITULO}} | AquaristaPRO</title>
+  <link rel="shortcut icon" href="../../imagens-treino/aqua-icone-ok.ico" type="image/x-icon" />
+
+  <!-- CSS global do site + CSS específico da seção de guias -->
+  <link rel="stylesheet" href="../../style.css" />
+  <link rel="stylesheet" href="../css/guias.css" />
+
+  <!-- Dados estruturados para rich snippets de artigo -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{TITULO}}",
+    "description": "{{META_DESCRICAO}}",
+    "datePublished": "{{DATA_PUBLICACAO}}",
+    "dateModified": "{{DATA_ATUALIZACAO_ISO}}",
+    "image": "{{IMAGEM_DESTAQUE}}"
+  }
+  </script>
+</head>
+<body>
+  <!-- Header / navegação principal do site (compartilhada com as demais páginas) -->
+  <nav id="site-nav" class="top-nav" aria-label="Navegação principal"></nav>
+
+  <header class="hero guide-hero">
+    <div class="hero-content guide-hero-content">
+      <!-- ============================================================ -->
+      <!-- HEADER DO ARTIGO -->
+      <!-- ============================================================ -->
+      <div class="guide-hero-inner">
+        <div class="guide-hero-copy">
+          <header class="guide-header">
+            <p class="guide-badge">{{CATEGORIA}}</p>
+            <h1 class="guide-title">{{TITULO}}</h1>
+            <p class="guide-subtitle">{{RESUMO}}</p>
+            <div class="guide-meta">
+              <span class="guide-meta-item">⏱ {{TEMPO_LEITURA}} min de leitura</span>
+              <span class="guide-meta-item">Atualizado em {{DATA_ATUALIZACAO}}</span>
+            </div>
+          </header>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell guide-shell">
+    <article class="guide-article">
+
+      <!-- Botão fixo (canto inferior esquerdo) que abre o sumário em telas pequenas -->
+      <button type="button" class="guide-toc-toggle" id="guideTocToggle" aria-expanded="false" aria-controls="guideToc">
+        Neste guia
+      </button>
+      <div class="guide-toc-backdrop" id="guideTocBackdrop" hidden></div>
+
+      <div class="guide-layout">
+        <!-- ============================================================ -->
+        <!-- SUMÁRIO / ÍNDICE INTERATIVO -->
+        <!-- Fica fixo à esquerda do texto em telas grandes e vira drawer em telas pequenas -->
+        <!-- Cada item aponta para o id da seção correspondente em .guide-content -->
+        <!-- ============================================================ -->
+        <nav class="guide-toc" id="guideToc" aria-label="Sumário do artigo">
+          <div class="guide-toc-header">
+            <p class="guide-toc-title">Neste guia</p>
+            <button type="button" class="guide-toc-close" id="guideTocClose" aria-label="Fechar guia">
+              X
+            </button>
+          </div>
+          <ol class="guide-toc-list">
+            <li><a class="guide-toc-link" href="#{{SECAO_1_ID}}">{{SECAO_1_TITULO}}</a></li>
+            <li><a class="guide-toc-link" href="#{{SECAO_2_ID}}">{{SECAO_2_TITULO}}</a></li>
+            <li><a class="guide-toc-link" href="#{{SECAO_3_ID}}">{{SECAO_3_TITULO}}</a></li>
+            <li><a class="guide-toc-link" href="#produtos-recomendados">Produtos recomendados</a></li>
+            <li><a class="guide-toc-link" href="#perguntas-frequentes">Perguntas frequentes</a></li>
+          </ol>
+        </nav>
+
+        <div class="guide-body">
+
+      <!-- ============================================================ -->
+      <!-- ALERTA DE URGÊNCIA (bloco condicional/opcional) -->
+      <!-- O builder deve remover este bloco inteiro quando {{TEM_ALERTA_URGENCIA}} for falso -->
+      <!-- ============================================================ -->
+      <div class="urgency-alert" data-conditional="alerta-urgencia">
+        <span class="urgency-alert-icon" aria-hidden="true">⚠</span>
+        <div>
+          <strong>{{ALERTA_URGENCIA_TITULO}}</strong>
+          <p>{{ALERTA_URGENCIA_TEXTO}}</p>
+        </div>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- RESUMO EM 30 SEGUNDOS -->
+      <!-- ============================================================ -->
+      <section class="summary-box" aria-label="Resumo rápido do artigo">
+        <p class="summary-box-title">Resumo em 30 segundos</p>
+        <ul class="summary-box-list">
+          <li>{{RESUMO_30S_ITEM_1}}</li>
+          <li>{{RESUMO_30S_ITEM_2}}</li>
+          <li>{{RESUMO_30S_ITEM_3}}</li>
+        </ul>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- CONTEÚDO PRINCIPAL -->
+      <!-- O builder injeta o corpo do artigo (H2/H3, parágrafos e listas) aqui dentro -->
+      <!-- ============================================================ -->
+      <div class="guide-content">
+
+        <section id="{{SECAO_1_ID}}">
+          <h2>{{SECAO_1_TITULO}}</h2>
+          <p>{{SECAO_1_TEXTO}}</p>
+
+          <div class="tip-box">
+            <strong>Dica:</strong>
+            <p>{{DICA_TEXTO}}</p>
+          </div>
+        </section>
+
+        <section id="{{SECAO_2_ID}}">
+          <h2>{{SECAO_2_TITULO}}</h2>
+          <p>{{SECAO_2_TEXTO}}</p>
+
+          <h3>{{SUBSECAO_TITULO}}</h3>
+          <p>{{SUBSECAO_TEXTO}}</p>
+
+          <div class="alert-box">
+            <strong>Atenção:</strong>
+            <p>{{AVISO_TEXTO}}</p>
+          </div>
+        </section>
+
+        <section id="{{SECAO_3_ID}}">
+          <h2>{{SECAO_3_TITULO}}</h2>
+          <p>{{SECAO_3_TEXTO}}</p>
+
+          <!-- ============================================================ -->
+          <!-- TABELA COMPARATIVA DE PRODUTOS/EQUIPAMENTOS -->
+          <!-- ============================================================ -->
+          <div class="comparison-table-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th scope="col">Modelo</th>
+                  <th scope="col">Indicação</th>
+                  <th scope="col">Faixa de preço</th>
+                  <th scope="col">Nota</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Modelo">{{TABELA_LINHA_1_MODELO}}</td>
+                  <td data-label="Indicação">{{TABELA_LINHA_1_INDICACAO}}</td>
+                  <td data-label="Faixa de preço">{{TABELA_LINHA_1_PRECO}}</td>
+                  <td data-label="Nota">{{TABELA_LINHA_1_NOTA}}</td>
+                </tr>
+                <tr>
+                  <td data-label="Modelo">{{TABELA_LINHA_2_MODELO}}</td>
+                  <td data-label="Indicação">{{TABELA_LINHA_2_INDICACAO}}</td>
+                  <td data-label="Faixa de preço">{{TABELA_LINHA_2_PRECO}}</td>
+                  <td data-label="Nota">{{TABELA_LINHA_2_NOTA}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============================================================ -->
+      <!-- PRODUTOS RECOMENDADOS (CARDS DE AFILIADOS) -->
+      <!-- ============================================================ -->
+      <section id="produtos-recomendados" class="product-recommendations">
+        <h2>Produtos recomendados</h2>
+        <p class="affiliate-disclosure">
+          Este artigo contém links de afiliados. Se você comprar por meio deles, o AquaristaPRO pode
+          receber uma pequena comissão, sem custo adicional para você.
+        </p>
+
+        <div class="product-grid">
+          <article class="product-card">
+            <p class="product-card-badge">{{PRODUTO_1_INDICACAO}}</p>
+            <div class="product-card-photo">
+              <img src="{{PRODUTO_1_IMAGEM}}" alt="{{PRODUTO_1_NOME}}" loading="lazy" />
+            </div>
+            <h3 class="product-card-name">{{PRODUTO_1_NOME}}</h3>
+            <div class="product-card-lists">
+              <div>
+                <p class="product-card-list-title product-card-list-title-pro">Prós</p>
+                <ul class="product-card-list">
+                  <li>{{PRODUTO_1_PRO_1}}</li>
+                  <li>{{PRODUTO_1_PRO_2}}</li>
+                </ul>
+              </div>
+              <div>
+                <p class="product-card-list-title product-card-list-title-con">Contras</p>
+                <ul class="product-card-list">
+                  <li>{{PRODUTO_1_CONTRA_1}}</li>
+                </ul>
+              </div>
+            </div>
+            <a
+              class="btn-afiliado"
+              href="{{PRODUTO_1_LINK}}"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              data-produto="{{PRODUTO_1_NOME}}"
+            >
+              Ver preço na Amazon
+            </a>
+          </article>
+
+          <article class="product-card">
+            <p class="product-card-badge">{{PRODUTO_2_INDICACAO}}</p>
+            <div class="product-card-photo">
+              <img src="{{PRODUTO_2_IMAGEM}}" alt="{{PRODUTO_2_NOME}}" loading="lazy" />
+            </div>
+            <h3 class="product-card-name">{{PRODUTO_2_NOME}}</h3>
+            <div class="product-card-lists">
+              <div>
+                <p class="product-card-list-title product-card-list-title-pro">Prós</p>
+                <ul class="product-card-list">
+                  <li>{{PRODUTO_2_PRO_1}}</li>
+                  <li>{{PRODUTO_2_PRO_2}}</li>
+                </ul>
+              </div>
+              <div>
+                <p class="product-card-list-title product-card-list-title-con">Contras</p>
+                <ul class="product-card-list">
+                  <li>{{PRODUTO_2_CONTRA_1}}</li>
+                </ul>
+              </div>
+            </div>
+            <a
+              class="btn-afiliado"
+              href="{{PRODUTO_2_LINK}}"
+              target="_blank"
+              rel="nofollow sponsored noopener"
+              data-produto="{{PRODUTO_2_NOME}}"
+            >
+              Ver preço na Shopee
+            </a>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- FAQ EM FORMATO ACCORDION -->
+      <!-- ============================================================ -->
+      <section id="perguntas-frequentes" class="faq-section">
+        <h2>Perguntas frequentes</h2>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            {{FAQ_PERGUNTA_1}}
+            <span class="faq-question-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>{{FAQ_RESPOSTA_1}}</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            {{FAQ_PERGUNTA_2}}
+            <span class="faq-question-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>{{FAQ_RESPOSTA_2}}</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button type="button" class="faq-question" aria-expanded="false">
+            {{FAQ_PERGUNTA_3}}
+            <span class="faq-question-icon" aria-hidden="true">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>{{FAQ_RESPOSTA_3}}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- CHAMADA PARA AÇÃO (CTA) -->
+      <!-- ============================================================ -->
+      <section class="guide-cta">
+        <h2>Coloque isso em prática no seu aquário</h2>
+        <p>Cadastre seu aquário no AquaristaPRO e acompanhe se os parâmetros ideais deste guia estão sendo respeitados.</p>
+        <a class="button-link" href="../../members.html">Acessar minha área de membros</a>
+      </section>
+
+        </div>
+      </div>
+
+    </article>
+  </main>
+
+  <footer>
+    <p>© {{ANO_ATUAL}} AquaristaPRO — conteúdo educativo para aquarismo de água doce.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../app.js"></script>
+  <script src="../js/guias.js" defer></script>
+</body>
+</html>
