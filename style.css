@@ -22,6 +22,15 @@
   box-sizing: border-box;
 }
 
+
+ html {
+  /* Adiciona um espaço no topo ao navegar por links âncora (#id) */
+  scroll-padding-top: 100px; 
+
+  /* Aproveite e adicione a rolagem suave se ainda não tiver! */
+  scroll-behavior: smooth; 
+} 
+
 body {
   margin: 0;
   font-family: aqua, Arial, Helvetica, sans-serif;

@@ -4,13 +4,87 @@
  * JavaScript puro (Vanilla JS), sem dependências externas.
  */
 
+const GUIDE_READING_WORDS_PER_MINUTE = 220;
+
 document.addEventListener('DOMContentLoaded', () => {
+  initReadingTime();
+  initAutoToc();
   initTocSmoothScroll();
   initTocHighlight();
   initGuideTocDrawer();
   initFaqAccordion();
   initAffiliateTracking();
 });
+
+/**
+ * Calcula o tempo de leitura do guia com base apenas nos blocos principais
+ * de conteúdo, ignorando navegação e outras superfícies do site.
+ */
+function initReadingTime() {
+  const readingTimeElement = document.querySelector('[data-reading-time]');
+  if (!readingTimeElement) {
+    return;
+  }
+
+  const contentSelectors = [
+    '.guide-intro-summary',
+    '.summary-box',
+    '.guide-content',
+    '.faq-section',
+    '.guide-cta'
+  ];
+
+  const textContent = contentSelectors
+    .flatMap((selector) => Array.from(document.querySelectorAll(selector)))
+    .map((element) => element.textContent?.trim() || '')
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const wordCount = textContent ? textContent.split(' ').filter(Boolean).length : 0;
+  const readingTime = Math.max(1, Math.ceil(wordCount / GUIDE_READING_WORDS_PER_MINUTE));
+
+  readingTimeElement.textContent = `⏱ ${readingTime} min de leitura`;
+}
+
+/**
+ * Gera o sumário automaticamente a partir dos H2 das seções do guia.
+ * Isso evita drift entre o conteúdo real e os links do TOC.
+ */
+function initAutoToc() {
+  const tocList = document.querySelector('.guide-toc-list');
+  if (!tocList) {
+    return;
+  }
+
+  const sections = Array.from(document.querySelectorAll('.guide-content > section[id], .faq-section[id]'));
+  if (!sections.length) {
+    return;
+  }
+
+  const tocItems = sections
+    .map((section) => {
+      const heading = section.querySelector('h2');
+      const sectionId = section.id;
+      const title = heading?.textContent?.trim();
+
+      if (!heading || !sectionId || !title) {
+        return '';
+      }
+
+      return `
+        <li><a class="guide-toc-link" href="#${sectionId}">${escapeHtml(title)}</a></li>
+      `;
+    })
+    .filter(Boolean)
+    .join('');
+
+  if (!tocItems) {
+    return;
+  }
+
+  tocList.innerHTML = tocItems;
+}
 
 /**
  * Rola suavemente até a seção correspondente ao clicar em um link do sumário,
@@ -203,4 +277,13 @@ function initAffiliateTracking() {
       }
     });
   });
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

@@ -50,7 +50,7 @@
             <h1 class="guide-title">{{TITULO}}</h1>
             <p class="guide-subtitle">{{RESUMO}}</p>
             <div class="guide-meta">
-              <span class="guide-meta-item">⏱ {{TEMPO_LEITURA}} min de leitura</span>
+              <span class="guide-meta-item" data-reading-time>⏱ Calculando tempo de leitura...</span>
               <span class="guide-meta-item">Atualizado em {{DATA_ATUALIZACAO}}</span>
             </div>
           </header>
@@ -81,13 +81,7 @@
               X
             </button>
           </div>
-          <ol class="guide-toc-list">
-            <li><a class="guide-toc-link" href="#{{SECAO_1_ID}}">{{SECAO_1_TITULO}}</a></li>
-            <li><a class="guide-toc-link" href="#{{SECAO_2_ID}}">{{SECAO_2_TITULO}}</a></li>
-            <li><a class="guide-toc-link" href="#{{SECAO_3_ID}}">{{SECAO_3_TITULO}}</a></li>
-            <li><a class="guide-toc-link" href="#produtos-recomendados">Produtos recomendados</a></li>
-            <li><a class="guide-toc-link" href="#perguntas-frequentes">Perguntas frequentes</a></li>
-          </ol>
+          <ol class="guide-toc-list"></ol>
         </nav>
 
         <div class="guide-body">
