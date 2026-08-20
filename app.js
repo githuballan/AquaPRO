@@ -39,9 +39,9 @@ const siteSearchEntries = [
     id: 'page-home',
     type: 'page',
     title: 'AquaristaPRO',
-    description: 'Página inicial com visão geral do site e próximos passos para o aquarista.',
+    description: 'Página inicial com guias, peixes, listas, produtos e próximos passos para o aquarista.',
     href: 'index.html',
-    keywords: 'inicio home aquarismo aquario agua doce'
+    keywords: 'inicio home aquarismo aquario agua doce guias peixes plantas produtos membros'
   },
   {
     id: 'page-members',
@@ -58,6 +58,70 @@ const siteSearchEntries = [
     description: 'Pesquisa de peixes com filtros, compatibilidade e card para lojistas.',
     href: 'catalogo.html',
     keywords: 'catalogo peixes compatibilidade filtros lojistas'
+  },
+  {
+    id: 'page-home-guides',
+    type: 'page',
+    title: 'Guias de aquarismo',
+    description: 'Seção da home com destaques editoriais e links para guias fundamentais.',
+    href: 'index.html#guias-home',
+    keywords: 'guias aquarismo ciclo do nitrogenio filtragem fundamentos artigos'
+  },
+  {
+    id: 'page-home-fishes',
+    type: 'page',
+    title: 'Fichas de peixes',
+    description: 'Seção da home com espécies populares, parâmetros básicos e acesso ao catálogo.',
+    href: 'index.html#peixes-home',
+    keywords: 'fichas peixes parametros betta corydoras platy catalogo'
+  },
+  {
+    id: 'page-home-plants',
+    type: 'page',
+    title: 'Plantas de aquário',
+    description: 'Seção da home preparada para conteúdos sobre plantas resistentes e low tech.',
+    href: 'index.html#plantas-home',
+    keywords: 'plantas aquario low tech plantas resistentes plantado'
+  },
+  {
+    id: 'page-home-lists',
+    type: 'page',
+    title: 'Listas e ideias para iniciantes',
+    description: 'Seção da home dedicada a páginas de atração como top 10 peixes fáceis e melhores plantas low tech.',
+    href: 'index.html#listas-home',
+    keywords: 'top 10 peixes faceis melhores plantas low tech listas iniciante'
+  },
+  {
+    id: 'page-home-products',
+    type: 'page',
+    title: 'Produtos recomendados',
+    description: 'Seção da home com categorias prontas para comparativos e páginas de afiliados.',
+    href: 'index.html#produtos-home',
+    keywords: 'produtos recomendados afiliados filtros termostatos low tech compras'
+  },
+  {
+    id: 'plant-elodea',
+    type: 'page',
+    title: 'Elódea',
+    description: 'Ficha de planta com posição no aquário, luz, CO2, substrato, parâmetros da água, poda e propagação.',
+    href: 'plantas/elodea.html',
+    keywords: 'elodea egeria densa planta facil low tech fundo aquario planta resistente'
+  },
+  {
+    id: 'guide-nitrogen-cycle',
+    type: 'page',
+    title: 'Ciclo do nitrogênio no aquário',
+    description: 'Guia sobre amônia, nitrito, nitrato e estabilidade biológica no aquário.',
+    href: 'guias/ciclo-do-nitrogenio-no-aquario.html',
+    keywords: 'ciclo nitrogenio ciclagem amonia nitrito nitrato aquario'
+  },
+  {
+    id: 'guide-filtration-stages',
+    type: 'page',
+    title: 'Estágios da filtragem',
+    description: 'Guia sobre filtragem mecânica, biológica e química em aquários de água doce.',
+    href: 'guias/estagios-da-filtragem.html',
+    keywords: 'filtragem filtro biologica mecanica quimica aquario'
   }
 ];
 

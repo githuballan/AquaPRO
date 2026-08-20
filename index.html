@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AquaristaPRO reúne dicas de aquarismo de água doce, catálogo de peixes, compatibilidade com seu aquário e recomendações para produtos." />
+  <meta name="description" content="AquaristaPRO reúne guias de aquarismo de água doce, fichas de peixes, conteúdos para iniciantes, plantas de aquário, recomendações de produtos e área de membros." />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://aquaristapro.com/" />
-  <title>AquaristaPRO | Aquarismo de água doce</title>
+  <title>AquaristaPRO | Guias, peixes e aquarismo de água doce</title>
   <link rel="shortcut icon" href="imagens-treino/aqua-icone-ok.ico" type="image/x-icon" />
   <link rel="stylesheet" href="style.css" />
   <script type="application/ld+json">
@@ -15,7 +15,12 @@
     "@type": "WebSite",
     "name": "AquaristaPRO",
     "url": "https://aquaristapro.com/",
-    "description": "Guia prático para aquarismo de água doce, compatibilidade de peixes e acompanhamento de parâmetros de aquário.",
+    "description": "Guia prático para aquarismo de água doce com guias, fichas de peixes, conteúdos para iniciantes, produtos recomendados e área de membros.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://aquaristapro.com/busca.html?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    },
     "publisher": {
       "@type": "Organization",
       "name": "AquaristaPRO"
@@ -26,51 +31,280 @@
 </head>
 <body data-supabase-url="https://xktobjguguvvoagyteke.supabase.co" data-supabase-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4">
   <nav id="site-nav" class="top-nav" aria-label="Navegação principal"></nav>
-  <header class="hero">
-   
+  <header class="hero home-hero">
     <div class="hero-content">
-      <h1>Tudo sobre aquário de água doce</h1>
-      <p id="boasvindas">Cadastre seu aquário e veja peixes compatíveis e receba dicas personalizadas.</p>
-      <div class="hero-actions">
-        <a class="button-link" href="members.html">Seja um AquaristaPRO</a>
-      </div>
+      <h1>Aquarismo de água doce sem complicação</h1>
+      <p id="boasvindas">Guias, fichas de peixes e ferramentas para cuidar melhor do seu aquário.</p>
     </div>
   </header>
- 
-  <main class="page-shell">   
-    <section class="card intro-card">
-      <h2>Planeje com confiança</h2>
-      <p>O AquaristaPRO une orientação prática ao acompanhamento do seu aquário, para que você compre peixes de forma mais segura e mantenha um ambiente equilibrado.</p>
-      <div class="feature-grid">
-        <article class="feature-card">
-          <h3>Cadastro do aquário</h3>
-          <p>Registre volume, temperatura, pH, GH, KH, nitrito e amônia em um painel claro.</p>
+
+  <main class="page-shell home-shell">
+    <section class="card home-cluster-section" aria-labelledby="explore-site-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Visão geral</p>
+          <h2 id="explore-site-title">Navegue pelo que faz sentido para o seu momento</h2>
+        </div>
+        <p class="section-subtitle">A home agora funciona como um mapa do site: descoberta de conteúdo, escolha de espécies, apoio para iniciantes e ferramentas para organizar o aquário.</p>
+      </div>
+
+      <div class="home-cluster-grid">
+        <a class="home-cluster-card" href="#guias-home">
+          <span class="cluster-badge">Guias</span>
+          <h3>Aprenda os fundamentos</h3>
+          <p>Entenda ciclagem, filtragem, rotina de manutenção e decisões que evitam erros comuns.</p>
+        </a>
+        <a class="home-cluster-card" href="#peixes-home">
+          <span class="cluster-badge">Peixes</span>
+          <h3>Veja fichas e parâmetros</h3>
+          <p>Encontre espécies por perfil, conheça exigências básicas e compare com seu aquário.</p>
+        </a>
+        <a class="home-cluster-card" href="#plantas-home">
+          <span class="cluster-badge">Plantas</span>
+          <h3>Descubra opções para plantados</h3>
+          <p>Prepare a base para conteúdos sobre plantas resistentes, low tech e composição visual.</p>
+        </a>
+        <a class="home-cluster-card" href="#listas-home">
+          <span class="cluster-badge">Listas</span>
+          <h3>Encontre ideias rápidas</h3>
+          <p>Use conteúdos de atração para escolher peixes, plantas e montagens com mais segurança.</p>
+        </a>
+        <a class="home-cluster-card" href="#produtos-home">
+          <span class="cluster-badge">Produtos</span>
+          <h3>Compare recomendações</h3>
+          <p>Veja categorias de equipamentos e produtos que podem virar páginas de afiliados úteis.</p>
+        </a>
+        <a class="home-cluster-card" href="members.html">
+          <span class="cluster-badge">Membros</span>
+          <h3>Salve dados do aquário</h3>
+          <p>Cadastre seu ambiente, registre leituras e acompanhe o histórico de parâmetros.</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="comece-aqui" class="card home-section" aria-labelledby="start-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Comece por aqui</p>
+          <h2 id="start-title">Três caminhos para entrar no AquaristaPRO</h2>
+        </div>
+      </div>
+
+      <div class="home-start-grid">
+        <article class="steps-card home-start-card">
+          <span class="step-number">01</span>
+          <h3>Aprenda o básico antes de comprar</h3>
+          <p>Leia os guias essenciais para evitar decisões apressadas em filtragem, ciclagem e fauna.</p>
+          <a class="text-link" href="guias/ciclo-do-nitrogenio-no-aquario.html">Ler sobre ciclo do nitrogênio</a>
         </article>
-        <article class="feature-card">
-          <h3>Compatibilidade</h3>
-          <p>Compare o seu aquário com fichas de peixes antes de fazer a compra.</p>
+        <article class="steps-card home-start-card">
+          <span class="step-number">02</span>
+          <h3>Pesquise espécies com mais critério</h3>
+          <p>Use o catálogo e as fichas para comparar peixes por comportamento, parâmetros e dificuldade.</p>
+          <a class="text-link" href="catalogo.html">Abrir catálogo de peixes</a>
         </article>
-        <article class="feature-card">
-          <h3>Catálogo completo</h3>
-          <p>Explore peixes por filtros de origem, dieta, temperatura e dificuldade.</p>
+        <article class="steps-card home-start-card">
+          <span class="step-number">03</span>
+          <h3>Organize os dados do seu aquário</h3>
+          <p>Na área de membros você salva leituras, acompanha histórico e usa o site de forma mais prática.</p>
+          <a class="text-link" href="members.html">Ir para a área de membros</a>
         </article>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Comece em 3 passos</h2>
-      <div class="steps-grid">
-        <article class="steps-card">
-          <h3>1. Crie sua conta</h3>
-          <p>Acesse a área de membros para guardar suas informações e acompanhar o histórico do aquário.</p>
+    <section id="guias-home" class="card home-section" aria-labelledby="guides-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Guias em destaque</p>
+          <h2 id="guides-title">Conteúdo prático para construir uma base sólida</h2>
+        </div>
+        <p class="section-subtitle">Esses guias ajudam a explicar por que o aquário funciona bem ou começa a dar problema.</p>
+      </div>
+
+      <div class="home-content-grid home-content-grid-guides">
+        <a class="feature-card home-article-card home-card-link" href="guias/ciclo-do-nitrogenio-no-aquario.html">
+          <span class="cluster-badge">Fundamento</span>
+          <h3>Ciclo do nitrogênio no aquário</h3>
+          <p>Entenda amônia, nitrito e nitrato para tomar decisões melhores antes de inserir fauna.</p>
+        </a>
+        <a class="feature-card home-article-card home-card-link" href="guias/estagios-da-filtragem.html">
+          <span class="cluster-badge">Montagem</span>
+          <h3>Estágios da filtragem</h3>
+          <p>Veja a função da filtragem mecânica, biológica e química na estabilidade do sistema.</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="peixes-home" class="card home-section" aria-labelledby="fish-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Fichas de peixes</p>
+          <h2 id="fish-title">Espécies populares para pesquisa rápida</h2>
+        </div>
+        <a class="text-link section-link" href="catalogo.html">Ver catálogo completo</a>
+      </div>
+
+      <div class="home-content-grid">
+        <a class="feature-card home-fish-card home-card-link" href="peixes/betta.html">
+          <span class="cluster-badge">Iniciante</span>
+          <h3>Betta</h3>
+          <p>Uma das buscas mais comuns do aquarismo, ideal para atrair cliques e orientar escolhas seguras.</p>
+        </a>
+        <a class="feature-card home-fish-card home-card-link" href="peixes/corydoras.html">
+          <span class="cluster-badge">Comunitário</span>
+          <h3>Corydoras</h3>
+          <p>Espécie muito buscada para aquários de fundo, com bom potencial de compatibilidade e conteúdo técnico.</p>
+        </a>
+        <a class="feature-card home-fish-card home-card-link" href="peixes/platy.html">
+          <span class="cluster-badge">Popular</span>
+          <h3>Platy</h3>
+          <p>Boa porta de entrada para conteúdos sobre convivência, parâmetros e reprodução em aquários comunitários.</p>
+        </a>
+      </div>
+    </section>
+
+    <section id="plantas-home" class="card home-section home-teaser-section" aria-labelledby="plants-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Plantas de aquário</p>
+          <h2 id="plants-title">Um espaço preparado para plantas e montagens low tech</h2>
+        </div>
+      </div>
+
+      <div class="home-dual-grid">
+        <a class="feature-card home-teaser-card home-card-link" href="plantas/elodea.html">
+          <h3>Plantas resistentes para iniciantes</h3>
+          <p>Comece com a ficha da elódea e use essa base para crescer a seção com espécies resistentes, exigência de luz, crescimento e compatibilidade com peixes.</p>
+          <span class="coming-soon-label">Ver ficha da elódea</span>
+        </a>
+        <article class="feature-card home-teaser-card accent-surface">
+          <h3>Montagens plantadas sem complicação</h3>
+          <p>O site já fica pronto para receber conteúdos sobre low tech, substratos, podas e equilíbrio visual do layout.</p>
+          <span class="coming-soon-label">Pronto para novos artigos</span>
         </article>
-        <article class="steps-card">
-          <h3>2. Cadastre o ambiente</h3>
-          <p>Defina o nome, o volume e os principais parâmetros para montar um perfil útil do seu aquário.</p>
+      </div>
+    </section>
+
+    <section id="listas-home" class="card home-section" aria-labelledby="lists-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Conteúdo de atração</p>
+          <h2 id="lists-title">Ideias de páginas para capturar cliques e orientar melhor o leitor</h2>
+        </div>
+      </div>
+
+      <div class="home-content-grid">
+        <article class="feature-card home-list-card">
+          <span class="cluster-badge">Top 10</span>
+          <h3>Peixes mais fáceis do aquarismo</h3>
+          <p>Excelente tema para topo de funil, com alto potencial de busca e ligação direta com fichas de espécies.</p>
+          <span class="coming-soon-label">Página planejada</span>
         </article>
-        <article class="steps-card">
-          <h3>3. Explore os peixes</h3>
-          <p>Veja em poucos segundos quais espécies combinam melhor com o seu cenário.</p>
+        <article class="feature-card home-list-card">
+          <span class="cluster-badge">Low tech</span>
+          <h3>Melhores plantas para low tech</h3>
+          <p>Conecta a futura seção de plantas com buscas de iniciantes que querem beleza sem alta complexidade.</p>
+          <span class="coming-soon-label">Página planejada</span>
+        </article>
+        <article class="feature-card home-list-card">
+          <span class="cluster-badge">Escolha segura</span>
+          <h3>Espécies para aquários comunitários</h3>
+          <p>Ponte natural entre guias, catálogo e monetização por produtos ligados à montagem adequada.</p>
+          <span class="coming-soon-label">Página planejada</span>
+        </article>
+      </div>
+    </section>
+
+    <section id="produtos-home" class="card home-section" aria-labelledby="products-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Produtos recomendados</p>
+          <h2 id="products-title">Monetização com contexto, não com banners soltos</h2>
+        </div>
+        <p class="section-subtitle">A ideia aqui é direcionar o usuário para comparativos e páginas de afiliados que realmente ajudem na escolha.</p>
+      </div>
+
+      <div class="home-content-grid">
+        <article class="product-card home-product-card">
+          <span class="cluster-badge">Filtragem</span>
+          <h3>Filtros para aquários pequenos e médios</h3>
+          <p>Uma categoria ideal para páginas comparativas ligadas aos guias de montagem e estabilidade.</p>
+        </article>
+        <article class="product-card home-product-card">
+          <span class="cluster-badge">Aquecimento</span>
+          <h3>Termostatos e controle de temperatura</h3>
+          <p>Boa ponte entre fichas técnicas das espécies e produtos que influenciam diretamente os parâmetros.</p>
+        </article>
+        <article class="product-card home-product-card">
+          <span class="cluster-badge">Plantados</span>
+          <h3>Itens para montagem low tech</h3>
+          <p>Categoria útil para apoiar futuras páginas de plantas e listas com intenção comercial mais clara.</p>
+        </article>
+      </div>
+
+      <p class="affiliate-note">Quando as páginas comerciais forem publicadas, vale manter o aviso de transparência sobre links de afiliados no mesmo padrão editorial usado nos guias.</p>
+    </section>
+
+    <section class="card home-section home-tools-section" aria-labelledby="tools-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Ferramenta do site</p>
+          <h2 id="tools-title">Como o AquaristaPRO te ajuda no uso prático</h2>
+        </div>
+      </div>
+
+      <div class="feature-grid home-tools-grid">
+        <article class="feature-card">
+          <h3>Cadastro do aquário</h3>
+          <p>Registre volume, temperatura, pH, GH, KH, nitrito e amônia em um painel mais organizado.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Compatibilidade</h3>
+          <p>Compare o seu aquário com as fichas de peixes para reduzir compras inadequadas.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Catálogo completo</h3>
+          <p>Pesquise espécies por filtros de origem, dieta, temperatura e dificuldade de manejo.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Histórico de leituras</h3>
+          <p>Acompanhe a evolução real do ambiente para identificar padrões e agir mais cedo.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="card home-member-cta" aria-labelledby="member-cta-title">
+      <div>
+        <p class="eyebrow section-kicker">Área de membros</p>
+        <h2 id="member-cta-title">Transforme o conteúdo em rotina de cuidado</h2>
+        <p>Depois de aprender com os guias e pesquisar as espécies, use a área de membros para salvar os dados do seu aquário e acompanhar medições com mais consistência.</p>
+      </div>
+      <div class="home-member-actions">
+        <a class="button-link" href="members.html">Criar conta ou entrar</a>
+        <a class="text-link" href="catalogo.html">Ver peixes antes de cadastrar</a>
+      </div>
+    </section>
+
+    <section class="card home-section" aria-labelledby="faq-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow section-kicker">Perguntas comuns</p>
+          <h2 id="faq-title">O que o visitante encontra na página inicial</h2>
+        </div>
+      </div>
+
+      <div class="home-faq-grid">
+        <article class="feature-card home-faq-card">
+          <h3>O site é só uma ferramenta?</h3>
+          <p>Não. A home agora apresenta conteúdo educativo, fichas de peixes, futuras páginas de plantas, listas e também a ferramenta para acompanhamento do aquário.</p>
+        </article>
+        <article class="feature-card home-faq-card">
+          <h3>Vale para iniciantes?</h3>
+          <p>Sim. A estrutura prioriza caminhos claros para quem está começando, sem esconder o material mais técnico para quem já tem experiência.</p>
+        </article>
+        <article class="feature-card home-faq-card">
+          <h3>Onde entram os afiliados?</h3>
+          <p>Em blocos editoriais e comparativos contextualizados, sem competir com o aprendizado e sem poluir a experiência da home.</p>
         </article>
       </div>
     </section>
