@@ -100,14 +100,6 @@ const siteSearchEntries = [
     keywords: 'produtos recomendados afiliados filtros termostatos low tech compras'
   },
   {
-    id: 'plant-elodea',
-    type: 'page',
-    title: 'Elódea',
-    description: 'Ficha de planta com posição no aquário, luz, CO2, substrato, parâmetros da água, poda e propagação.',
-    href: 'plantas/elodea.html',
-    keywords: 'elodea egeria densa planta facil low tech fundo aquario planta resistente'
-  },
-  {
     id: 'guide-nitrogen-cycle',
     type: 'page',
     title: 'Ciclo do nitrogênio no aquário',
@@ -128,6 +120,7 @@ const siteSearchEntries = [
 const state = {
   users: [],
   fishes: [],
+  plants: [],
   selectedFish: null,
   activeUser: null,
   aquarium: null,
@@ -147,8 +140,10 @@ const state = {
   }
 };
 
-const supabaseUrl = document.body?.dataset.supabaseUrl || '';
-const supabaseAnonKey = document.body?.dataset.supabaseAnonKey || '';
+const DEFAULT_SUPABASE_URL = 'https://xktobjguguvvoagyteke.supabase.co';
+const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4';
+const supabaseUrl = document.body?.dataset.supabaseUrl || DEFAULT_SUPABASE_URL;
+const supabaseAnonKey = document.body?.dataset.supabaseAnonKey || DEFAULT_SUPABASE_ANON_KEY;
 const supabaseClient = window.supabase?.createClient && supabaseUrl && supabaseAnonKey
   ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
   : null;
@@ -488,6 +483,23 @@ function mapSupabaseFishRow(row) {
   };
 }
 
+function mapSupabasePlantRow(row) {
+  return {
+    slug: row.slug,
+    name: row.nome_comum || '',
+    scientificName: row.nome_cientifico || '',
+    description: row.seo_description || row.hero_summary || row.description || '',
+    heroSummary: row.hero_summary || '',
+    difficulty: row.dificuldade || '',
+    placement: row.posicao || '',
+    light: row.iluminacao || '',
+    substrate: row.substrato_fertil || '',
+    usageType: row.tipo_de_uso || '',
+    setupProfile: row.perfil_de_montagem || '',
+    URL: row.detail_url || ''
+  };
+}
+
 function mapSupabaseAquariumRow(row) {
   if (!row) {
     return null;
@@ -639,6 +651,10 @@ function normalizeFishCatalogData(items) {
   return items.map((item) => (item.parameters ? item : mapSupabaseFishRow(item)));
 }
 
+function normalizePlantSearchData(items) {
+  return items.map((item) => (item.name ? item : mapSupabasePlantRow(item)));
+}
+
 async function fetchFishCatalogFromSupabase() {
   if (!supabaseClient) {
     throw new Error('Cliente Supabase indisponível para carregar o catálogo.');
@@ -654,6 +670,23 @@ async function fetchFishCatalogFromSupabase() {
   }
 
   return normalizeFishCatalogData(data || []);
+}
+
+async function fetchPlantSearchIndexFromSupabase() {
+  if (!supabaseClient) {
+    throw new Error('Cliente Supabase indisponível para carregar o índice de plantas.');
+  }
+
+  const { data, error } = await supabaseClient
+    .from('plantas')
+    .select('slug, nome_comum, nome_cientifico, seo_description, hero_summary, description, detail_url, dificuldade, posicao, iluminacao, substrato_fertil, tipo_de_uso, perfil_de_montagem')
+    .order('nome_comum', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return normalizePlantSearchData(data || []);
 }
 
 function getInitialSearchQuery() {
@@ -1394,7 +1427,7 @@ function renderNavigation() {
           </span>
         </button>
         <form class="top-nav-search-form" data-search-form role="search">
-          <input type="search" class="top-nav-search-input" data-search-input value="${currentQuery}" placeholder="Pesquisar peixes e páginas" aria-label="Pesquisar peixes e páginas" autocomplete="off" />
+          <input type="search" class="top-nav-search-input" data-search-input value="${currentQuery}" placeholder="Pesquisar peixes, plantas e páginas" aria-label="Pesquisar peixes, plantas e páginas" autocomplete="off" />
           <button type="button" class="nav-search-close" data-search-close aria-label="Fechar pesquisa">&times;</button>
         </form>
         <div class="top-nav-search-suggestions hidden" data-search-suggestions></div>
@@ -1417,7 +1450,7 @@ function renderNavigation() {
           </span>
         </button>
         <form class="top-nav-search-form" data-search-form role="search">
-          <input type="search" class="top-nav-search-input" data-search-input value="${currentQuery}" placeholder="Pesquisar peixes e páginas" aria-label="Pesquisar peixes e páginas" autocomplete="off" />
+          <input type="search" class="top-nav-search-input" data-search-input value="${currentQuery}" placeholder="Pesquisar peixes, plantas e páginas" aria-label="Pesquisar peixes, plantas e páginas" autocomplete="off" />
           <button type="button" class="nav-search-close" data-search-close aria-label="Fechar pesquisa">&times;</button>
         </form>
         <div class="top-nav-search-suggestions hidden" data-search-suggestions></div>
@@ -1441,6 +1474,7 @@ async function init() {
   renderSearchResultsPage();
   setupResponsiveSurface();
   loadFishCatalog();
+  loadPlantSearchIndex();
   renderAuthState();
   renderProducts();
   renderChart();
@@ -1779,6 +1813,15 @@ function getSearchEntries() {
       description: fish.description,
       href: buildCatalogSearchUrl(fish.slug, fish.name),
       keywords: `${fish.origin} ${fish.temperament} ${fish.diet} ${fish.group} ${fish.careLevel} ${fish.difficulty}`
+    })),
+    ...state.plants.map((plant) => ({
+      id: `plant-${plant.slug}`,
+      type: 'plant',
+      slug: plant.slug,
+      title: plant.name,
+      description: plant.description,
+      href: resolveSitePath(plant.URL),
+      keywords: `${plant.scientificName} ${plant.difficulty} ${plant.placement} ${plant.light} ${plant.substrate} ${plant.usageType} ${plant.setupProfile} ${plant.heroSummary}`
     }))
   ];
 }
@@ -1908,7 +1951,15 @@ function updateNavSearch(query) {
 }
 
 function getSearchResultTypeLabel(entry) {
-  return entry.type === 'fish' ? 'Peixe' : 'Página';
+  if (entry.type === 'fish') {
+    return 'Peixe';
+  }
+
+  if (entry.type === 'plant') {
+    return 'Planta';
+  }
+
+  return 'Página';
 }
 
 function renderNavSearchSuggestions() {
@@ -2473,6 +2524,19 @@ async function loadFishCatalog() {
     renderSearchResultsPage();
     renderNavSearchSuggestions();
   }
+}
+
+async function loadPlantSearchIndex() {
+  try {
+    const data = await fetchPlantSearchIndexFromSupabase();
+    state.plants = data;
+  } catch (error) {
+    state.plants = [];
+    console.error('Erro ao carregar índice de plantas', error);
+  }
+
+  renderSearchResultsPage();
+  renderNavSearchSuggestions();
 }
 
 function applyCatalogSearchParams() {
