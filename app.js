@@ -31,7 +31,14 @@ const NUMERIC_LIMITS = {
 const navigationItems = [
   { label: 'AquaristaPRO', href: 'index.html', page: 'index' },
   { label: 'Área de membros', href: 'members.html', page: 'members' },
-  { label: 'Catálogo', href: 'catalogo.html', page: 'catalogo' }
+  {
+    label: 'Catalogos',
+    page: 'catalogos',
+    children: [
+      { label: 'Peixes', href: 'catalogo.html', page: 'catalogo' },
+      { label: 'Plantas', href: 'catalogo-plantas.html', page: 'catalogo-plantas' }
+    ]
+  }
 ];
 
 const siteSearchEntries = [
@@ -58,6 +65,14 @@ const siteSearchEntries = [
     description: 'Pesquisa de peixes com filtros, compatibilidade e card para lojistas.',
     href: 'catalogo.html',
     keywords: 'catalogo peixes compatibilidade filtros lojistas'
+  },
+  {
+    id: 'page-catalog-plants',
+    type: 'page',
+    title: 'Catálogo de plantas',
+    description: 'Catálogo de plantas com filtros por dificuldade, CO2, iluminação, substrato e perfil low-tech.',
+    href: 'catalogo-plantas.html',
+    keywords: 'catalogos catalogo plantas low tech co2 iluminacao substrato dificuldade aquario plantado'
   },
   {
     id: 'page-home-guides',
@@ -126,6 +141,11 @@ const state = {
   aquarium: null,
   history: [],
   printSheetCards: [],
+  plantCatalog: {
+    lowTechOnly: false,
+    hasLoaded: false,
+    hasError: false
+  },
   search: {
     isOpen: false,
     activeHost: 'desktop',
@@ -189,6 +209,9 @@ const printSheetCards = document.getElementById('printSheetCards');
 const logoutButton = document.getElementById('logoutButton');
 const filtersForm = document.getElementById('filtersForm');
 const fishCards = document.getElementById('fishCards');
+const plantCards = document.getElementById('plantCards');
+const plantCatalogSummary = document.getElementById('plantCatalogSummary');
+const lowTechToggleButton = document.getElementById('lowTechToggle');
 const notice = document.getElementById('notice');
 const filtersCard = document.querySelector('.filters-card');
 const closeFiltersButton = document.getElementById('closeFiltersButton');
@@ -423,7 +446,18 @@ function refreshFormCounters(form) {
 }
 
 function getSiteRootPrefix() {
-  const segments = window.location.pathname.split('/').filter(Boolean);
+  const normalizedPath = window.location.pathname.replace(/\\/g, '/');
+
+  if (window.location.protocol === 'file:') {
+    const sectionMatch = normalizedPath.match(/\/(plantas|peixes|guias|src|images|font)\//i);
+    if (sectionMatch) {
+      return '../';
+    }
+
+    return '';
+  }
+
+  const segments = normalizedPath.split('/').filter(Boolean);
   return segments.length <= 1 ? '' : '../'.repeat(segments.length - 1);
 }
 
@@ -490,10 +524,24 @@ function mapSupabasePlantRow(row) {
     scientificName: row.nome_cientifico || '',
     description: row.seo_description || row.hero_summary || row.description || '',
     heroSummary: row.hero_summary || '',
+    photo: row.photo_url || '',
+    photoAlt: row.photo_alt || '',
+    familyOrigin: row.familia_e_origem || '',
     difficulty: row.dificuldade || '',
     placement: row.posicao || '',
+    growthRate: row.crescimento || '',
+    maxHeight: row.altura_max || '',
+    co2: row.co2 || '',
     light: row.iluminacao || '',
     substrate: row.substrato_fertil || '',
+    fertilization: row.fertilizacao_recomendada || '',
+    phMin: parseNumericValue(row.ph_min),
+    phMax: parseNumericValue(row.ph_max),
+    tempMin: parseNumericValue(row.temp_min),
+    tempMax: parseNumericValue(row.temp_max),
+    waterHardness: row.dureza_agua || '',
+    khRange: row.kh_faixa || '',
+    waterNotes: row.parametros_complementares || '',
     usageType: row.tipo_de_uso || '',
     setupProfile: row.perfil_de_montagem || '',
     URL: row.detail_url || ''
@@ -679,7 +727,7 @@ async function fetchPlantSearchIndexFromSupabase() {
 
   const { data, error } = await supabaseClient
     .from('plantas')
-    .select('slug, nome_comum, nome_cientifico, seo_description, hero_summary, description, detail_url, dificuldade, posicao, iluminacao, substrato_fertil, tipo_de_uso, perfil_de_montagem')
+    .select('slug, nome_comum, nome_cientifico, seo_description, hero_summary, description, photo_url, photo_alt, detail_url, familia_e_origem, dificuldade, posicao, crescimento, altura_max, co2, iluminacao, substrato_fertil, fertilizacao_recomendada, ph_min, ph_max, temp_min, temp_max, dureza_agua, kh_faixa, parametros_complementares, tipo_de_uso, perfil_de_montagem')
     .order('nome_comum', { ascending: true });
 
   if (error) {
@@ -1376,11 +1424,63 @@ function getCurrentPage() {
     return 'members';
   }
 
+  if (path.includes('catalogo-plantas')) {
+    return 'catalogo-plantas';
+  }
+
   if (path.includes('catalogo')) {
     return 'catalogo';
   }
 
   return 'index';
+}
+
+function isCatalogPage(currentPage = getCurrentPage()) {
+  return currentPage === 'catalogo' || currentPage === 'catalogo-plantas';
+}
+
+function isNavigationItemActive(item, currentPage) {
+  if (Array.isArray(item.children) && item.children.length) {
+    return item.children.some((child) => child.page === currentPage);
+  }
+
+  return item.page === currentPage;
+}
+
+function renderNavigationItem(item, currentPage) {
+  if (Array.isArray(item.children) && item.children.length) {
+    const isActive = isNavigationItemActive(item, currentPage);
+    const submenuId = `nav-submenu-${item.page}`;
+
+    return `
+      <div class="top-nav-item top-nav-item-parent ${isActive ? 'active' : ''}" data-nav-parent>
+        <button type="button" class="top-nav-parent-button ${isActive ? 'active' : ''}" aria-expanded="false" aria-controls="${submenuId}">
+          <span>${item.label}</span>
+          <span class="top-nav-parent-caret" aria-hidden="true"></span>
+        </button>
+        <div id="${submenuId}" class="top-nav-submenu" role="menu">
+          ${item.children.map((child) => `
+            <a href="${resolveSitePath(child.href)}" role="menuitem" class="${child.page === currentPage ? 'active' : ''}">${child.label}</a>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <a href="${resolveSitePath(item.href)}" class="${item.page === currentPage ? 'active' : ''}">${item.label}</a>
+  `;
+}
+
+function closeAllNavSubmenus(exceptElement = null) {
+  document.querySelectorAll('[data-nav-parent]').forEach((wrapper) => {
+    if (exceptElement && wrapper === exceptElement) {
+      return;
+    }
+
+    wrapper.classList.remove('submenu-open');
+    wrapper.querySelector('.top-nav-parent-button')?.setAttribute('aria-expanded', 'false');
+  });
 }
 
 function renderNavigation() {
@@ -1390,13 +1490,11 @@ function renderNavigation() {
   }
 
   const currentPage = getCurrentPage();
-  const shouldShowFilterToggle = currentPage === 'catalogo' && Boolean(filtersCard);
+  const shouldShowFilterToggle = isCatalogPage(currentPage) && Boolean(filtersCard);
   const currentQuery = escapeHtml(state.search.query);
   const navLinks = navigationItems
     .filter((item) => item.page !== 'index')
-    .map((item) => `
-        <a href="${resolveSitePath(item.href)}" class="${item.page === currentPage ? 'active' : ''}">${item.label}</a>
-      `)
+    .map((item) => renderNavigationItem(item, currentPage))
     .join('');
 
   nav.innerHTML = `
@@ -1472,6 +1570,7 @@ async function init() {
   bindSupabaseAuthListener();
   renderNavigation();
   renderSearchResultsPage();
+  renderPlantCatalogPage();
   setupResponsiveSurface();
   loadFishCatalog();
   loadPlantSearchIndex();
@@ -1707,11 +1806,23 @@ function bindEvents() {
   if (filtersForm) {
     filtersForm.addEventListener('submit', (event) => {
       event.preventDefault();
-      renderFishCards();
+
+      if (plantCards) {
+        renderPlantCatalogPage();
+      } else {
+        renderFishCards();
+      }
 
       if (isMobileLayout()) {
         setMobileFilterState(false);
       }
+    });
+  }
+
+  if (lowTechToggleButton) {
+    lowTechToggleButton.addEventListener('click', () => {
+      applyLowTechPreset(!state.plantCatalog.lowTechOnly);
+      renderPlantCatalogPage();
     });
   }
 
@@ -1757,6 +1868,7 @@ function bindResponsiveNavigation() {
   const navToggle = document.getElementById('mobileNavToggle');
   const filterToggle = document.getElementById('mobileFilterToggle');
   const navLinks = document.querySelectorAll('#siteNavLinks a');
+  const navParentButtons = document.querySelectorAll('.top-nav-parent-button');
 
   if (navToggle) {
     navToggle.addEventListener('click', () => {
@@ -1775,14 +1887,37 @@ function bindResponsiveNavigation() {
 
   navLinks.forEach((link) => {
     link.addEventListener('click', () => {
+      closeAllNavSubmenus();
+
+      const nav = document.getElementById('site-nav');
+      nav?.classList.remove('menu-open');
+      document.getElementById('mobileNavToggle')?.setAttribute('aria-expanded', 'false');
+
       if (isMobileLayout()) {
         setMobileNavState(false);
       }
     });
   });
 
+  navParentButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const wrapper = button.closest('[data-nav-parent]');
+      if (!wrapper) {
+        return;
+      }
+
+      const shouldOpen = !wrapper.classList.contains('submenu-open');
+      closeAllNavSubmenus(wrapper);
+      wrapper.classList.toggle('submenu-open', shouldOpen);
+      button.setAttribute('aria-expanded', String(shouldOpen));
+    });
+  });
+
   if (!state.ui.hasNavOutsideListener) {
     document.addEventListener('click', (event) => {
+      closeAllNavSubmenus();
+
       if (!isMobileLayout()) {
         return;
       }
@@ -1821,9 +1956,532 @@ function getSearchEntries() {
       title: plant.name,
       description: plant.description,
       href: resolveSitePath(plant.URL),
-      keywords: `${plant.scientificName} ${plant.difficulty} ${plant.placement} ${plant.light} ${plant.substrate} ${plant.usageType} ${plant.setupProfile} ${plant.heroSummary}`
+      keywords: `${plant.scientificName} ${plant.difficulty} ${plant.placement} ${plant.growthRate} ${plant.maxHeight} ${plant.co2} ${plant.light} ${plant.substrate} ${plant.usageType} ${plant.setupProfile} ${plant.waterHardness} ${plant.khRange} ${plant.heroSummary}`
     }))
   ];
+}
+
+function normalizePlantDifficulty(value) {
+  const normalized = normalizeSearchValue(value);
+  if (normalized.includes('facil')) {
+    return 'facil';
+  }
+
+  if (normalized.includes('moder')) {
+    return 'moderada';
+  }
+
+  if (normalized.includes('dific')) {
+    return 'dificil';
+  }
+
+  return normalized;
+}
+
+function normalizePlantCo2(value) {
+  const normalized = normalizeSearchValue(value);
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.includes('desnecess') || normalized.includes('nao necess') || normalized.includes('opcional')) {
+    return 'opcional';
+  }
+
+  if (normalized.includes('recomend') || normalized.includes('necess')) {
+    return 'recomendado';
+  }
+
+  return normalized;
+}
+
+function normalizePlantSubstrate(value) {
+  const normalized = normalizeSearchValue(value);
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.includes('nao') || normalized.includes('desnecess') || normalized.includes('opcional')) {
+    return 'opcional';
+  }
+
+  if (normalized.includes('recomend')) {
+    return 'recomendado';
+  }
+
+  if (normalized.includes('obrig')) {
+    return 'recomendado';
+  }
+
+  return normalized;
+}
+
+function normalizePlantLight(value) {
+  const normalized = normalizeSearchValue(value);
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.includes('baixa')) {
+    return 'baixa';
+  }
+
+  if (normalized.includes('media')) {
+    return 'media';
+  }
+
+  if (normalized.includes('alta')) {
+    return 'alta';
+  }
+
+  return normalized;
+}
+
+function normalizePlantWaterHardness(value) {
+  const normalized = normalizeSearchValue(value);
+  if (!normalized) {
+    return '';
+  }
+
+  if (normalized.includes('muito mole')) {
+    return 'muito mole';
+  }
+
+  if (normalized.includes('semi-dura') || normalized.includes('semi dura')) {
+    return 'semi-dura';
+  }
+
+  if (normalized.includes('muito dura')) {
+    return 'muito dura';
+  }
+
+  if (normalized.includes('baixa a media')) {
+    return 'mole';
+  }
+
+  if (normalized.includes('media a alta')) {
+    return 'dura';
+  }
+
+  if (normalized.includes('baixa a alta')) {
+    return 'semi-dura';
+  }
+
+  if (normalized.includes('mole') || normalized.includes('baixa')) {
+    return 'mole';
+  }
+
+  if (normalized.includes('dura') || normalized.includes('alta')) {
+    return 'dura';
+  }
+
+  return normalized;
+}
+
+function normalizePlantValue(value) {
+  return normalizeSearchValue(value);
+}
+
+function createSelectOptions(values, labelAll = 'Todos') {
+  const uniqueValues = [...new Set(values.filter(Boolean))]
+    .sort((left, right) => left.localeCompare(right, 'pt-BR'));
+
+  return `<option value="">${labelAll}</option>${uniqueValues.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`;
+}
+
+function populatePlantFilterOptions() {
+  if (!filtersForm || !plantCards) {
+    return;
+  }
+
+  const difficultySelect = filtersForm.querySelector('[name="difficulty"]');
+  const placementSelect = filtersForm.querySelector('[name="placement"]');
+  const growthSelect = filtersForm.querySelector('[name="growthRate"]');
+  const lightSelect = filtersForm.querySelector('[name="light"]');
+  const waterHardnessSelect = filtersForm.querySelector('[name="waterHardness"]');
+  const khRangeSelect = filtersForm.querySelector('[name="khRange"]');
+
+  if (difficultySelect) {
+    difficultySelect.innerHTML = [
+      '<option value="">Todas</option>',
+      '<option value="facil">Fácil</option>',
+      '<option value="moderada">Moderada</option>',
+      '<option value="dificil">Difícil</option>'
+    ].join('');
+  }
+
+  if (placementSelect) {
+    placementSelect.innerHTML = createSelectOptions(state.plants.map((plant) => plant.placement), 'Todas');
+  }
+
+  if (growthSelect) {
+    growthSelect.innerHTML = createSelectOptions(state.plants.map((plant) => plant.growthRate), 'Todas');
+  }
+
+  if (lightSelect) {
+    lightSelect.innerHTML = [
+      '<option value="">Todas</option>',
+      '<option value="baixa">Baixa</option>',
+      '<option value="media">Média</option>',
+      '<option value="alta">Alta</option>'
+    ].join('');
+  }
+
+  const co2Select = filtersForm.querySelector('[name="co2"]');
+  if (co2Select) {
+    co2Select.innerHTML = [
+      '<option value="">Todos</option>',
+      '<option value="opcional">Opcional</option>',
+      '<option value="recomendado">Recomendado</option>'
+    ].join('');
+  }
+
+  const substrateSelect = filtersForm.querySelector('[name="substrate"]');
+  if (substrateSelect) {
+    substrateSelect.innerHTML = [
+      '<option value="">Todos</option>',
+      '<option value="opcional">Opcional</option>',
+      '<option value="recomendado">Recomendado</option>'
+    ].join('');
+  }
+
+  if (waterHardnessSelect) {
+    waterHardnessSelect.innerHTML = [
+      '<option value="">Todas</option>',
+      '<option value="muito mole">Muito mole</option>',
+      '<option value="mole">Mole</option>',
+      '<option value="semi-dura">Semi-dura</option>',
+      '<option value="dura">Dura</option>',
+      '<option value="muito dura">Muito dura</option>'
+    ].join('');
+  }
+
+  if (khRangeSelect) {
+    khRangeSelect.innerHTML = createSelectOptions(
+      state.plants
+        .map((plant) => plant.khRange)
+        .filter((value) => value && normalizeSearchValue(value) !== '1 a 10'),
+      'Todas'
+    );
+  }
+}
+
+function syncLowTechToggleUi() {
+  if (!lowTechToggleButton) {
+    return;
+  }
+
+  lowTechToggleButton.classList.toggle('is-active', state.plantCatalog.lowTechOnly);
+  lowTechToggleButton.setAttribute('aria-pressed', String(state.plantCatalog.lowTechOnly));
+  lowTechToggleButton.textContent = state.plantCatalog.lowTechOnly ? 'Desativar filtro rápido' : 'Ativar filtro rápido';
+}
+
+function applyLowTechPreset(shouldEnable) {
+  state.plantCatalog.lowTechOnly = shouldEnable;
+
+  if (!filtersForm) {
+    syncLowTechToggleUi();
+    return;
+  }
+
+  const co2Field = filtersForm.querySelector('[name="co2"]');
+  const substrateField = filtersForm.querySelector('[name="substrate"]');
+  const difficultyField = filtersForm.querySelector('[name="difficulty"]');
+  const lightField = filtersForm.querySelector('[name="light"]');
+
+  if (shouldEnable) {
+    if (co2Field) {
+      co2Field.value = 'opcional';
+    }
+    if (substrateField) {
+      substrateField.value = 'opcional';
+    }
+    if (difficultyField) {
+      difficultyField.value = 'facil';
+    }
+    if (lightField) {
+      lightField.value = 'baixa';
+    }
+  } else {
+    if (co2Field?.value === 'opcional') {
+      co2Field.value = '';
+    }
+    if (substrateField?.value === 'opcional') {
+      substrateField.value = '';
+    }
+    if (difficultyField?.value === 'facil') {
+      difficultyField.value = '';
+    }
+    if (lightField?.value === 'baixa') {
+      lightField.value = '';
+    }
+  }
+
+  syncLowTechToggleUi();
+}
+
+function applyPlantCatalogSearchParams() {
+  if (!filtersForm || !plantCards) {
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'khRange', 'phMin', 'phMax', 'tempMin', 'tempMax'];
+
+  fieldNames.forEach((fieldName) => {
+    const field = filtersForm.querySelector(`[name="${fieldName}"]`);
+    const value = params.get(fieldName);
+    if (field && value !== null) {
+      field.value = value;
+    }
+  });
+
+  const lowTechParam = params.get('lowTech');
+  state.plantCatalog.lowTechOnly = lowTechParam === '1';
+  if (state.plantCatalog.lowTechOnly) {
+    applyLowTechPreset(true);
+  } else {
+    syncLowTechToggleUi();
+  }
+}
+
+function getPlantFilters() {
+  if (!filtersForm) {
+    return {};
+  }
+
+  const formData = new FormData(filtersForm);
+  return {
+    search: (formData.get('search') || '').toString().trim().toLowerCase(),
+    difficulty: (formData.get('difficulty') || '').toString(),
+    placement: (formData.get('placement') || '').toString(),
+    growthRate: (formData.get('growthRate') || '').toString(),
+    light: (formData.get('light') || '').toString(),
+    co2: (formData.get('co2') || '').toString(),
+    substrate: (formData.get('substrate') || '').toString(),
+    waterHardness: (formData.get('waterHardness') || '').toString(),
+    khRange: (formData.get('khRange') || '').toString(),
+    phMin: formData.get('phMin') ? Number(formData.get('phMin')) : null,
+    phMax: formData.get('phMax') ? Number(formData.get('phMax')) : null,
+    tempMin: formData.get('tempMin') ? Number(formData.get('tempMin')) : null,
+    tempMax: formData.get('tempMax') ? Number(formData.get('tempMax')) : null
+  };
+}
+
+function matchesPlantFilters(plant, filters) {
+  const searchable = normalizePlantValue(`${plant.name} ${plant.scientificName} ${plant.description} ${plant.heroSummary} ${plant.familyOrigin} ${plant.usageType} ${plant.setupProfile}`);
+  if (filters.search && !searchable.includes(normalizePlantValue(filters.search))) {
+    return false;
+  }
+
+  if (filters.difficulty && normalizePlantDifficulty(plant.difficulty) !== filters.difficulty) {
+    return false;
+  }
+
+  if (filters.placement && plant.placement !== filters.placement) {
+    return false;
+  }
+
+  if (filters.growthRate && plant.growthRate !== filters.growthRate) {
+    return false;
+  }
+
+  if (filters.light && normalizePlantLight(plant.light) !== filters.light) {
+    return false;
+  }
+
+  if (filters.co2 && normalizePlantCo2(plant.co2) !== filters.co2) {
+    return false;
+  }
+
+  if (filters.substrate && normalizePlantSubstrate(plant.substrate) !== filters.substrate) {
+    return false;
+  }
+
+  if (filters.waterHardness && normalizePlantWaterHardness(plant.waterHardness) !== filters.waterHardness) {
+    return false;
+  }
+
+  if (filters.khRange && plant.khRange !== filters.khRange) {
+    return false;
+  }
+
+  if (filters.phMin !== null && (plant.phMin === null || plant.phMin < filters.phMin)) {
+    return false;
+  }
+
+  if (filters.phMax !== null && (plant.phMax === null || plant.phMax > filters.phMax)) {
+    return false;
+  }
+
+  if (filters.tempMin !== null && (plant.tempMin === null || plant.tempMin < filters.tempMin)) {
+    return false;
+  }
+
+  if (filters.tempMax !== null && (plant.tempMax === null || plant.tempMax > filters.tempMax)) {
+    return false;
+  }
+
+  return true;
+}
+
+function updatePlantCatalogUrl(filters) {
+  if (!plantCards) {
+    return;
+  }
+
+  const params = new URLSearchParams();
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value === '' || value === null || value === undefined) {
+      return;
+    }
+
+    params.set(key, String(value));
+  });
+
+  if (state.plantCatalog.lowTechOnly) {
+    params.set('lowTech', '1');
+  }
+
+  const nextUrl = params.toString()
+    ? `${window.location.pathname}?${params.toString()}`
+    : window.location.pathname;
+
+  window.history.replaceState({}, '', nextUrl);
+}
+
+function formatPlantRange(minimum, maximum, suffix = '') {
+  if (minimum === null && maximum === null) {
+    return 'Não informado';
+  }
+
+  if (minimum !== null && maximum !== null) {
+    return `${minimum}${suffix} a ${maximum}${suffix}`;
+  }
+
+  if (minimum !== null) {
+    return `A partir de ${minimum}${suffix}`;
+  }
+
+  return `Até ${maximum}${suffix}`;
+}
+
+function renderPlantPhoto(plant) {
+  const hasPhoto = Boolean(plant?.photo);
+  const photoAlt = escapeHtml(plant?.photoAlt || `Foto da planta ${plant?.name || ''}`.trim());
+
+  return `
+    <div class="fish-photo plant-photo ${hasPhoto ? 'fish-photo-filled' : ''}">
+      ${hasPhoto ? `<img src="${escapeHtml(plant.photo)}" alt="${photoAlt}" loading="lazy" />` : '<span>Foto em breve</span>'}
+    </div>
+  `;
+}
+
+function renderPlantCatalogPage() {
+  if (!plantCards) {
+    return;
+  }
+
+  syncLowTechToggleUi();
+
+  if (!state.plantCatalog.hasLoaded) {
+    if (plantCatalogSummary) {
+      plantCatalogSummary.textContent = 'Carregando catálogo de plantas...';
+    }
+    plantCards.innerHTML = '<article class="plant-catalog-empty card"><h3>Preparando as plantas</h3><p>Estamos carregando as fichas com base nas seções técnicas e de parâmetros de água.</p></article>';
+    return;
+  }
+
+  if (state.plantCatalog.hasError) {
+    if (plantCatalogSummary) {
+      plantCatalogSummary.textContent = 'Não foi possível carregar o catálogo de plantas agora.';
+    }
+    plantCards.innerHTML = '<article class="plant-catalog-empty card"><h3>Catálogo indisponível</h3><p>A conexão com a base de plantas falhou. Tente novamente em instantes.</p></article>';
+    return;
+  }
+
+  const filters = getPlantFilters();
+  updatePlantCatalogUrl(filters);
+  const filtered = state.plants.filter((plant) => matchesPlantFilters(plant, filters));
+
+  if (plantCatalogSummary) {
+    const label = filtered.length === 1 ? 'planta encontrada' : 'plantas encontradas';
+    const lowTechLabel = state.plantCatalog.lowTechOnly ? ' com o filtro Apenas Low-Tech ativo' : '';
+    plantCatalogSummary.textContent = `${filtered.length} ${label}${lowTechLabel}.`;
+  }
+
+  if (!filtered.length) {
+    plantCards.innerHTML = '<article class="plant-catalog-empty card"><h3>Nenhuma planta encontrada</h3><p>Ajuste os filtros de CO2, substrato, dificuldade ou parâmetros de água para ampliar os resultados.</p></article>';
+    return;
+  }
+
+  plantCards.innerHTML = filtered.map((plant) => {
+    const plantHref = resolveSitePath(plant.URL);
+
+    return `
+    <article class="fish-card plant-card" data-plant-url="${plantHref}" tabindex="0">
+      ${renderPlantPhoto(plant)}
+      <div class="fish-card-header-row plant-card-header-row">
+        <div>
+          <h3>${escapeHtml(plant.name)}</h3>
+          <p class="plant-card-scientific-name">${escapeHtml(plant.scientificName || 'Nome científico não informado')}</p>
+        </div>
+        <span class="plant-difficulty-badge">${escapeHtml(plant.difficulty || 'Sem nível')}</span>
+      </div>
+      <p>${escapeHtml(plant.heroSummary || plant.description || 'Sem descrição disponível.')}</p>
+      <div class="plant-card-meta-grid">
+        <p><strong>Posição:</strong> ${escapeHtml(plant.placement || 'Não informado')}</p>
+        <p><strong>Porte:</strong> ${escapeHtml(plant.maxHeight || 'Não informado')}</p>
+        <p><strong>Crescimento:</strong> ${escapeHtml(plant.growthRate || 'Não informado')}</p>
+        <p><strong>CO2:</strong> ${escapeHtml(plant.co2 || 'Não informado')}</p>
+        <p><strong>Iluminação:</strong> ${escapeHtml(plant.light || 'Não informado')}</p>
+        <p><strong>Substrato:</strong> ${escapeHtml(plant.substrate || 'Não informado')}</p>
+      </div>
+      <div class="compatibility-inline plant-water-block">
+        <p class="compatibility-inline-title">Parâmetros de água</p>
+        <ul>
+          <li>pH: ${escapeHtml(formatPlantRange(plant.phMin, plant.phMax))}</li>
+          <li>Temperatura: ${escapeHtml(formatPlantRange(plant.tempMin, plant.tempMax, '°C'))}</li>
+          <li>Dureza: ${escapeHtml(plant.waterHardness || 'Não informado')}</li>
+          <li>KH: ${escapeHtml(plant.khRange || 'Não informado')}</li>
+        </ul>
+      </div>
+      <p class="plant-water-note">${escapeHtml(plant.waterNotes || plant.setupProfile || 'Perfil low-tech e comportamento na água serão exibidos aqui quando informados.')}</p>
+      <div class="fish-card-actions plant-card-actions">
+        <a href="${plantHref}" class="plant-card-link">Abrir ficha da planta</a>
+      </div>
+    </article>
+  `;
+  }).join('');
+
+  plantCards.querySelectorAll('[data-plant-url]').forEach((card) => {
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('a, button')) {
+        return;
+      }
+
+      const targetUrl = card.getAttribute('data-plant-url');
+      if (targetUrl) {
+        window.location.href = targetUrl;
+      }
+    });
+
+    card.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      if (event.target.closest('a, button')) {
+        return;
+      }
+
+      event.preventDefault();
+      const targetUrl = card.getAttribute('data-plant-url');
+      if (targetUrl) {
+        window.location.href = targetUrl;
+      }
+    });
+  });
 }
 
 function buildCatalogSearchUrl(fishSlug, searchText = '') {
@@ -2530,11 +3188,21 @@ async function loadPlantSearchIndex() {
   try {
     const data = await fetchPlantSearchIndexFromSupabase();
     state.plants = data;
+    state.plantCatalog.hasLoaded = true;
+    state.plantCatalog.hasError = false;
+
+    if (plantCards && filtersForm) {
+      populatePlantFilterOptions();
+      applyPlantCatalogSearchParams();
+    }
   } catch (error) {
     state.plants = [];
+    state.plantCatalog.hasLoaded = true;
+    state.plantCatalog.hasError = true;
     console.error('Erro ao carregar índice de plantas', error);
   }
 
+  renderPlantCatalogPage();
   renderSearchResultsPage();
   renderNavSearchSuggestions();
 }

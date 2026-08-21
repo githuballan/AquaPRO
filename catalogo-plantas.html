@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Catálogo de plantas para aquário com filtros por dificuldade, CO2, iluminação, substrato e parâmetros de água." />
+  <title>Catálogo de plantas | AquaristaPRO</title>
+  <link rel="shortcut icon" href="imagens-treino/aqua-icone-ok.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body data-supabase-url="https://xktobjguguvvoagyteke.supabase.co" data-supabase-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4">
+  <nav id="site-nav" class="top-nav" aria-label="Navegação principal"></nav>
+
+  <header class="hero hero-small hero-plants-catalog">
+    <div class="hero-content">
+      <p class="eyebrow">AquaristaPRO</p>
+      <h1>Encontre plantas compatíveis com o seu estilo de aquário</h1>
+      <p class="catalog-hero-copy">Use os blocos técnicos das fichas para filtrar posição, crescimento, CO2, substrato e parâmetros de água sem misturar com o catálogo de peixes.</p>
+    </div>
+  </header>
+
+  <main class="page-shell catalog-layout">
+    <aside class="card filters-card">
+      <div class="filters-card-header">
+        <h2>Filtros</h2>
+        <button id="closeFiltersButton" type="button" class="filters-close-btn" aria-label="Fechar filtros">&times;</button>
+      </div>
+
+      <section class="plant-quick-filter" aria-labelledby="lowTechHeading">
+        <div>
+          <h3 id="lowTechHeading">Apenas Low-Tech</h3>
+          <p>Sem CO2, sem substrato fértil, dificuldade fácil e baixa iluminação.</p>
+        </div>
+        <button id="lowTechToggle" type="button" class="plant-quick-toggle" aria-pressed="false">Ativar filtro rápido</button>
+      </section>
+
+      <form id="filtersForm" class="filter-form">
+        <label>Busca
+          <input type="text" name="search" placeholder="Nome, uso, família ou descrição" />
+        </label>
+        <label>Nível de dificuldade
+          <select name="difficulty"></select>
+        </label>
+        <label>Posição indicada
+          <select name="placement"></select>
+        </label>
+        <label>Taxa de crescimento
+          <select name="growthRate"></select>
+        </label>
+        <label>Iluminação
+          <select name="light"></select>
+        </label>
+        <label>CO2
+          <select name="co2"></select>
+        </label>
+        <label>Substrato fértil
+          <select name="substrate"></select>
+        </label>
+        <label>Dureza da água
+          <select name="waterHardness"></select>
+        </label>
+        <label>Faixa de KH
+          <select name="khRange"></select>
+        </label>
+        <label>pH mínimo
+          <input type="number" name="phMin" step="0.1" />
+        </label>
+        <label>pH máximo
+          <input type="number" name="phMax" step="0.1" />
+        </label>
+        <label>Temperatura mínima
+          <input type="number" name="tempMin" step="0.1" />
+        </label>
+        <label>Temperatura máxima
+          <input type="number" name="tempMax" step="0.1" />
+        </label>
+        <button type="submit">Aplicar filtros</button>
+      </form>
+    </aside>
+
+    <div id="filtersBackdrop" class="filters-backdrop hidden" aria-hidden="true"></div>
+
+    <section class="catalog-results plant-catalog-results">
+      <div class="catalog-results-header card">
+        <div class="catalog-results-intro">
+          <p class="eyebrow">Catálogos / Plantas</p>
+          <h2>Seleção técnica baseada nas fichas</h2>
+          <p id="plantCatalogSummary">Carregando catálogo de plantas...</p>
+        </div>
+      </div>
+
+      <div id="plantCards" class="fish-grid plant-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 AquaristaPRO — conteúdo educativo para aquarismo de água doce.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+</body>
+</html>

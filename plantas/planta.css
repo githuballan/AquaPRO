@@ -140,7 +140,11 @@
 }
 
 .fish-spec-grid {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  gap: 1rem;
+  flex-direction: row;
+
+
 }
 
 .fish-parameter-grid {
@@ -304,9 +308,11 @@
 }
 
 .plant-page .fish-card-label,
-.plant-page .fish-section-eyebrow,
 .plant-page .fish-breadcrumbs a {
   color: #753a0a;
+}
+.plant-page .fish-section-eyebrow {
+  display: none;
 }
 
 .plant-page .fish-highlight-card {

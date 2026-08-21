@@ -109,6 +109,70 @@ header h1 {
   width: 100%;
 }
 
+.top-nav-item {
+  position: relative;
+}
+
+.top-nav-item-parent {
+  position: relative;
+}
+
+.top-nav-parent-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.top-nav-parent-button.active {
+  background: #085469;
+}
+
+.top-nav-parent-caret {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid currentColor;
+  transition: transform 180ms ease;
+}
+
+.top-nav-item-parent.submenu-open .top-nav-parent-caret {
+  transform: rotate(180deg);
+}
+
+.top-nav-submenu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  z-index: 20;
+  min-width: 210px;
+  padding: 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 20px 38px rgba(18, 49, 63, 0.16);
+  transform: translateX(-50%);
+}
+
+.top-nav-item-parent.submenu-open .top-nav-submenu,
+.top-nav-item-parent:focus-within .top-nav-submenu {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.top-nav-submenu a,
+.top-nav-submenu a.active {
+  width: 100%;
+  text-align: left;
+  background: #eff9fb;
+  color: var(--text);
+}
+
+.top-nav-submenu a.active {
+  background: #d6eff4;
+}
+
 .filters-card-header {
   display: flex;
   align-items: center;
@@ -1064,6 +1128,126 @@ textarea {
   gap: 0.9rem;
 }
 
+.catalog-results-header {
+  margin-bottom: 1rem;
+}
+
+.catalog-results-intro h2,
+.catalog-results-intro p {
+  margin: 0;
+}
+
+.catalog-results-intro {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.hero-plants-catalog .hero-content {
+  max-width: 780px;
+}
+
+.catalog-hero-copy {
+  max-width: 60ch;
+}
+
+.plant-quick-filter {
+  display: grid;
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #cfe7d4;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(245, 252, 246, 0.98), rgba(232, 245, 235, 0.98));
+}
+
+.plant-quick-filter h3,
+.plant-quick-filter p {
+  margin: 0;
+}
+
+.plant-quick-toggle {
+  width: 100%;
+  margin-top: 0;
+  background: #1f6f43;
+}
+
+.plant-quick-toggle.is-active {
+  background: #14532f;
+  box-shadow: 0 0 0 3px rgba(20, 83, 47, 0.18);
+}
+
+.plant-grid {
+  align-items: stretch;
+}
+
+.plant-card {
+  background: linear-gradient(180deg, rgba(249, 253, 250, 0.98), rgba(238, 247, 239, 0.98));
+  border-color: #d7ecda;
+  cursor: pointer;
+}
+
+.plant-photo {
+  background: linear-gradient(135deg, rgba(42, 110, 65, 0.12), rgba(169, 219, 181, 0.22));
+}
+
+.plant-card-header-row {
+  align-items: flex-start;
+}
+
+.plant-card-scientific-name {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.plant-difficulty-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: #dff1e4;
+  color: #1f6f43;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.plant-card-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem 0.9rem;
+  margin-bottom: 0.95rem;
+}
+
+.plant-card-meta-grid p,
+.plant-water-note {
+  margin: 0;
+}
+
+.plant-water-block {
+  margin-bottom: 0.9rem;
+}
+
+.plant-water-note {
+  color: var(--muted);
+}
+
+.plant-card-actions {
+  margin-top: auto;
+}
+
+.plant-card-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.plant-catalog-empty {
+  background: linear-gradient(180deg, rgba(249, 253, 250, 0.98), rgba(238, 247, 239, 0.98));
+  border-color: #d7ecda;
+}
+
 .filter-form label {
   min-width: 0;
 }
@@ -1642,6 +1826,41 @@ footer {
 
   .top-nav-links a {
     text-align: center;
+  }
+
+  .top-nav-item,
+  .top-nav-item-parent,
+  .top-nav-parent-button {
+    width: 100%;
+  }
+
+  .top-nav-parent-button {
+    justify-content: center;
+  }
+
+  .top-nav-submenu {
+    position: static;
+    left: auto;
+    transform: none;
+    min-width: 0;
+    padding: 0.35rem 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .top-nav-submenu a,
+  .top-nav-submenu a.active {
+    text-align: center;
+  }
+
+  .catalog-results-header {
+    padding: 1.1rem;
+  }
+
+  .plant-card-meta-grid {
+    grid-template-columns: 1fr;
   }
 
   .nav-utility-btn,
