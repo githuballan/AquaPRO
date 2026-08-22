@@ -1708,7 +1708,7 @@ footer {
     bottom: 0;
     z-index: 30;
     width: min(88vw, 360px);
-    height: 80vh;
+    height: 90vh;
     margin: 0;
     border-radius: 0 20px 20px 0;
     overflow-y: auto;
