@@ -140,11 +140,11 @@
 }
 
 .fish-spec-grid {
+  /* grid-template-columns: repeat(5, minmax(0, 1fr)); */
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   flex-direction: row;
-
-
 }
 
 .fish-parameter-grid {
