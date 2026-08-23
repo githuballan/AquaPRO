@@ -1219,17 +1219,8 @@ textarea {
   margin-bottom: 0.95rem;
 }
 
-.plant-card-meta-grid p,
-.plant-water-note {
+.plant-card-meta-grid p {
   margin: 0;
-}
-
-.plant-water-block {
-  margin-bottom: 0.9rem;
-}
-
-.plant-water-note {
-  color: var(--muted);
 }
 
 .plant-card-actions {

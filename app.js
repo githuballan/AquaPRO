@@ -2437,16 +2437,6 @@ function renderPlantCatalogPage() {
         <p><strong>Iluminação:</strong> ${escapeHtml(plant.light || 'Não informado')}</p>
         <p><strong>Substrato:</strong> ${escapeHtml(plant.substrate || 'Não informado')}</p>
       </div>
-      <div class="compatibility-inline plant-water-block">
-        <p class="compatibility-inline-title">Parâmetros de água</p>
-        <ul>
-          <li>pH: ${escapeHtml(formatPlantRange(plant.phMin, plant.phMax))}</li>
-          <li>Temperatura: ${escapeHtml(formatPlantRange(plant.tempMin, plant.tempMax, '°C'))}</li>
-          <li>Dureza: ${escapeHtml(plant.waterHardness || 'Não informado')}</li>
-          <li>KH: ${escapeHtml(plant.khRange || 'Não informado')}</li>
-        </ul>
-      </div>
-      <p class="plant-water-note">${escapeHtml(plant.waterNotes || plant.setupProfile || 'Perfil low-tech e comportamento na água serão exibidos aqui quando informados.')}</p>
       <div class="fish-card-actions plant-card-actions">
         <a href="${plantHref}" class="plant-card-link">Abrir ficha da planta</a>
       </div>
