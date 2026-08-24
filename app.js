@@ -1975,7 +1975,7 @@ function getSearchEntries() {
       slug: fish.slug,
       title: fish.name,
       description: fish.description,
-      href: buildCatalogSearchUrl(fish.slug, fish.name),
+      href: fish.URL ? resolveSitePath(fish.URL) : buildCatalogSearchUrl(fish.slug, fish.name),
       keywords: `${fish.origin} ${fish.temperament} ${fish.diet} ${fish.group} ${fish.careLevel} ${fish.difficulty}`
     })),
     ...state.plants.map((plant) => ({
