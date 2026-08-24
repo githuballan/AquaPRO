@@ -1,0 +1,21 @@
+/site.webmanifest /site.webmanifest 200
+/sw.js /sw.js 200
+/robots.txt /robots.txt 200
+/sitemap.xml /sitemap.xml 200
+/images/* /images/:splat 200
+/font/* /font/:splat 200
+/peixes/*.css /peixes/:splat.css 200
+/peixes/*.js /peixes/:splat.js 200
+/plantas/*.css /plantas/:splat.css 200
+/src/css/* /src/css/:splat 200
+/src/js/* /src/js/:splat 200
+/*.css /:splat.css 200
+/*.js /:splat.js 200
+/*.png /:splat.png 200
+/*.webp /:splat.webp 200
+/*.svg /:splat.svg 200
+/*.ico /:splat.ico 200
+/*.xml /:splat.xml 200
+/*.txt /:splat.txt 200
+
+/* /index.html 200
