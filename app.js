@@ -576,6 +576,51 @@ function mapSupabasePlantRow(row) {
   };
 }
 
+function normalizeBooleanField(value) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+
+  if (value === true || normalized === 'true' || normalized === 'sim' || normalized === '1') {
+    return true;
+  }
+
+  if (value === false || normalized === 'false' || normalized === 'nao' || normalized === 'não' || normalized === '0') {
+    return false;
+  }
+
+  return null;
+}
+
+function normalizeBooleanFieldForForm(value) {
+  const normalized = normalizeBooleanField(value);
+  if (normalized === true) {
+    return 'sim';
+  }
+
+  if (normalized === false) {
+    return 'nao';
+  }
+
+  return '';
+}
+
+function normalizeLightValue(value) {
+  const normalized = String(value ?? '').trim().toLowerCase();
+
+  if (normalized === 'forte') {
+    return 'forte';
+  }
+
+  if (normalized === 'media' || normalized === 'média') {
+    return 'media';
+  }
+
+  if (normalized === 'baixa') {
+    return 'baixa';
+  }
+
+  return '';
+}
+
 function mapSupabaseAquariumRow(row) {
   if (!row) {
     return null;
@@ -589,8 +634,11 @@ function mapSupabaseAquariumRow(row) {
     temperature: parseNumericValue(row.target_temperature),
     ph: parseNumericValue(row.target_ph),
     gh: parseNumericValue(row.target_gh),
-      ghLabel: formatGhValue(row.target_gh_label || row.gh_label || row.target_gh) || '',
+    ghLabel: formatGhValue(row.target_gh_label || row.gh_label || row.target_gh) || '',
     kh: parseNumericValue(row.target_kh),
+    substratoFertil: normalizeBooleanFieldForForm(row.substrato_fertil),
+    co2: normalizeBooleanFieldForForm(row.co2),
+    iluminacao: normalizeLightValue(row.iluminacao),
     notes: row.notes || ''
   };
 }
@@ -656,6 +704,9 @@ function buildAquariumPayload(data) {
     target_ph: parseNumericValue(data.ph),
     target_gh: parseGhValue(data.gh),
     target_kh: parseNumericValue(data.kh),
+    substrato_fertil: normalizeBooleanField(data.substratoFertil),
+    co2: normalizeBooleanField(data.co2),
+    iluminacao: normalizeLightValue(data.iluminacao),
     notes: normalizeBoundedText(data.notes, TEXT_LIMITS.aquariumNotes)
   };
 }
@@ -1846,6 +1897,16 @@ function bindEvents() {
         setMobileFilterState(false);
       }
     });
+
+    filtersForm.addEventListener('reset', () => {
+      clearPlantCatalogFilters(false);
+
+      if (plantCards) {
+        renderPlantCatalogPage();
+      } else {
+        renderFishCards();
+      }
+    });
   }
 
   if (lowTechToggleButton) {
@@ -2066,6 +2127,191 @@ function normalizePlantLight(value) {
   return normalized;
 }
 
+function normalizeAquariumCompatibilityProfile(aquarium) {
+  if (!aquarium) {
+    return {
+      hasAquarium: false,
+      co2: '',
+      light: '',
+      substrate: '',
+      isComplete: false
+    };
+  }
+
+  const normalizedCo2 = normalizeBooleanField(aquarium.co2);
+  const normalizedSubstrate = normalizeBooleanField(aquarium.substratoFertil);
+  const light = normalizeLightValue(aquarium.iluminacao);
+
+  return {
+    hasAquarium: true,
+    co2: normalizedCo2 === true ? 'sim' : normalizedCo2 === false ? 'nao' : '',
+    light,
+    substrate: normalizedSubstrate === true ? 'sim' : normalizedSubstrate === false ? 'nao' : '',
+    isComplete: Boolean((normalizedCo2 === true || normalizedCo2 === false) && (normalizedSubstrate === true || normalizedSubstrate === false) && light)
+  };
+}
+
+function getLightRank(value) {
+  const normalized = normalizePlantLight(value);
+  const ranks = {
+    baixa: 1,
+    media: 2,
+    alta: 3,
+    forte: 3
+  };
+
+  return ranks[normalized] || 0;
+}
+
+function buildPlantCompatibilityItem(label, isCompatible, expected, actual) {
+  return {
+    label,
+    isCompatible,
+    expected,
+    actual
+  };
+}
+
+function isPlantCo2Compatible(plantCo2Requirement, aquariumCo2) {
+  if (!plantCo2Requirement || plantCo2Requirement === 'opcional') {
+    return true;
+  }
+
+  if (plantCo2Requirement === 'recomendado') {
+    return aquariumCo2 === 'sim';
+  }
+
+  return true;
+}
+
+function isPlantSubstrateCompatible(plantSubstrateRequirement, aquariumSubstrate) {
+  if (!plantSubstrateRequirement || plantSubstrateRequirement === 'opcional') {
+    return true;
+  }
+
+  if (plantSubstrateRequirement === 'recomendado') {
+    return aquariumSubstrate === 'sim';
+  }
+
+  return true;
+}
+
+function isPlantLightCompatible(plantLightRequirement, aquariumLight) {
+  if (!plantLightRequirement) {
+    return true;
+  }
+
+  return getLightRank(aquariumLight) >= getLightRank(plantLightRequirement);
+}
+
+function getPlantCompatibilityResult(plant, aquarium = state.aquarium, activeUser = state.activeUser) {
+  if (!activeUser) {
+    return {
+      status: 'guest',
+      label: 'Entre para comparar',
+      summary: 'Faça login e cadastre seu aquário para verificar a compatibilidade.',
+      items: []
+    };
+  }
+
+  const profile = normalizeAquariumCompatibilityProfile(aquarium);
+  if (!profile.hasAquarium) {
+    return {
+      status: 'no-aquarium',
+      label: 'Cadastre seu aquário',
+      summary: 'Salve CO2, iluminação e substrato fértil para comparar as plantas.',
+      items: []
+    };
+  }
+
+  const normalizedPlantCo2 = normalizePlantCo2(plant?.co2);
+  const normalizedPlantLight = normalizePlantLight(plant?.light);
+  const normalizedPlantSubstrate = normalizePlantSubstrate(plant?.substrate);
+
+  const items = [
+    buildPlantCompatibilityItem(
+      'CO2',
+      profile.isComplete ? isPlantCo2Compatible(normalizedPlantCo2, profile.co2) : false,
+      normalizedPlantCo2 === 'recomendado' ? 'Recomendado' : 'Opcional',
+      profile.co2 === 'sim' ? 'Seu aquário tem CO2' : profile.co2 === 'nao' ? 'Seu aquário não tem CO2' : 'Não informado'
+    ),
+    buildPlantCompatibilityItem(
+      'Iluminação',
+      profile.isComplete ? isPlantLightCompatible(normalizedPlantLight, profile.light) : false,
+      normalizedPlantLight ? `Exige ${normalizedPlantLight}` : 'Não informada',
+      profile.light ? `Seu aquário usa ${profile.light}` : 'Não informada'
+    ),
+    buildPlantCompatibilityItem(
+      'Substrato',
+      profile.isComplete ? isPlantSubstrateCompatible(normalizedPlantSubstrate, profile.substrate) : false,
+      normalizedPlantSubstrate === 'recomendado' ? 'Recomendado' : 'Opcional',
+      profile.substrate === 'sim' ? 'Seu aquário tem substrato fértil' : profile.substrate === 'nao' ? 'Seu aquário não tem substrato fértil' : 'Não informado'
+    )
+  ];
+
+  if (!profile.isComplete) {
+    return {
+      status: 'incompatible',
+      label: 'Incompatível',
+      summary: 'Faltam dados de CO2, iluminação ou substrato fértil no seu aquário.',
+      items
+    };
+  }
+
+  const isCompatible = items.every((item) => item.isCompatible);
+
+  return {
+    status: isCompatible ? 'compatible' : 'incompatible',
+    label: isCompatible ? 'Compatível' : 'Incompatível',
+    summary: isCompatible
+      ? 'Os requisitos principais da planta combinam com o perfil salvo do seu aquário.'
+      : 'Pelo menos um requisito principal da planta não bate com o seu aquário.',
+    items
+  };
+}
+
+function renderPlantCompatibility(plant) {
+  const compatibility = getPlantCompatibilityResult(plant);
+
+  if (compatibility.status === 'compatible') {
+    return `
+      <section class="plant-compatibility plant-compatibility-${compatibility.status}" aria-label="Compatibilidade da planta com o aquário do usuário">
+        <div class="plant-compatibility-header">
+          <span class="plant-compatibility-badge">${escapeHtml(compatibility.label)}</span>
+        </div>
+      </section>
+    `;
+  }
+
+  if (!compatibility.items.length) {
+    return `
+      <section class="plant-compatibility plant-compatibility-${compatibility.status}" aria-label="Compatibilidade da planta com o aquário do usuário">
+        <div class="plant-compatibility-header">
+          <span class="plant-compatibility-badge">${escapeHtml(compatibility.label)}</span>
+        </div>
+        <p class="plant-compatibility-summary">${escapeHtml(compatibility.summary)}</p>
+      </section>
+    `;
+  }
+
+  const incompatibleItems = compatibility.items.filter((item) => !item.isCompatible);
+
+  return `
+    <section class="plant-compatibility plant-compatibility-${compatibility.status}" aria-label="Compatibilidade da planta com o aquário do usuário">
+      <div class="plant-compatibility-header">
+        <span class="plant-compatibility-badge">${escapeHtml(compatibility.label)}</span>
+      </div>
+      <ul class="plant-compatibility-list">
+        ${incompatibleItems.map((item) => `
+          <li class="plant-compatibility-item ${item.isCompatible ? 'is-compatible' : 'is-incompatible'}">
+            <strong>${escapeHtml(item.label)}:</strong> ${escapeHtml(item.expected)}. ${escapeHtml(item.actual)}.
+          </li>
+        `).join('')}
+      </ul>
+    </section>
+  `;
+}
+
 function normalizePlantWaterHardness(value) {
   const normalized = normalizeSearchValue(value);
   if (!normalized) {
@@ -2202,7 +2448,18 @@ function syncLowTechToggleUi() {
 
   lowTechToggleButton.classList.toggle('is-active', state.plantCatalog.lowTechOnly);
   lowTechToggleButton.setAttribute('aria-pressed', String(state.plantCatalog.lowTechOnly));
-  lowTechToggleButton.textContent = state.plantCatalog.lowTechOnly ? 'Desativar filtro rápido' : 'Ativar filtro rápido';
+}
+
+function clearPlantCatalogFilters(shouldResetForm = true) {
+  if (!filtersForm) {
+    return;
+  }
+
+  if (shouldResetForm) {
+    filtersForm.reset();
+  }
+
+  applyLowTechPreset(false);
 }
 
 function applyLowTechPreset(shouldEnable) {
@@ -2457,7 +2714,6 @@ function renderPlantCatalogPage() {
         </div>
         <span class="plant-difficulty-badge">${escapeHtml(plant.difficulty || 'Sem nível')}</span>
       </div>
-      <p>${escapeHtml(plant.heroSummary || plant.description || 'Sem descrição disponível.')}</p>
       <div class="plant-card-meta-grid">
         <p><strong>Posição:</strong> ${escapeHtml(plant.placement || 'Não informado')}</p>
         <p><strong>Porte:</strong> ${escapeHtml(plant.maxHeight || 'Não informado')}</p>
@@ -2466,6 +2722,7 @@ function renderPlantCatalogPage() {
         <p><strong>Iluminação:</strong> ${escapeHtml(plant.light || 'Não informado')}</p>
         <p><strong>Substrato:</strong> ${escapeHtml(plant.substrate || 'Não informado')}</p>
       </div>
+      ${renderPlantCompatibility(plant)}
       <div class="fish-card-actions plant-card-actions">
         <a href="${plantHref}" class="plant-card-link">Abrir ficha da planta</a>
       </div>
@@ -2843,6 +3100,7 @@ function refreshProtectedViews() {
   renderReadingSummary();
   renderReadingHistory();
   renderCompatibility();
+  renderPlantCatalogPage();
   renderFishCards();
   renderChart();
   renderProducts();
@@ -3050,7 +3308,7 @@ function fillAquariumForm() {
     return;
   }
 
-  const fields = ['aquariumName', 'volume', 'type', 'temperature', 'ph', 'gh', 'kh'];
+  const fields = ['aquariumName', 'volume', 'type', 'temperature', 'ph', 'gh', 'kh', 'substratoFertil', 'co2', 'iluminacao'];
   fields.forEach((field) => {
     const input = aquariumForm.querySelector(`[name="${field}"]`);
     if (input) {

@@ -1128,6 +1128,27 @@ textarea {
   gap: 0.9rem;
 }
 
+.filter-form-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.filter-form-actions button {
+  width: 100%;
+  margin-top: 0;
+}
+
+.filter-form-reset {
+  background: #eef7fb;
+  color: #12313f;
+  border: 1px solid #c8dde7;
+}
+
+.filter-form-reset:hover {
+  background: #e3f1f7;
+}
+
 .catalog-results-header {
   margin-bottom: 1rem;
 }
@@ -1151,8 +1172,7 @@ textarea {
 }
 
 .plant-quick-filter {
-  display: grid;
-  gap: 0.9rem;
+  display: block;
   margin-bottom: 1rem;
   padding: 1rem;
   border: 1px solid #cfe7d4;
@@ -1221,6 +1241,88 @@ textarea {
 
 .plant-card-meta-grid p {
   margin: 0;
+}
+
+.plant-compatibility {
+  margin-bottom: 0.95rem;
+  padding: 0.9rem;
+  border: 1px solid #d7e4dc;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.plant-compatibility-compatible {
+  border-color: #b8dfc2;
+  background: linear-gradient(180deg, rgba(240, 252, 243, 0.98), rgba(231, 247, 235, 0.98));
+}
+
+.plant-compatibility-incompatible {
+  border-color: #efd1d1;
+  background: linear-gradient(180deg, rgba(255, 246, 246, 0.98), rgba(252, 236, 236, 0.98));
+}
+
+.plant-compatibility-guest,
+.plant-compatibility-no-aquarium {
+  border-color: #cfe1eb;
+  background: linear-gradient(180deg, rgba(245, 250, 253, 0.98), rgba(234, 243, 248, 0.98));
+}
+
+.plant-compatibility-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.plant-compatibility-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.plant-compatibility-compatible .plant-compatibility-badge {
+  background: #d7f0de;
+  color: #1f6f43;
+}
+
+.plant-compatibility-incompatible .plant-compatibility-badge {
+  background: #f7dddd;
+  color: #8b2f2f;
+}
+
+.plant-compatibility-guest .plant-compatibility-badge,
+.plant-compatibility-no-aquarium .plant-compatibility-badge {
+  background: #deedf5;
+  color: #1f4f6f;
+}
+
+.plant-compatibility-summary {
+  margin: 0.65rem 0 0;
+  color: #284635;
+}
+
+.plant-compatibility-list {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.plant-compatibility-item {
+  color: #284635;
+}
+
+.plant-compatibility-item.is-compatible::marker {
+  color: #1f6f43;
+}
+
+.plant-compatibility-item.is-incompatible::marker {
+  color: #8b2f2f;
 }
 
 .plant-card-actions {
@@ -1684,7 +1786,7 @@ footer {
   .steps-grid,
   .fish-grid,
   .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
 
   .catalog-layout {

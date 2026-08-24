@@ -22,27 +22,26 @@
   <header class="hero hero-small hero-plants-catalog">
     <div class="hero-content">
       <p class="eyebrow">AquaristaPRO</p>
-      <h1>Encontre plantas compatíveis com o seu estilo de aquário</h1>
-      <p class="catalog-hero-copy">Use os blocos técnicos das fichas para filtrar posição, crescimento, CO2, substrato e parâmetros de água sem misturar com o catálogo de peixes.</p>
+      <h1>Encontre plantas compatíveis com o seu aquário</h1>
     </div>
   </header>
 
   <main class="page-shell catalog-layout">
-    <aside class="card filters-card">
+    <aside class="card filters-card" id="catalogFilters">
       <div class="filters-card-header">
         <h2>Filtros</h2>
         <button id="closeFiltersButton" type="button" class="filters-close-btn" aria-label="Fechar filtros">&times;</button>
       </div>
 
-      <section class="plant-quick-filter" aria-labelledby="lowTechHeading">
-        <div>
-          <h3 id="lowTechHeading">Apenas Low-Tech</h3>
-          <p>Sem CO2, sem substrato fértil, dificuldade fácil e baixa iluminação.</p>
-        </div>
-        <button id="lowTechToggle" type="button" class="plant-quick-toggle" aria-pressed="false">Ativar filtro rápido</button>
+      <section class="plant-quick-filter" aria-label="Filtro rápido low-tech">
+        <button id="lowTechToggle" type="button" class="plant-quick-toggle" aria-pressed="false">Apenas Low-Tech</button>
       </section>
 
       <form id="filtersForm" class="filter-form">
+        <div class="filter-form-actions filter-form-actions-top">
+          <button type="submit">Aplicar filtros</button>
+          <button type="reset" class="filter-form-reset">Limpar filtros</button>
+        </div>
         <label>Busca
           <input type="text" name="search" placeholder="Nome, uso, família ou descrição" />
         </label>
@@ -82,7 +81,10 @@
         <label>Temperatura máxima
           <input type="number" name="tempMax" step="0.1" />
         </label>
-        <button type="submit">Aplicar filtros</button>
+        <div class="filter-form-actions filter-form-actions-bottom">
+          <button type="submit">Aplicar filtros</button>
+          <button type="reset" class="filter-form-reset">Limpar filtros</button>
+        </div>
       </form>
     </aside>
 
