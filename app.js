@@ -473,6 +473,34 @@ function resolveSitePath(path) {
   return `${getSiteRootPrefix()}${path.replace(/^\.\//, '').replace(/^\/+/, '')}`;
 }
 
+function canRegisterServiceWorker() {
+  if (!('serviceWorker' in navigator)) {
+    return false;
+  }
+
+  if (window.location.protocol === 'file:') {
+    return false;
+  }
+
+  if (window.location.protocol === 'https:') {
+    return true;
+  }
+
+  return ['localhost', '127.0.0.1'].includes(window.location.hostname);
+}
+
+async function registerSiteServiceWorker() {
+  if (!canRegisterServiceWorker()) {
+    return;
+  }
+
+  try {
+    await navigator.serviceWorker.register(resolveSitePath('sw.js'), { scope: resolveSitePath('') || './' });
+  } catch (error) {
+    console.error('Erro ao registrar o service worker', error);
+  }
+}
+
 function mapSupabaseFishRow(row) {
   return {
     slug: row.slug,
@@ -1572,6 +1600,7 @@ async function init() {
   renderSearchResultsPage();
   renderPlantCatalogPage();
   setupResponsiveSurface();
+  registerSiteServiceWorker();
   loadFishCatalog();
   loadPlantSearchIndex();
   renderAuthState();
