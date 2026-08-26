@@ -3625,6 +3625,7 @@ function matchesFilters(fish, filters) {
 function getCompatibilityState(fish, aquarium = state.aquarium) {
   if (!aquarium) {
     return {
+      status: 'no-aquarium',
       statusClass: 'status-warning',
       statusText: 'Aguardando aquário',
       checks: []
@@ -3668,10 +3669,11 @@ function getCompatibilityState(fish, aquarium = state.aquarium) {
 
   const hasError = checks.some((check) => check.status === 'error');
   const hasWarning = checks.some((check) => check.status === 'warning');
-  const statusText = hasError ? 'Incompatível' : hasWarning ? 'Compatível com ajustes' : 'Compatível';
+  const status = hasError || hasWarning ? 'incompatible' : 'compatible';
+  const statusText = hasError || hasWarning ? 'Incompatível' : 'Compatível';
   const statusClass = hasError ? 'status-error' : hasWarning ? 'status-warning' : 'status-ok';
 
-  return { statusClass, statusText, checks };
+  return { status, statusClass, statusText, checks };
 }
 
 function renderFishPhoto(fish) {
@@ -3717,13 +3719,31 @@ function renderFishCard() {
 }
 
 function renderCompatibilityChecks(checks) {
+  const incompatibleChecks = checks.filter((check) => check.status !== 'ok');
+
+  if (!incompatibleChecks.length) {
+    return '';
+  }
+
   return `
-    <ul class="compatibility-check-list">
-      ${checks.map((check) => {
-        const marker = check.status === 'error' ? '<span class="compatibility-dot" title="Parâmetro incompatível"></span>' : '';
-        return `<li class="${check.status}">${marker}<span>${check.message}</span></li>`;
-      }).join('')}
+    <ul class="plant-compatibility-list fish-compatibility-list">
+      ${incompatibleChecks.map((check) => `<li class="plant-compatibility-item is-incompatible">${escapeHtml(check.label)}</li>`).join('')}
     </ul>
+  `;
+}
+
+function renderFishCompatibilityInline(compatibility) {
+  if (!compatibility) {
+    return '';
+  }
+
+  return `
+    <section class="plant-compatibility plant-compatibility-${compatibility.status} fish-compatibility-inline" aria-label="Compatibilidade do peixe com o aquário do usuário">
+      <div class="plant-compatibility-header">
+        <span class="plant-compatibility-badge">${escapeHtml(compatibility.statusText)}</span>
+      </div>
+      ${renderCompatibilityChecks(compatibility.checks)}
+    </section>
   `;
 }
 
@@ -3741,11 +3761,7 @@ function renderCompatibility() {
   }
 
   compatibilityResult.innerHTML = `
-    <div class="${compatibility.statusClass}">
-      <h3>${compatibility.statusText}</h3>
-      <p>${fish.name} tende a se dar bem com este aquário quando os parâmetros forem ajustados com cuidado.</p>
-      ${renderCompatibilityChecks(compatibility.checks)}
-    </div>
+    ${renderFishCompatibilityInline(compatibility)}
   `;
 
   renderProducts(compatibility.checks);
@@ -3774,16 +3790,11 @@ function renderFishCards() {
           <h3>${fish.name}</h3>
           <button type="button" class="fish-card-inline-button" data-fish-slug="${fish.slug}">Ver ficha</button>
         </div>
-        <p>${fish.description}</p>
         <p><strong>Origem:</strong> ${fish.origin}</p>
         <p><strong>Temperamento:</strong> ${fish.temperament}</p>
         <p><strong>Alimentação:</strong> ${fish.diet}</p>
         <p><strong>Aquário mínimo:</strong> ${fish.minAquariumSize} L</p>
-        <p class="${compatibility.statusClass}"><strong>${compatibility.statusText}</strong></p>
-        <div class="compatibility-inline">
-          <p class="compatibility-inline-title">Parâmetros</p>
-          ${state.aquarium ? renderCompatibilityChecks(compatibility.checks) : '<p>Cadastre seu aquário para ver os parâmetros.</p>'}
-        </div>
+        ${state.aquarium ? renderFishCompatibilityInline(compatibility) : '<p>Cadastre seu aquário para ver os parâmetros.</p>'}
         <div class="fish-card-actions">
           <button type="button" data-merchant-slug="${fish.slug}">Card Lojistas</button>
         </div>

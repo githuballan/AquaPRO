@@ -35,6 +35,10 @@
         <button id="closeFiltersButton" type="button" class="filters-close-btn" aria-label="Fechar filtros">&times;</button>
       </div>
       <form id="filtersForm" class="filter-form">
+        <div class="filter-form-actions filter-form-actions-top">
+          <button type="submit">Aplicar filtros</button>
+          <button type="reset" class="filter-form-reset">Limpar filtros</button>
+        </div>
         <label>Busca
           <input type="text" name="search" placeholder="Nome, origem ou descrição" />
         </label>
@@ -77,7 +81,10 @@
         <label>Aquários até(L)
           <input type="number" name="aquariumMin" step="1" />
         </label>
-        <button type="submit">Aplicar filtros</button>
+        <div class="filter-form-actions filter-form-actions-bottom">
+          <button type="submit">Aplicar filtros</button>
+          <button type="reset" class="filter-form-reset">Limpar filtros</button>
+        </div>
       </form>
     </aside>
     <div id="filtersBackdrop" class="filters-backdrop hidden" aria-hidden="true"></div>

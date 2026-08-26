@@ -1412,42 +1412,12 @@ textarea {
   margin-top: 0.8rem;
 }
 
-.compatibility-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: 0.45rem;
-  border-radius: 50%;
-  background: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.22);
-  vertical-align: middle;
-  flex-shrink: 0;
-}
-
-.compatibility-result li,
-.compatibility-check-list li,
-.compatibility-inline li {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.compatibility-inline {
+.fish-compatibility-inline {
   margin-top: 0.8rem;
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--border);
 }
 
-.compatibility-inline-title {
-  margin: 0 0 0.35rem;
-  font-weight: 700;
-}
-
-.compatibility-check-list,
-.compatibility-inline ul {
-  margin: 0;
-  padding-left: 0;
-  list-style: none;
+.fish-compatibility-list {
+  color: #7b2f2f;
 }
 
 .status-ok {
