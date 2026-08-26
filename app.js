@@ -644,20 +644,11 @@ function mapSupabaseAquariumRow(row) {
 }
 
 function normalizeCo2State(value) {
-  if (value === true || value === 'true') {
+  if (value === true || value === 'true' || value === 'ligado') {
     return 'ligado';
   }
 
-  if (value === false || value === 'false') {
-    return 'desligado';
-  }
-
-  const normalized = String(value ?? '').trim().toLowerCase();
-  if (normalized === 'ligado') {
-    return 'ligado';
-  }
-
-  if (normalized === 'desligado') {
+  if (value === false || value === 'false' || value === 'desligado') {
     return 'desligado';
   }
 
