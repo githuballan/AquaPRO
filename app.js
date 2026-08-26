@@ -2374,7 +2374,6 @@ function populatePlantFilterOptions() {
   const growthSelect = filtersForm.querySelector('[name="growthRate"]');
   const lightSelect = filtersForm.querySelector('[name="light"]');
   const waterHardnessSelect = filtersForm.querySelector('[name="waterHardness"]');
-  const khRangeSelect = filtersForm.querySelector('[name="khRange"]');
 
   if (difficultySelect) {
     difficultySelect.innerHTML = [
@@ -2429,15 +2428,6 @@ function populatePlantFilterOptions() {
       '<option value="dura">Dura</option>',
       '<option value="muito dura">Muito dura</option>'
     ].join('');
-  }
-
-  if (khRangeSelect) {
-    khRangeSelect.innerHTML = createSelectOptions(
-      state.plants
-        .map((plant) => plant.khRange)
-        .filter((value) => value && normalizeSearchValue(value) !== '1 a 10'),
-      'Todas'
-    );
   }
 }
 
@@ -2512,7 +2502,7 @@ function applyPlantCatalogSearchParams() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'khRange', 'phMin', 'phMax', 'tempMin', 'tempMax'];
+  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'phMin', 'phMax', 'tempMin', 'tempMax'];
 
   fieldNames.forEach((fieldName) => {
     const field = filtersForm.querySelector(`[name="${fieldName}"]`);
@@ -2546,7 +2536,6 @@ function getPlantFilters() {
     co2: (formData.get('co2') || '').toString(),
     substrate: (formData.get('substrate') || '').toString(),
     waterHardness: (formData.get('waterHardness') || '').toString(),
-    khRange: (formData.get('khRange') || '').toString(),
     phMin: formData.get('phMin') ? Number(formData.get('phMin')) : null,
     phMax: formData.get('phMax') ? Number(formData.get('phMax')) : null,
     tempMin: formData.get('tempMin') ? Number(formData.get('tempMin')) : null,
@@ -2588,23 +2577,19 @@ function matchesPlantFilters(plant, filters) {
     return false;
   }
 
-  if (filters.khRange && plant.khRange !== filters.khRange) {
+  if (filters.phMin !== null && (plant.phMin === null || plant.phMin > filters.phMin)) {
     return false;
   }
 
-  if (filters.phMin !== null && (plant.phMin === null || plant.phMin < filters.phMin)) {
+  if (filters.phMax !== null && (plant.phMax === null || plant.phMax < filters.phMax)) {
     return false;
   }
 
-  if (filters.phMax !== null && (plant.phMax === null || plant.phMax > filters.phMax)) {
+  if (filters.tempMin !== null && (plant.tempMin === null || plant.tempMin > filters.tempMin)) {
     return false;
   }
 
-  if (filters.tempMin !== null && (plant.tempMin === null || plant.tempMin < filters.tempMin)) {
-    return false;
-  }
-
-  if (filters.tempMax !== null && (plant.tempMax === null || plant.tempMax > filters.tempMax)) {
+  if (filters.tempMax !== null && (plant.tempMax === null || plant.tempMax < filters.tempMax)) {
     return false;
   }
 
@@ -3583,35 +3568,35 @@ function matchesFilters(fish, filters) {
     return false;
   }
 
-  if (filters.tempMin !== null && fish.parameters.temperature.min < filters.tempMin) {
+  if (filters.tempMin !== null && fish.parameters.temperature.min > filters.tempMin) {
     return false;
   }
 
-  if (filters.tempMax !== null && fish.parameters.temperature.max > filters.tempMax) {
+  if (filters.tempMax !== null && fish.parameters.temperature.max < filters.tempMax) {
     return false;
   }
 
-  if (filters.phMin !== null && fish.parameters.ph.min < filters.phMin) {
+  if (filters.phMin !== null && fish.parameters.ph.min > filters.phMin) {
     return false;
   }
 
-  if (filters.phMax !== null && fish.parameters.ph.max > filters.phMax) {
+  if (filters.phMax !== null && fish.parameters.ph.max < filters.phMax) {
     return false;
   }
 
-  if (filters.ghMin !== null && fish.parameters.gh.min < filters.ghMin) {
+  if (filters.ghMin !== null && fish.parameters.gh.min > filters.ghMin) {
     return false;
   }
 
-  if (filters.ghMax !== null && fish.parameters.gh.max > filters.ghMax) {
+  if (filters.ghMax !== null && fish.parameters.gh.max < filters.ghMax) {
     return false;
   }
 
-  if (filters.khMin !== null && fish.parameters.kh.min < filters.khMin) {
+  if (filters.khMin !== null && fish.parameters.kh.min > filters.khMin) {
     return false;
   }
 
-  if (filters.khMax !== null && fish.parameters.kh.max > filters.khMax) {
+  if (filters.khMax !== null && fish.parameters.kh.max < filters.khMax) {
     return false;
   }
 
