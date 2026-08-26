@@ -164,9 +164,10 @@ const DEFAULT_SUPABASE_URL = 'https://xktobjguguvvoagyteke.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4';
 const supabaseUrl = document.body?.dataset.supabaseUrl || DEFAULT_SUPABASE_URL;
 const supabaseAnonKey = document.body?.dataset.supabaseAnonKey || DEFAULT_SUPABASE_ANON_KEY;
-const supabaseClient = window.supabase?.createClient && supabaseUrl && supabaseAnonKey
+let supabaseClient = window.supabase?.createClient && supabaseUrl && supabaseAnonKey
   ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
   : null;
+let supabaseClientPromise = null;
 
 const authForm = document.getElementById('authForm');
 const registerForm = document.getElementById('registerForm');
@@ -473,6 +474,48 @@ function resolveSitePath(path) {
   return `${getSiteRootPrefix()}${path.replace(/^\.\//, '').replace(/^\/+/, '')}`;
 }
 
+async function ensureSupabaseClient() {
+  if (supabaseClient) {
+    return supabaseClient;
+  }
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return null;
+  }
+
+  if (!window.supabase?.createClient) {
+    if (!supabaseClientPromise) {
+      supabaseClientPromise = new Promise((resolve, reject) => {
+        const existingScript = document.querySelector('script[data-supabase-loader="true"]');
+
+        if (existingScript) {
+          existingScript.addEventListener('load', () => resolve(window.supabase?.createClient || null), { once: true });
+          existingScript.addEventListener('error', () => reject(new Error('Não foi possível carregar a biblioteca do Supabase.')), { once: true });
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.dataset.supabaseLoader = 'true';
+        script.addEventListener('load', () => resolve(window.supabase?.createClient || null), { once: true });
+        script.addEventListener('error', () => reject(new Error('Não foi possível carregar a biblioteca do Supabase.')), { once: true });
+        document.head.appendChild(script);
+      }).finally(() => {
+        supabaseClientPromise = null;
+      });
+    }
+
+    await supabaseClientPromise;
+  }
+
+  if (!window.supabase?.createClient) {
+    return null;
+  }
+
+  supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+  return supabaseClient;
+}
+
 function canRegisterServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     return false;
@@ -774,11 +817,13 @@ function normalizePlantSearchData(items) {
 }
 
 async function fetchFishCatalogFromSupabase() {
-  if (!supabaseClient) {
+  const client = await ensureSupabaseClient();
+
+  if (!client) {
     throw new Error('Cliente Supabase indisponível para carregar o catálogo.');
   }
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await client
     .from('fishes')
     .select('*')
     .order('name', { ascending: true });
@@ -791,11 +836,13 @@ async function fetchFishCatalogFromSupabase() {
 }
 
 async function fetchPlantSearchIndexFromSupabase() {
-  if (!supabaseClient) {
+  const client = await ensureSupabaseClient();
+
+  if (!client) {
     throw new Error('Cliente Supabase indisponível para carregar o índice de plantas.');
   }
 
-  const { data, error } = await supabaseClient
+  const { data, error } = await client
     .from('plantas')
     .select('slug, nome_comum, nome_cientifico, seo_description, hero_summary, description, photo_url, photo_alt, detail_url, familia_e_origem, dificuldade, posicao, crescimento, altura_max, co2, iluminacao, substrato_fertil, fertilizacao_recomendada, ph_min, ph_max, temp_min, temp_max, dureza_agua, kh_faixa, parametros_complementares, tipo_de_uso, perfil_de_montagem')
     .order('nome_comum', { ascending: true });
@@ -2872,6 +2919,17 @@ function getSearchResultTypeLabel(entry) {
   return 'Página';
 }
 
+function syncSuggestionHighlight(container) {
+  if (!container) {
+    return;
+  }
+
+  container.querySelectorAll('[data-search-suggestion-index]').forEach((link) => {
+    const index = Number(link.getAttribute('data-search-suggestion-index'));
+    link.classList.toggle('is-active', index === state.search.activeIndex);
+  });
+}
+
 function renderNavSearchSuggestions() {
   document.querySelectorAll('[data-search-suggestions]').forEach((container) => {
     const host = container.closest('[data-search-host]');
@@ -2910,13 +2968,13 @@ function renderNavSearchSuggestions() {
 
     container.querySelector('.nav-search-suggestion-list')?.addEventListener('mouseleave', () => {
       state.search.activeIndex = -1;
-      renderNavSearchSuggestions();
+      syncSuggestionHighlight(container);
     });
 
     container.querySelectorAll('[data-search-suggestion-index]').forEach((link) => {
       link.addEventListener('mouseenter', () => {
         state.search.activeIndex = Number(link.getAttribute('data-search-suggestion-index'));
-        renderNavSearchSuggestions();
+        syncSuggestionHighlight(container);
       });
     });
   });
