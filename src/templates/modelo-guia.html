@@ -102,12 +102,17 @@
       <!-- RESUMO EM 30 SEGUNDOS -->
       <!-- ============================================================ -->
       <section class="summary-box" aria-label="Resumo rápido do artigo">
-        <p class="summary-box-title">Resumo em 30 segundos</p>
-        <ul class="summary-box-list">
-          <li>{{RESUMO_30S_ITEM_1}}</li>
-          <li>{{RESUMO_30S_ITEM_2}}</li>
-          <li>{{RESUMO_30S_ITEM_3}}</li>
-        </ul>
+        <button type="button" class="summary-box-toggle" aria-expanded="false">
+          <span class="summary-box-title">Resumo em 30 segundos</span>
+          <span class="summary-box-icon" aria-hidden="true">+</span>
+        </button>
+        <div class="summary-box-content">
+          <ul class="summary-box-list">
+            <li>{{RESUMO_30S_ITEM_1}}</li>
+            <li>{{RESUMO_30S_ITEM_2}}</li>
+            <li>{{RESUMO_30S_ITEM_3}}</li>
+          </ul>
+        </div>
       </section>
 
       <!-- ============================================================ -->

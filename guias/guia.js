@@ -8,6 +8,7 @@ const GUIDE_READING_WORDS_PER_MINUTE = 220;
 
 document.addEventListener('DOMContentLoaded', () => {
 	initReadingTime();
+	initSummaryAccordion();
 	initAutoToc();
 	initTocSmoothScroll();
 	initTocHighlight();
@@ -17,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initReadingTime() {
-	const readingTimeElement = document.querySelector('[data-reading-time]');
-	if (!readingTimeElement) {
+	const readingTimeElements = document.querySelectorAll('[data-reading-time]');
+	if (!readingTimeElements.length) {
 		return;
 	}
 
@@ -40,7 +41,47 @@ function initReadingTime() {
 	const wordCount = textContent ? textContent.split(' ').filter(Boolean).length : 0;
 	const readingTime = Math.max(1, Math.ceil(wordCount / GUIDE_READING_WORDS_PER_MINUTE));
 
-	readingTimeElement.textContent = `⏱ ${readingTime} min de leitura`;
+	readingTimeElements.forEach((element) => {
+		element.textContent = `⏱ ${readingTime} min de leitura`;
+	});
+}
+
+function initSummaryAccordion() {
+	const summaryBoxes = document.querySelectorAll('.summary-box');
+	if (!summaryBoxes.length) {
+		return;
+	}
+
+	summaryBoxes.forEach((summaryBox) => {
+		const toggleButton = summaryBox.querySelector('.summary-box-toggle');
+		const content = summaryBox.querySelector('.summary-box-content');
+		if (!toggleButton || !content) {
+			return;
+		}
+
+		const closeSummary = () => {
+			summaryBox.classList.remove('is-open');
+			toggleButton.setAttribute('aria-expanded', 'false');
+			content.style.maxHeight = '';
+		};
+
+		const openSummary = () => {
+			summaryBox.classList.add('is-open');
+			toggleButton.setAttribute('aria-expanded', 'true');
+			content.style.maxHeight = `${content.scrollHeight}px`;
+		};
+
+		closeSummary();
+
+		toggleButton.addEventListener('click', () => {
+			if (summaryBox.classList.contains('is-open')) {
+				closeSummary();
+				return;
+			}
+
+			openSummary();
+		});
+	});
 }
 
 function initAutoToc() {
