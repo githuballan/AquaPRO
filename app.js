@@ -41,6 +41,17 @@ const navigationItems = [
   }
 ];
 
+const siteLegalPages = {
+  privacy: {
+    title: 'Política de Privacidade',
+    href: 'politica-de-privacidade.html'
+  },
+  terms: {
+    title: 'Termos de Uso',
+    href: 'termos-de-uso.html'
+  }
+};
+
 const siteSearchEntries = [
   {
     id: 'page-home',
@@ -113,6 +124,22 @@ const siteSearchEntries = [
     description: 'Seção da home com categorias prontas para comparativos e páginas de afiliados.',
     href: 'index.html#produtos-home',
     keywords: 'produtos recomendados afiliados filtros termostatos low tech compras'
+  },
+  {
+    id: 'page-terms',
+    type: 'page',
+    title: 'Termos de Uso',
+    description: 'Regras de uso do AquaristaPRO, da área de membros e dos conteúdos do site.',
+    href: 'termos-de-uso.html',
+    keywords: 'termos de uso regras condicoes area de membros afiliados responsabilidade'
+  },
+  {
+    id: 'page-privacy',
+    type: 'page',
+    title: 'Política de Privacidade',
+    description: 'Informações sobre dados pessoais, autenticação, Supabase, storage e direitos do titular.',
+    href: 'politica-de-privacidade.html',
+    keywords: 'politica de privacidade lgpd dados pessoais cookies storage supabase direitos'
   }
 ];
 
@@ -1699,6 +1726,25 @@ function renderNavigation() {
   renderNavSearchSuggestions();
 }
 
+function renderSiteFooter() {
+  const footer = document.querySelector('footer');
+  if (!footer) {
+    return;
+  }
+
+  footer.classList.add('site-footer');
+  footer.innerHTML = `
+    <div class="site-footer-inner">
+      <p class="site-footer-copy">© 2026 AquaristaPRO — conteúdo educativo para aquarismo de água doce.</p>
+      <nav class="site-footer-links" aria-label="Links legais do site">
+        <a href="${resolveSitePath(siteLegalPages.terms.href)}">${siteLegalPages.terms.title}</a>
+        <a href="${resolveSitePath(siteLegalPages.privacy.href)}">${siteLegalPages.privacy.title}</a>
+        <a href="mailto:contato@aquaristapro.com">contato@aquaristapro.com</a>
+      </nav>
+    </div>
+  `;
+}
+
 async function init() {
   state.search.query = getInitialSearchQuery();
   loadState();
@@ -1706,6 +1752,7 @@ async function init() {
   bindEvents();
   bindSupabaseAuthListener();
   renderNavigation();
+  renderSiteFooter();
   renderSearchResultsPage();
   renderPlantCatalogPage();
   setupResponsiveSurface();

@@ -1689,10 +1689,126 @@ canvas {
   font-size: 0.95rem;
 }
 
+.site-footer {
+  padding: 2rem 1rem 3rem;
+  color: var(--muted);
+}
+
+.site-footer-inner {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  display: grid;
+  gap: 0.7rem;
+  justify-items: center;
+}
+
+.site-footer-copy {
+  margin: 0;
+}
+
+.site-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem 1.2rem;
+}
+
+.site-footer-links a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.site-footer-links a:hover,
+.site-footer-links a:focus-visible {
+  text-decoration: underline;
+}
+
 footer {
   text-align: center;
   padding: 2rem 1rem 3rem;
   color: var(--muted);
+}
+
+.legal-shell {
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 1rem 1rem 4rem;
+}
+
+.legal-card {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.legal-intro {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.legal-intro p,
+.legal-section p,
+.legal-section li,
+.legal-note {
+  margin: 0;
+  color: var(--text);
+}
+
+.legal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.legal-section {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.legal-section h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+}
+
+.legal-section ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.legal-contact {
+  display: grid;
+  gap: 0.55rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(247, 253, 255, 0.98), rgba(233, 248, 252, 0.98));
+}
+
+.legal-contact a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.auth-legal-note {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(247, 253, 255, 0.95);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.auth-legal-note p {
+  margin: 0;
+}
+
+.auth-legal-note a {
+  color: var(--primary);
+  font-weight: 700;
 }
 
 @media (min-width: 761px) {
@@ -1720,6 +1836,20 @@ footer {
   .home-faq-grid,
   .home-tools-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .site-footer-inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    justify-items: stretch;
+  }
+
+  .site-footer-copy {
+    text-align: left;
+  }
+
+  .site-footer-links {
+    justify-content: flex-end;
   }
 
   .home-dual-grid,

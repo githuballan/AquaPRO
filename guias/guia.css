@@ -57,6 +57,11 @@ body.guide-page {
    max-width: 760px;
 }
 
+.guide-content {
+   max-width: 800px;
+   margin: auto;
+}
+
 .guide-content > section[id],
 .faq-section[id] {
    scroll-margin-top: 6.5rem;
@@ -390,7 +395,7 @@ body.guide-toc-open {
    overflow: hidden;
 }
 
-@media (max-width: 959px) {
+@media (max-width: 1199px) {
    .guide-hero-inner {
       grid-template-columns: minmax(0, 1fr);
       justify-items: stretch;
