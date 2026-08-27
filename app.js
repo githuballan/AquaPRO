@@ -113,22 +113,6 @@ const siteSearchEntries = [
     description: 'Seção da home com categorias prontas para comparativos e páginas de afiliados.',
     href: 'index.html#produtos-home',
     keywords: 'produtos recomendados afiliados filtros termostatos low tech compras'
-  },
-  {
-    id: 'guide-nitrogen-cycle',
-    type: 'page',
-    title: 'Ciclo do nitrogênio no aquário',
-    description: 'Guia sobre amônia, nitrito, nitrato e estabilidade biológica no aquário.',
-    href: 'guias/ciclo-do-nitrogenio-no-aquario.html',
-    keywords: 'ciclo nitrogenio ciclagem amonia nitrito nitrato aquario'
-  },
-  {
-    id: 'guide-filtration-stages',
-    type: 'page',
-    title: 'Estágios da filtragem',
-    description: 'Guia sobre filtragem mecânica, biológica e química em aquários de água doce.',
-    href: 'guias/estagios-da-filtragem.html',
-    keywords: 'filtragem filtro biologica mecanica quimica aquario'
   }
 ];
 
@@ -136,6 +120,7 @@ const state = {
   users: [],
   fishes: [],
   plants: [],
+  guides: [],
   selectedFish: null,
   activeUser: null,
   aquarium: null,
@@ -728,6 +713,18 @@ function mapSupabaseReadingRow(row) {
   };
 }
 
+function mapSupabaseGuideRow(row) {
+  return {
+    slug: row.slug,
+    title: row.title || '',
+    description: row.description || '',
+    category: row.category || '',
+    keywords: Array.isArray(row.keywords) ? row.keywords.filter(Boolean) : [],
+    detailUrl: row.detail_url || '',
+    photoUrl: row.photo_url || ''
+  };
+}
+
 function buildAquariumPayload(data) {
   return {
     user_id: state.activeUser.id,
@@ -816,6 +813,10 @@ function normalizePlantSearchData(items) {
   return items.map((item) => (item.name ? item : mapSupabasePlantRow(item)));
 }
 
+function normalizeGuideSearchData(items) {
+  return items.map((item) => (Object.prototype.hasOwnProperty.call(item, 'detailUrl') ? item : mapSupabaseGuideRow(item)));
+}
+
 async function fetchFishCatalogFromSupabase() {
   const client = await ensureSupabaseClient();
 
@@ -852,6 +853,25 @@ async function fetchPlantSearchIndexFromSupabase() {
   }
 
   return normalizePlantSearchData(data || []);
+}
+
+async function fetchGuideSearchIndexFromSupabase() {
+  const client = await ensureSupabaseClient();
+
+  if (!client) {
+    throw new Error('Cliente Supabase indisponível para carregar o índice de guias.');
+  }
+
+  const { data, error } = await client
+    .from('guias')
+    .select('slug, title, description, category, keywords, detail_url, photo_url')
+    .order('title', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return normalizeGuideSearchData(data || []);
 }
 
 function getInitialSearchQuery() {
@@ -1692,6 +1712,7 @@ async function init() {
   registerSiteServiceWorker();
   loadFishCatalog();
   loadPlantSearchIndex();
+  loadGuideSearchIndex();
   renderAuthState();
   renderProducts();
   renderChart();
@@ -2085,6 +2106,15 @@ function getSearchEntries() {
       description: plant.description,
       href: resolveSitePath(plant.URL),
       keywords: `${plant.scientificName} ${plant.difficulty} ${plant.placement} ${plant.growthRate} ${plant.maxHeight} ${plant.co2} ${plant.light} ${plant.substrate} ${plant.usageType} ${plant.setupProfile} ${plant.waterHardness} ${plant.khRange} ${plant.heroSummary}`
+    })),
+    ...state.guides.map((guide) => ({
+      id: `guide-${guide.slug}`,
+      type: 'guide',
+      slug: guide.slug,
+      title: guide.title,
+      description: guide.description,
+      href: resolveSitePath(guide.detailUrl),
+      keywords: `${guide.category} ${Array.isArray(guide.keywords) ? guide.keywords.join(' ') : ''}`
     }))
   ];
 }
@@ -2916,6 +2946,10 @@ function getSearchResultTypeLabel(entry) {
     return 'Planta';
   }
 
+  if (entry.type === 'guide') {
+    return 'Guia';
+  }
+
   return 'Página';
 }
 
@@ -3514,6 +3548,19 @@ async function loadPlantSearchIndex() {
   }
 
   renderPlantCatalogPage();
+  renderSearchResultsPage();
+  renderNavSearchSuggestions();
+}
+
+async function loadGuideSearchIndex() {
+  try {
+    const data = await fetchGuideSearchIndexFromSupabase();
+    state.guides = data;
+  } catch (error) {
+    state.guides = [];
+    console.error('Erro ao carregar índice de guias', error);
+  }
+
   renderSearchResultsPage();
   renderNavSearchSuggestions();
 }
