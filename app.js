@@ -2060,6 +2060,10 @@ function bindResponsiveNavigation() {
       closeAllNavSubmenus(wrapper);
       wrapper.classList.toggle('submenu-open', shouldOpen);
       button.setAttribute('aria-expanded', String(shouldOpen));
+
+        if (!shouldOpen) {
+          button.blur();
+        }
     });
   });
 
