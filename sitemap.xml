@@ -126,6 +126,12 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+   <url>
+    <loc>https://aquaristapro.com/peixes/rodostomo.html</loc>
+    <lastmod>2026-08-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <url>
     <loc>https://aquaristapro.com/plantas/alface-dagua.html</loc>
     <lastmod>2026-08-24</lastmod>

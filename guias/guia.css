@@ -527,6 +527,7 @@ body.guide-toc-open {
    color: var(--primary);
    text-align: left;
    text-indent: 0;
+   margin-bottom: 0.5rem;
 }
 
 .summary-box-icon {
@@ -544,7 +545,7 @@ body.guide-toc-open {
 }
 
 .summary-box.is-open .summary-box-content {
-   padding-top: 0.75rem;
+   padding-top: 0;
 }
 
 .summary-box.is-open .summary-box-icon {
@@ -752,6 +753,12 @@ body.guide-toc-open {
    transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.affiliate-button-row {
+   display: flex;
+   justify-content: flex-end;
+   margin: 1rem 0 1.35rem;
+}
+
 .btn-afiliado:hover {
    background: #095e6b;
    transform: translateY(-1px);
@@ -859,5 +866,13 @@ body.guide-toc-open {
 
    .product-grid {
       grid-template-columns: 1fr;
+   }
+
+   .affiliate-button-row {
+      justify-content: center;
+   }
+
+   .affiliate-button-row .btn-afiliado {
+      width: min(90%, 22rem);
    }
 }
