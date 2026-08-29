@@ -47,19 +47,14 @@
   </script>
 </head>
 <body class="guide-page">
-            <button type="button" class="summary-box-toggle" aria-expanded="false">
-              <span class="summary-box-title">Resumo em 30 segundos</span>
-              <span class="summary-box-icon" aria-hidden="true">+</span>
-            </button>
-            <div class="summary-box-content">
-              <ul class="summary-box-list">
-                <li>A real importância de organizar os estágios de filtragem.</li>
-                <li><strong>1º estágio:</strong> filtragem mecânica para barrar a sujeira grossa.</li>
-                <li><strong>2º estágio:</strong> filtragem biológica aeróbia, o motor do aquário.</li>
-                <li><strong>3º estágio:</strong> filtragem química para remover odores e compostos indesejados.</li>
-                <li><strong>4º estágio:</strong> filtragem biológica anaeróbia, que elimina o nitrato.</li>
-              </ul>
-            </div>
+  <nav id="site-nav" class="top-nav" aria-label="Navegação principal"></nav>
+
+  <header class="hero guide-hero">
+    <div class="hero-content guide-hero-content">
+      <div class="guide-hero-inner">
+        <div class="guide-hero-copy">
+          <header class="guide-header">
+            <h1 class="guide-title">Estágios da filtragem no aquário</h1>
           </header>
         </div>
       </div>
@@ -97,14 +92,19 @@
           </section>
 
           <section class="summary-box" aria-label="Resumo rápido do artigo">
-            <p class="summary-box-title">Resumo em 30 segundos</p>
-            <ul class="summary-box-list">
-              <li>A real importância de organizar os estágios de filtragem.</li>
-              <li><strong>1º estágio:</strong> filtragem mecânica para barrar a sujeira grossa.</li>
-              <li><strong>2º estágio:</strong>  filtragem biológica aeróbia, o motor do aquário.</li>
-              <li><strong>3º estágio:</strong> filtragem química para remover odores e compostos indesejados.</li>
-              <li><strong>4º estágio:</strong> filtragem biológica anaeróbia, que elimina o nitrato.</li>
-            </ul>
+            <button type="button" class="summary-box-toggle" aria-expanded="false">
+              <span class="summary-box-title">Resumo em 30 segundos</span>
+              <span class="summary-box-icon" aria-hidden="true">+</span>
+            </button>
+            <div class="summary-box-content">
+              <ul class="summary-box-list">
+                <li>A real importância de organizar os estágios de filtragem.</li>
+                <li><strong>1º estágio:</strong> filtragem mecânica para barrar a sujeira grossa.</li>
+                <li><strong>2º estágio:</strong> filtragem biológica aeróbia, o motor do aquário.</li>
+                <li><strong>3º estágio:</strong> filtragem química para remover odores e compostos indesejados.</li>
+                <li><strong>4º estágio:</strong> filtragem biológica anaeróbia, que elimina o nitrato.</li>
+              </ul>
+            </div>
           </section>
 
           <div class="guide-content">
@@ -168,22 +168,22 @@
             <p class="affiliate-disclosure">Estes links aprofundam a lógica da filtragem e ajudam você a sair do conhecimento geral para a aplicação prática.</p>
             <div class="product-grid">
               <article class="product-card">
-                <p class="product-card-badge">Meio de funil</p>
+                <span class="product-card-badge">Tipos de filtragem</span>
                 <h3 class="product-card-name">Sump para aquário</h3>
                 <p>Entenda vantagens, dimensionamento e quando faz sentido usar sump no lugar de um filtro mais compacto.</p>
-                <a class="button-link" href="../busca.html?q=sump%20para%20aquario">Ver conteúdos sobre sump</a>
+                <a class="button-link" href="../busca.html?q=sump%20para%20aquario">Ver conteúdo</a>
               </article>
               <article class="product-card">
-                <p class="product-card-badge">Meio de funil</p>
-                <h3 class="product-card-name">Guia de mídias filtrantes</h3>
-                <p>Compare cerâmicas, vidro sinterizado e outras soluções para escolher uma mídia coerente com o seu sistema.</p>
-                <a class="button-link" href="../busca.html?q=guia%20de%20midias%20filtrantes">Ver conteúdos sobre mídias</a>
+                <span class="product-card-badge">Filtragem</span>
+                <h3 class="product-card-name">Ciclo do nitrogênio no aquário</h3>
+                <p>Entenda tudo sobre o principal etágio da filtragem: o ciclo do nitrogênio e como ele impacta o seu aquário.</p>
+                <a class="button-link" href="/guias/ciclo-do-nitrogenio-no-aquario.html">Ver conteúdo</a>
               </article>
               <article class="product-card">
-                <p class="product-card-badge">Próximo passo</p>
+                <span class="product-card-badge">Próximo passo</span>
                 <h3 class="product-card-name">Como baixar amônia e nitrito</h3>
                 <p>Aprenda o que fazer quando os compostos tóxicos sobem e o sistema ainda não está conseguindo estabilizar a água.</p>
-                <a class="button-link" href="../busca.html?q=como%20eliminar%20amonia%20e%20nitrito">Ver conteúdos de correção</a>
+                <a class="button-link" href="../busca.html?q=como%20eliminar%20amonia%20e%20nitrito">Ver conteúdo</a>
               </article>
             </div>
           </section>
@@ -258,7 +258,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../app.js"></script>
-  <script src="../src/js/guias.js" defer></script>
   <script src="./guia.js" defer></script>
 </body>
 </html>

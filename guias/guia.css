@@ -712,6 +712,14 @@ body.guide-toc-open {
    font-size: 1.1rem;
 }
 
+.product-recommendations .product-card .button-link {
+   display: inline-flex;
+   align-items: center;
+   justify-content: center;
+   margin-top: 0.7rem;
+   color: white;
+}
+
 .product-card-lists {
    display: grid;
    gap: 0.7rem;
