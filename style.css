@@ -1381,6 +1381,7 @@ textarea {
 
 .fish-card {
   display: flex;
+  max-width: 350px;
   flex-direction: column;
 }
 
