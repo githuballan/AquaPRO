@@ -257,10 +257,12 @@ function renderFaqList(element, items) {
   element.innerHTML = items
     .filter((item) => item?.question && item?.answer)
     .map((item) => `
-      <li>
-        <strong>${item.question}</strong>
-        <p>${item.answer}</p>
-      </li>
+      <details class="fish-faq-item">
+        <summary class="fish-faq-question">${item.question}</summary>
+        <div class="fish-faq-answer">
+          <p>${item.answer}</p>
+        </div>
+      </details>
     `)
     .join('');
 }

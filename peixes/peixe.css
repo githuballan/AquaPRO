@@ -185,6 +185,55 @@
   gap: 0.8rem;
 }
 
+.fish-faq-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.fish-faq-item {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(138, 216, 231, 0.12), rgba(255, 255, 255, 0.96));
+  overflow: hidden;
+}
+
+.fish-faq-question {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.fish-faq-question::-webkit-details-marker {
+  display: none;
+}
+
+.fish-faq-question::after {
+  content: '+';
+  flex: 0 0 auto;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--primary);
+}
+
+.fish-faq-item[open] .fish-faq-question::after {
+  content: '-';
+}
+
+.fish-faq-answer {
+  padding: 0 1.1rem 1.1rem;
+  color: var(--text);
+}
+
+.fish-faq-answer p {
+  margin: 0;
+}
+
 .fish-copy-grid article {
   padding: 1rem;
   border: 1px solid var(--border);
