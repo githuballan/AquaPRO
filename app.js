@@ -2703,10 +2703,9 @@ function renderPlantCatalogPage() {
 
   plantCards.innerHTML = filtered.map((plant) => {
     const plantHref = resolveSitePath(plant.URL);
-// PONTO DE RETORNO
     return `
     <article class="fish-card">
-      <div class="plant-card" data-plant-url="${plantHref}" tabindex="0">
+      <div class="plant-link" data-plant-url="${plantHref}" tabindex="0">
         ${renderPlantPhoto(plant)}
         <div class="fish-card-header-row plant-card-header-row">
           <div>
@@ -3784,13 +3783,16 @@ function renderFishCards() {
 
   fishCards.innerHTML = filtered.map((fish) => {
     const compatibility = getCompatibilityState(fish);
-
+//fish.difficulty PONTO DE RETORNO
+// 
     return `
       <article class="fish-card">
-        ${renderFishPhoto(fish)}
-        <div class="fish-card-header-row">
-          <h3>${fish.name}</h3>
-          <button type="button" class="fish-card-inline-button" data-fish-slug="${fish.slug}">Ver ficha</button>
+        <div class="fish-link" data-fish-slug="${fish.slug}">
+          ${renderFishPhoto(fish)}
+          <div class="fish-card-header-row">
+            <h3>${fish.name}</h3>
+            <span class="plant-difficulty-badge" data-fish-slug="${fish.slug}">${fish.difficulty}</span>
+          </div>
         </div>
         <p><strong>Origem:</strong> ${fish.origin}</p>
         <p><strong>Temperamento:</strong> ${fish.temperament}</p>

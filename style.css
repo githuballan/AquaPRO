@@ -1248,7 +1248,21 @@ textarea {
   align-items: stretch;
 }
 
-.plant-card {
+.fish-link {
+  background: linear-gradient(180deg, rgba(249, 250, 253, 0.98), rgba(238, 244, 247, 0.98));
+  border-color: #d7ecda;
+  cursor: pointer;
+  border-radius: 10px 10px 10px 10px;
+ 
+}
+
+
+.fish-link:hover{
+  transform: translateY(-3px);
+  transition: all 0.3s;
+}
+
+.plant-link {
   background: linear-gradient(180deg, rgba(249, 253, 250, 0.98), rgba(238, 247, 239, 0.98));
   border-color: #d7ecda;
   cursor: pointer;
@@ -1256,7 +1270,7 @@ textarea {
  
 }
 
-.plant-card:hover{
+.plant-link:hover{
   transform: translateY(-3px);
   transition: all 0.3s;
 }
@@ -1285,7 +1299,6 @@ textarea {
   color: #1f6f43;
   font-weight: 700;
   white-space: nowrap;
-  margin:7px;
 }
 
 .plant-card-meta-grid {
@@ -1444,10 +1457,12 @@ textarea {
 
 .fish-card-header-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
   margin-bottom: 0.8rem;
+  padding:7px;
+  flex-wrap: wrap
 }
 
 .fish-card-header-row h3 {
