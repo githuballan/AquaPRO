@@ -1197,6 +1197,22 @@ textarea {
   background: #e3f1f7;
 }
 
+.catalog-aquarium-filter {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.catalog-aquarium-preset-button {
+  width: 100%;
+  margin-top: 0;
+  background: linear-gradient(135deg, #0f8ea6, #0a6f84);
+  box-shadow: 0 12px 22px rgba(10, 111, 132, 0.16);
+}
+
+.catalog-aquarium-preset-button:hover {
+  background: linear-gradient(135deg, #0d8096, #095f72);
+}
+
 .catalog-results-header {
   margin-bottom: 1rem;
 }

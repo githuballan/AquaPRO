@@ -141,6 +141,9 @@ const state = {
   aquarium: null,
   history: [],
   printSheetCards: [],
+  fishCatalog: {
+    aquariumPresetOnly: false
+  },
   plantCatalog: {
     lowTechOnly: false,
     hasLoaded: false,
@@ -212,6 +215,7 @@ const fishCards = document.getElementById('fishCards');
 const plantCards = document.getElementById('plantCards');
 const plantCatalogSummary = document.getElementById('plantCatalogSummary');
 const lowTechToggleButton = document.getElementById('lowTechToggle');
+const aquariumPresetButton = document.getElementById('aquariumPresetButton');
 const notice = document.getElementById('notice');
 const filtersCard = document.querySelector('.filters-card');
 const closeFiltersButton = document.getElementById('closeFiltersButton');
@@ -841,6 +845,70 @@ function getLocalDateTimeValue(date = new Date()) {
 
 function getAuthRedirectUrl() {
   return new URL('members.html', window.location.href).href;
+}
+
+function redirectToMembersArea() {
+  window.location.href = getAuthRedirectUrl();
+}
+
+function applyCatalogRender() {
+  if (plantCards) {
+    renderPlantCatalogPage();
+  } else {
+    renderFishCards();
+  }
+
+  if (isMobileLayout()) {
+    setMobileFilterState(false);
+  }
+}
+
+function setFilterFieldValue(fieldName, value) {
+  if (!filtersForm) {
+    return;
+  }
+
+  const field = filtersForm.querySelector(`[name="${fieldName}"]`);
+  if (!field) {
+    return;
+  }
+
+  field.value = value === null || value === undefined ? '' : String(value);
+}
+
+function canApplyAquariumPreset() {
+  return Boolean(state.activeUser && state.aquarium);
+}
+
+function clearFishCatalogFilters(shouldResetForm = true) {
+  if (!filtersForm) {
+    return;
+  }
+
+  if (shouldResetForm) {
+    filtersForm.reset();
+  }
+
+  state.fishCatalog.aquariumPresetOnly = false;
+}
+
+function applyFishAquariumPreset() {
+  if (!canApplyAquariumPreset()) {
+    redirectToMembersArea();
+    return;
+  }
+
+  clearFishCatalogFilters(true);
+
+  setFilterFieldValue('tempMin', state.aquarium.temperature);
+  setFilterFieldValue('tempMax', state.aquarium.temperature);
+  setFilterFieldValue('phMin', state.aquarium.ph);
+  setFilterFieldValue('phMax', state.aquarium.ph);
+  setFilterFieldValue('ghMin', state.aquarium.gh);
+  setFilterFieldValue('ghMax', state.aquarium.gh);
+  setFilterFieldValue('aquariumMin', state.aquarium.volume);
+
+  applyCatalogRender();
 }
 
 function getPasswordResetUrl() {
@@ -1887,25 +1955,19 @@ function bindEvents() {
     filtersForm.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      if (plantCards) {
-        renderPlantCatalogPage();
-      } else {
-        renderFishCards();
-      }
-
-      if (isMobileLayout()) {
-        setMobileFilterState(false);
-      }
+      applyCatalogRender();
     });
 
     filtersForm.addEventListener('reset', () => {
-      clearPlantCatalogFilters(false);
-
       if (plantCards) {
-        renderPlantCatalogPage();
+        clearPlantCatalogFilters(false);
       } else {
-        renderFishCards();
+        clearFishCatalogFilters(false);
       }
+
+      window.requestAnimationFrame(() => {
+        applyCatalogRender();
+      });
     });
   }
 
@@ -1913,6 +1975,12 @@ function bindEvents() {
     lowTechToggleButton.addEventListener('click', () => {
       applyLowTechPreset(!state.plantCatalog.lowTechOnly);
       renderPlantCatalogPage();
+    });
+  }
+
+  if (aquariumPresetButton) {
+    aquariumPresetButton.addEventListener('click', () => {
+      applyFishAquariumPreset();
     });
   }
 
@@ -3628,7 +3696,8 @@ function getCompatibilityState(fish, aquarium = state.aquarium) {
     return {
       status: 'no-aquarium',
       statusClass: 'status-warning',
-      statusText: 'Aguardando aquário',
+      statusText: 'Entre para comparar',
+      summary: 'Faça login e cadastre seu aquário para verificar a compatibilidade.',
       checks: []
     };
   }
@@ -3738,11 +3807,16 @@ function renderFishCompatibilityInline(compatibility) {
     return '';
   }
 
+  const badgeMarkup = compatibility.status === 'no-aquarium'
+    ? `<a class="plant-compatibility-badge" href="${escapeHtml(getAuthRedirectUrl())}">${escapeHtml(compatibility.statusText)}</a>`
+    : `<span class="plant-compatibility-badge">${escapeHtml(compatibility.statusText)}</span>`;
+
   return `
     <section class="plant-compatibility plant-compatibility-${compatibility.status} fish-compatibility-inline" aria-label="Compatibilidade do peixe com o aquário do usuário">
       <div class="plant-compatibility-header">
-        <span class="plant-compatibility-badge">${escapeHtml(compatibility.statusText)}</span>
+        ${badgeMarkup}
       </div>
+      ${compatibility.summary ? `<p class="plant-compatibility-summary">${escapeHtml(compatibility.summary)}</p>` : ''}
       ${renderCompatibilityChecks(compatibility.checks)}
     </section>
   `;
@@ -3755,11 +3829,6 @@ function renderCompatibility() {
 
   const fish = state.selectedFish;
   const compatibility = getCompatibilityState(fish);
-
-  if (!state.aquarium) {
-    compatibilityResult.innerHTML = '<p>Cadastre o aquário e selecione um peixe para verificar a compatibilidade.</p>';
-    return;
-  }
 
   compatibilityResult.innerHTML = `
     ${renderFishCompatibilityInline(compatibility)}
@@ -3798,7 +3867,7 @@ function renderFishCards() {
         <p><strong>Temperamento:</strong> ${fish.temperament}</p>
         <p><strong>Alimentação:</strong> ${fish.diet}</p>
         <p><strong>Aquário mínimo:</strong> ${fish.minAquariumSize} L</p>
-        ${state.aquarium ? renderFishCompatibilityInline(compatibility) : '<p>Cadastre seu aquário para ver os parâmetros.</p>'}
+        ${renderFishCompatibilityInline(compatibility)}
         <div class="fish-card-actions">
           <button type="button" data-merchant-slug="${fish.slug}">Card Lojistas</button>
         </div>
