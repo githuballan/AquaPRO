@@ -41,17 +41,6 @@ const navigationItems = [
   }
 ];
 
-const siteLegalPages = {
-  privacy: {
-    title: 'Política de Privacidade',
-    href: 'politica-de-privacidade.html'
-  },
-  terms: {
-    title: 'Termos de Uso',
-    href: 'termos-de-uso.html'
-  }
-};
-
 const siteSearchEntries = [
   {
     id: 'page-home',
@@ -126,20 +115,20 @@ const siteSearchEntries = [
     keywords: 'produtos recomendados afiliados filtros termostatos low tech compras'
   },
   {
-    id: 'page-terms',
+    id: 'guide-nitrogen-cycle',
     type: 'page',
-    title: 'Termos de Uso',
-    description: 'Regras de uso do AquaristaPRO, da área de membros e dos conteúdos do site.',
-    href: 'termos-de-uso.html',
-    keywords: 'termos de uso regras condicoes area de membros afiliados responsabilidade'
+    title: 'Ciclo do nitrogênio no aquário',
+    description: 'Guia sobre amônia, nitrito, nitrato e estabilidade biológica no aquário.',
+    href: 'guias/ciclo-do-nitrogenio-no-aquario.html',
+    keywords: 'ciclo nitrogenio ciclagem amonia nitrito nitrato aquario'
   },
   {
-    id: 'page-privacy',
+    id: 'guide-filtration-stages',
     type: 'page',
-    title: 'Política de Privacidade',
-    description: 'Informações sobre dados pessoais, autenticação, Supabase, storage e direitos do titular.',
-    href: 'politica-de-privacidade.html',
-    keywords: 'politica de privacidade lgpd dados pessoais cookies storage supabase direitos'
+    title: 'Estágios da filtragem',
+    description: 'Guia sobre filtragem mecânica, biológica e química em aquários de água doce.',
+    href: 'guias/estagios-da-filtragem.html',
+    keywords: 'filtragem filtro biologica mecanica quimica aquario'
   }
 ];
 
@@ -147,7 +136,6 @@ const state = {
   users: [],
   fishes: [],
   plants: [],
-  guides: [],
   selectedFish: null,
   activeUser: null,
   aquarium: null,
@@ -176,10 +164,9 @@ const DEFAULT_SUPABASE_URL = 'https://xktobjguguvvoagyteke.supabase.co';
 const DEFAULT_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4';
 const supabaseUrl = document.body?.dataset.supabaseUrl || DEFAULT_SUPABASE_URL;
 const supabaseAnonKey = document.body?.dataset.supabaseAnonKey || DEFAULT_SUPABASE_ANON_KEY;
-let supabaseClient = window.supabase?.createClient && supabaseUrl && supabaseAnonKey
+const supabaseClient = window.supabase?.createClient && supabaseUrl && supabaseAnonKey
   ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
   : null;
-let supabaseClientPromise = null;
 
 const authForm = document.getElementById('authForm');
 const registerForm = document.getElementById('registerForm');
@@ -486,48 +473,6 @@ function resolveSitePath(path) {
   return `${getSiteRootPrefix()}${path.replace(/^\.\//, '').replace(/^\/+/, '')}`;
 }
 
-async function ensureSupabaseClient() {
-  if (supabaseClient) {
-    return supabaseClient;
-  }
-
-  if (!supabaseUrl || !supabaseAnonKey) {
-    return null;
-  }
-
-  if (!window.supabase?.createClient) {
-    if (!supabaseClientPromise) {
-      supabaseClientPromise = new Promise((resolve, reject) => {
-        const existingScript = document.querySelector('script[data-supabase-loader="true"]');
-
-        if (existingScript) {
-          existingScript.addEventListener('load', () => resolve(window.supabase?.createClient || null), { once: true });
-          existingScript.addEventListener('error', () => reject(new Error('Não foi possível carregar a biblioteca do Supabase.')), { once: true });
-          return;
-        }
-
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-        script.dataset.supabaseLoader = 'true';
-        script.addEventListener('load', () => resolve(window.supabase?.createClient || null), { once: true });
-        script.addEventListener('error', () => reject(new Error('Não foi possível carregar a biblioteca do Supabase.')), { once: true });
-        document.head.appendChild(script);
-      }).finally(() => {
-        supabaseClientPromise = null;
-      });
-    }
-
-    await supabaseClientPromise;
-  }
-
-  if (!window.supabase?.createClient) {
-    return null;
-  }
-
-  supabaseClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
-  return supabaseClient;
-}
-
 function canRegisterServiceWorker() {
   if (!('serviceWorker' in navigator)) {
     return false;
@@ -699,11 +644,20 @@ function mapSupabaseAquariumRow(row) {
 }
 
 function normalizeCo2State(value) {
-  if (value === true || value === 'true' || value === 'ligado') {
+  if (value === true || value === 'true') {
     return 'ligado';
   }
 
-  if (value === false || value === 'false' || value === 'desligado') {
+  if (value === false || value === 'false') {
+    return 'desligado';
+  }
+
+  const normalized = String(value ?? '').trim().toLowerCase();
+  if (normalized === 'ligado') {
+    return 'ligado';
+  }
+
+  if (normalized === 'desligado') {
     return 'desligado';
   }
 
@@ -737,18 +691,6 @@ function mapSupabaseReadingRow(row) {
     co2Enabled: normalizeCo2State(row.co2_enabled),
     dropCheckerColor: row.drop_checker_color || '',
     notes: row.notes || ''
-  };
-}
-
-function mapSupabaseGuideRow(row) {
-  return {
-    slug: row.slug,
-    title: row.title || '',
-    description: row.description || '',
-    category: row.category || '',
-    keywords: Array.isArray(row.keywords) ? row.keywords.filter(Boolean) : [],
-    detailUrl: row.detail_url || '',
-    photoUrl: row.photo_url || ''
   };
 }
 
@@ -840,18 +782,12 @@ function normalizePlantSearchData(items) {
   return items.map((item) => (item.name ? item : mapSupabasePlantRow(item)));
 }
 
-function normalizeGuideSearchData(items) {
-  return items.map((item) => (Object.prototype.hasOwnProperty.call(item, 'detailUrl') ? item : mapSupabaseGuideRow(item)));
-}
-
 async function fetchFishCatalogFromSupabase() {
-  const client = await ensureSupabaseClient();
-
-  if (!client) {
+  if (!supabaseClient) {
     throw new Error('Cliente Supabase indisponível para carregar o catálogo.');
   }
 
-  const { data, error } = await client
+  const { data, error } = await supabaseClient
     .from('fishes')
     .select('*')
     .order('name', { ascending: true });
@@ -864,13 +800,11 @@ async function fetchFishCatalogFromSupabase() {
 }
 
 async function fetchPlantSearchIndexFromSupabase() {
-  const client = await ensureSupabaseClient();
-
-  if (!client) {
+  if (!supabaseClient) {
     throw new Error('Cliente Supabase indisponível para carregar o índice de plantas.');
   }
 
-  const { data, error } = await client
+  const { data, error } = await supabaseClient
     .from('plantas')
     .select('slug, nome_comum, nome_cientifico, seo_description, hero_summary, description, photo_url, photo_alt, detail_url, familia_e_origem, dificuldade, posicao, crescimento, altura_max, co2, iluminacao, substrato_fertil, fertilizacao_recomendada, ph_min, ph_max, temp_min, temp_max, dureza_agua, kh_faixa, parametros_complementares, tipo_de_uso, perfil_de_montagem')
     .order('nome_comum', { ascending: true });
@@ -880,25 +814,6 @@ async function fetchPlantSearchIndexFromSupabase() {
   }
 
   return normalizePlantSearchData(data || []);
-}
-
-async function fetchGuideSearchIndexFromSupabase() {
-  const client = await ensureSupabaseClient();
-
-  if (!client) {
-    throw new Error('Cliente Supabase indisponível para carregar o índice de guias.');
-  }
-
-  const { data, error } = await client
-    .from('guias')
-    .select('slug, title, description, category, keywords, detail_url, photo_url')
-    .order('title', { ascending: true });
-
-  if (error) {
-    throw error;
-  }
-
-  return normalizeGuideSearchData(data || []);
 }
 
 function getInitialSearchQuery() {
@@ -1726,25 +1641,6 @@ function renderNavigation() {
   renderNavSearchSuggestions();
 }
 
-function renderSiteFooter() {
-  const footer = document.querySelector('footer');
-  if (!footer) {
-    return;
-  }
-
-  footer.classList.add('site-footer');
-  footer.innerHTML = `
-    <div class="site-footer-inner">
-      <p class="site-footer-copy">© 2026 AquaristaPRO — conteúdo educativo para aquarismo de água doce.</p>
-      <nav class="site-footer-links" aria-label="Links legais do site">
-        <a href="${resolveSitePath(siteLegalPages.terms.href)}">${siteLegalPages.terms.title}</a>
-        <a href="${resolveSitePath(siteLegalPages.privacy.href)}">${siteLegalPages.privacy.title}</a>
-        <a href="mailto:contato@aquaristapro.com">contato@aquaristapro.com</a>
-      </nav>
-    </div>
-  `;
-}
-
 async function init() {
   state.search.query = getInitialSearchQuery();
   loadState();
@@ -1752,14 +1648,12 @@ async function init() {
   bindEvents();
   bindSupabaseAuthListener();
   renderNavigation();
-  renderSiteFooter();
   renderSearchResultsPage();
   renderPlantCatalogPage();
   setupResponsiveSurface();
   registerSiteServiceWorker();
   loadFishCatalog();
   loadPlantSearchIndex();
-  loadGuideSearchIndex();
   renderAuthState();
   renderProducts();
   renderChart();
@@ -2107,10 +2001,6 @@ function bindResponsiveNavigation() {
       closeAllNavSubmenus(wrapper);
       wrapper.classList.toggle('submenu-open', shouldOpen);
       button.setAttribute('aria-expanded', String(shouldOpen));
-
-        if (!shouldOpen) {
-          button.blur();
-        }
     });
   });
 
@@ -2157,15 +2047,6 @@ function getSearchEntries() {
       description: plant.description,
       href: resolveSitePath(plant.URL),
       keywords: `${plant.scientificName} ${plant.difficulty} ${plant.placement} ${plant.growthRate} ${plant.maxHeight} ${plant.co2} ${plant.light} ${plant.substrate} ${plant.usageType} ${plant.setupProfile} ${plant.waterHardness} ${plant.khRange} ${plant.heroSummary}`
-    })),
-    ...state.guides.map((guide) => ({
-      id: `guide-${guide.slug}`,
-      type: 'guide',
-      slug: guide.slug,
-      title: guide.title,
-      description: guide.description,
-      href: resolveSitePath(guide.detailUrl),
-      keywords: `${guide.category} ${Array.isArray(guide.keywords) ? guide.keywords.join(' ') : ''}`
     }))
   ];
 }
@@ -2406,7 +2287,7 @@ function renderPlantCompatibility(plant) {
     return `
       <section class="plant-compatibility plant-compatibility-${compatibility.status}" aria-label="Compatibilidade da planta com o aquário do usuário">
         <div class="plant-compatibility-header">
-          <span class="plant-compatibility-badge">${escapeHtml(compatibility.label)}</span>
+          <a class="plant-compatibility-badge" href="${escapeHtml(getAuthRedirectUrl())}">${escapeHtml(compatibility.label)}</a>
         </div>
         <p class="plant-compatibility-summary">${escapeHtml(compatibility.summary)}</p>
       </section>
@@ -2493,6 +2374,7 @@ function populatePlantFilterOptions() {
   const growthSelect = filtersForm.querySelector('[name="growthRate"]');
   const lightSelect = filtersForm.querySelector('[name="light"]');
   const waterHardnessSelect = filtersForm.querySelector('[name="waterHardness"]');
+  const khRangeSelect = filtersForm.querySelector('[name="khRange"]');
 
   if (difficultySelect) {
     difficultySelect.innerHTML = [
@@ -2547,6 +2429,15 @@ function populatePlantFilterOptions() {
       '<option value="dura">Dura</option>',
       '<option value="muito dura">Muito dura</option>'
     ].join('');
+  }
+
+  if (khRangeSelect) {
+    khRangeSelect.innerHTML = createSelectOptions(
+      state.plants
+        .map((plant) => plant.khRange)
+        .filter((value) => value && normalizeSearchValue(value) !== '1 a 10'),
+      'Todas'
+    );
   }
 }
 
@@ -2621,7 +2512,7 @@ function applyPlantCatalogSearchParams() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'phMin', 'phMax', 'tempMin', 'tempMax'];
+  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'khRange', 'phMin', 'phMax', 'tempMin', 'tempMax'];
 
   fieldNames.forEach((fieldName) => {
     const field = filtersForm.querySelector(`[name="${fieldName}"]`);
@@ -2655,6 +2546,7 @@ function getPlantFilters() {
     co2: (formData.get('co2') || '').toString(),
     substrate: (formData.get('substrate') || '').toString(),
     waterHardness: (formData.get('waterHardness') || '').toString(),
+    khRange: (formData.get('khRange') || '').toString(),
     phMin: formData.get('phMin') ? Number(formData.get('phMin')) : null,
     phMax: formData.get('phMax') ? Number(formData.get('phMax')) : null,
     tempMin: formData.get('tempMin') ? Number(formData.get('tempMin')) : null,
@@ -2696,19 +2588,23 @@ function matchesPlantFilters(plant, filters) {
     return false;
   }
 
-  if (filters.phMin !== null && (plant.phMin === null || plant.phMin > filters.phMin)) {
+  if (filters.khRange && plant.khRange !== filters.khRange) {
     return false;
   }
 
-  if (filters.phMax !== null && (plant.phMax === null || plant.phMax < filters.phMax)) {
+  if (filters.phMin !== null && (plant.phMin === null || plant.phMin < filters.phMin)) {
     return false;
   }
 
-  if (filters.tempMin !== null && (plant.tempMin === null || plant.tempMin > filters.tempMin)) {
+  if (filters.phMax !== null && (plant.phMax === null || plant.phMax > filters.phMax)) {
     return false;
   }
 
-  if (filters.tempMax !== null && (plant.tempMax === null || plant.tempMax < filters.tempMax)) {
+  if (filters.tempMin !== null && (plant.tempMin === null || plant.tempMin < filters.tempMin)) {
+    return false;
+  }
+
+  if (filters.tempMax !== null && (plant.tempMax === null || plant.tempMax > filters.tempMax)) {
     return false;
   }
 
@@ -2807,17 +2703,19 @@ function renderPlantCatalogPage() {
 
   plantCards.innerHTML = filtered.map((plant) => {
     const plantHref = resolveSitePath(plant.URL);
-
+// PONTO DE RETORNO
     return `
-    <article class="fish-card plant-card" data-plant-url="${plantHref}" tabindex="0">
-      ${renderPlantPhoto(plant)}
-      <div class="fish-card-header-row plant-card-header-row">
-        <div>
-          <h3>${escapeHtml(plant.name)}</h3>
-          <p class="plant-card-scientific-name">${escapeHtml(plant.scientificName || 'Nome científico não informado')}</p>
+    <article class="fish-card">
+      <div class="plant-card" data-plant-url="${plantHref}" tabindex="0">
+        ${renderPlantPhoto(plant)}
+        <div class="fish-card-header-row plant-card-header-row">
+          <div>
+            <h3>${escapeHtml(plant.name)}</h3>
+            <p class="plant-card-scientific-name">${escapeHtml(plant.scientificName || 'Nome científico não informado')}</p>
+          </div>
+          <span class="plant-difficulty-badge">${escapeHtml(plant.difficulty || 'Sem nível')}</span>
         </div>
-        <span class="plant-difficulty-badge">${escapeHtml(plant.difficulty || 'Sem nível')}</span>
-      </div>
+      </div>  
       <div class="plant-card-meta-grid">
         <p><strong>Posição:</strong> ${escapeHtml(plant.placement || 'Não informado')}</p>
         <p><strong>Porte:</strong> ${escapeHtml(plant.maxHeight || 'Não informado')}</p>
@@ -2997,22 +2895,7 @@ function getSearchResultTypeLabel(entry) {
     return 'Planta';
   }
 
-  if (entry.type === 'guide') {
-    return 'Guia';
-  }
-
   return 'Página';
-}
-
-function syncSuggestionHighlight(container) {
-  if (!container) {
-    return;
-  }
-
-  container.querySelectorAll('[data-search-suggestion-index]').forEach((link) => {
-    const index = Number(link.getAttribute('data-search-suggestion-index'));
-    link.classList.toggle('is-active', index === state.search.activeIndex);
-  });
 }
 
 function renderNavSearchSuggestions() {
@@ -3053,13 +2936,13 @@ function renderNavSearchSuggestions() {
 
     container.querySelector('.nav-search-suggestion-list')?.addEventListener('mouseleave', () => {
       state.search.activeIndex = -1;
-      syncSuggestionHighlight(container);
+      renderNavSearchSuggestions();
     });
 
     container.querySelectorAll('[data-search-suggestion-index]').forEach((link) => {
       link.addEventListener('mouseenter', () => {
         state.search.activeIndex = Number(link.getAttribute('data-search-suggestion-index'));
-        syncSuggestionHighlight(container);
+        renderNavSearchSuggestions();
       });
     });
   });
@@ -3599,19 +3482,6 @@ async function loadPlantSearchIndex() {
   }
 
   renderPlantCatalogPage();
-  renderSearchResultsPage();
-  renderNavSearchSuggestions();
-}
-
-async function loadGuideSearchIndex() {
-  try {
-    const data = await fetchGuideSearchIndexFromSupabase();
-    state.guides = data;
-  } catch (error) {
-    state.guides = [];
-    console.error('Erro ao carregar índice de guias', error);
-  }
-
   renderSearchResultsPage();
   renderNavSearchSuggestions();
 }
