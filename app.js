@@ -2604,24 +2604,14 @@ const PLANT_FILTER_SELECT_CONFIGS = [
   {
     name: 'co2',
     getValue: (plant) => plant.co2,
-    normalizeValue: normalizePlantCo2,
-    labelAll: 'Todos',
-    labelMap: {
-      opcional: 'Opcional',
-      recomendado: 'Recomendado'
-    },
-    sortOrder: ['opcional', 'recomendado']
+    normalizeValue: normalizeSearchValue,
+    labelAll: 'Todos'
   },
   {
     name: 'substrate',
     getValue: (plant) => plant.substrate,
-    normalizeValue: normalizePlantSubstrate,
-    labelAll: 'Todos',
-    labelMap: {
-      opcional: 'Opcional',
-      recomendado: 'Recomendado'
-    },
-    sortOrder: ['opcional', 'recomendado']
+    normalizeValue: normalizeSearchValue,
+    labelAll: 'Todos'
   },
   {
     name: 'waterHardness',
@@ -2810,11 +2800,11 @@ function matchesPlantFilters(plant, filters) {
     return false;
   }
 
-  if (!matchesSelectedFilterValues(filters.co2, normalizePlantCo2(plant.co2))) {
+  if (!matchesSelectedFilterValues(filters.co2, normalizeSearchValue(plant.co2))) {
     return false;
   }
 
-  if (!matchesSelectedFilterValues(filters.substrate, normalizePlantSubstrate(plant.substrate))) {
+  if (!matchesSelectedFilterValues(filters.substrate, normalizeSearchValue(plant.substrate))) {
     return false;
   }
 
