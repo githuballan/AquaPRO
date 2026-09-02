@@ -610,7 +610,7 @@ function normalizeBooleanFieldForForm(value) {
 function normalizeLightValue(value) {
   const normalized = String(value ?? '').trim().toLowerCase();
 
-  if (normalized === 'forte') {
+  if (normalized === 'forte' || normalized === 'alta') {
     return 'forte';
   }
 
@@ -618,9 +618,11 @@ function normalizeLightValue(value) {
     return 'media';
   }
 
-  if (normalized === 'baixa') {
-    return 'baixa';
+  if (normalized === 'fraca' || normalized === 'baixa') {
+    return 'fraca';
   }
+
+  return '';
 
   return '';
 }
@@ -2180,16 +2182,16 @@ function normalizePlantLight(value) {
     return '';
   }
 
-  if (normalized.includes('baixa')) {
-    return 'baixa';
+  if (normalized.includes('fraca') || normalized.includes('baixa')) {
+    return 'fraca';
   }
 
   if (normalized.includes('media')) {
     return 'media';
   }
 
-  if (normalized.includes('alta')) {
-    return 'alta';
+  if (normalized.includes('forte') || normalized.includes('alta')) {
+    return 'forte';
   }
 
   return normalized;
@@ -2222,9 +2224,8 @@ function normalizeAquariumCompatibilityProfile(aquarium) {
 function getLightRank(value) {
   const normalized = normalizePlantLight(value);
   const ranks = {
-    baixa: 1,
+    fraca: 1,
     media: 2,
-    alta: 3,
     forte: 3
   };
 
@@ -2425,88 +2426,217 @@ function normalizePlantValue(value) {
   return normalizeSearchValue(value);
 }
 
-function createSelectOptions(values, labelAll = 'Todos') {
-  const uniqueValues = [...new Set(values.filter(Boolean))]
-    .sort((left, right) => left.localeCompare(right, 'pt-BR'));
+function compareConfiguredFilterValues(left, right, config = {}) {
+  const sortOrder = Array.isArray(config.sortOrder) ? config.sortOrder : null;
 
-  return `<option value="">${labelAll}</option>${uniqueValues.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`;
+  if (sortOrder) {
+    const leftIndex = sortOrder.indexOf(left);
+    const rightIndex = sortOrder.indexOf(right);
+
+    if (leftIndex !== -1 || rightIndex !== -1) {
+      if (leftIndex === -1) {
+        return 1;
+      }
+
+      if (rightIndex === -1) {
+        return -1;
+      }
+
+      return leftIndex - rightIndex;
+    }
+  }
+
+  return String(left).localeCompare(String(right), 'pt-BR');
 }
+
+function getFilterOptionLabel(value, rawValue, config = {}) {
+  if (config.labelMap?.[value]) {
+    return config.labelMap[value];
+  }
+
+  const trimmedRawValue = String(rawValue ?? '').trim();
+  if (trimmedRawValue) {
+    return trimmedRawValue;
+  }
+
+  return String(value ?? '').trim();
+}
+
+function createSelectOptions(options, labelAll = 'Todos') {
+  const uniqueOptions = [];
+  const seenValues = new Set();
+
+  options.forEach((option) => {
+    if (!option) {
+      return;
+    }
+
+    const normalizedOption = typeof option === 'string'
+      ? { value: option, label: option }
+      : option;
+
+    const value = String(normalizedOption.value ?? '').trim();
+    if (!value || seenValues.has(value)) {
+      return;
+    }
+
+    seenValues.add(value);
+    uniqueOptions.push({
+      value,
+      label: String(normalizedOption.label ?? value).trim() || value
+    });
+  });
+
+  return `<option value="">${labelAll}</option>${uniqueOptions.map((option) => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('')}`;
+}
+
+function buildFilterOptions(records, config) {
+  const optionsMap = new Map();
+
+  records.forEach((record) => {
+    const rawValue = config.getValue(record);
+    const normalizedValue = config.normalizeValue ? config.normalizeValue(rawValue, record) : String(rawValue ?? '').trim();
+    const optionValue = String(normalizedValue ?? '').trim();
+
+    if (!optionValue) {
+      return;
+    }
+
+    if (config.filterValue && !config.filterValue(optionValue, rawValue, record)) {
+      return;
+    }
+
+    if (!optionsMap.has(optionValue)) {
+      optionsMap.set(optionValue, getFilterOptionLabel(optionValue, rawValue, config));
+    }
+  });
+
+  return [...optionsMap.entries()]
+    .sort(([leftValue], [rightValue]) => compareConfiguredFilterValues(leftValue, rightValue, config))
+    .map(([value, label]) => ({ value, label }));
+}
+
+function populateConfiguredFilterOptions(records, form, configs) {
+  if (!form) {
+    return;
+  }
+
+  configs.forEach((config) => {
+    const select = form.querySelector(`[name="${config.name}"]`);
+    if (!select) {
+      return;
+    }
+
+    select.innerHTML = createSelectOptions(buildFilterOptions(records, config), config.labelAll || 'Todos');
+  });
+}
+
+const PLANT_FILTER_SELECT_CONFIGS = [
+  {
+    name: 'difficulty',
+    getValue: (plant) => plant.difficulty,
+    normalizeValue: normalizePlantDifficulty,
+    labelAll: 'Todas',
+    labelMap: {
+      facil: 'Fácil',
+      moderada: 'Moderada',
+      dificil: 'Difícil'
+    },
+    sortOrder: ['facil', 'moderada', 'dificil']
+  },
+  {
+    name: 'placement',
+    getValue: (plant) => plant.placement,
+    labelAll: 'Todas'
+  },
+  {
+    name: 'growthRate',
+    getValue: (plant) => plant.growthRate,
+    labelAll: 'Todas'
+  },
+  {
+    name: 'light',
+    getValue: (plant) => plant.light,
+    normalizeValue: normalizePlantLight,
+    labelAll: 'Todas',
+    labelMap: {
+      fraca: 'Fraca',
+      media: 'Média',
+      forte: 'Forte'
+    },
+    sortOrder: ['fraca', 'media', 'forte']
+  },
+  {
+    name: 'co2',
+    getValue: (plant) => plant.co2,
+    normalizeValue: normalizePlantCo2,
+    labelAll: 'Todos',
+    labelMap: {
+      opcional: 'Opcional',
+      recomendado: 'Recomendado'
+    },
+    sortOrder: ['opcional', 'recomendado']
+  },
+  {
+    name: 'substrate',
+    getValue: (plant) => plant.substrate,
+    normalizeValue: normalizePlantSubstrate,
+    labelAll: 'Todos',
+    labelMap: {
+      opcional: 'Opcional',
+      recomendado: 'Recomendado'
+    },
+    sortOrder: ['opcional', 'recomendado']
+  },
+  {
+    name: 'waterHardness',
+    getValue: (plant) => plant.waterHardness,
+    normalizeValue: normalizePlantWaterHardness,
+    labelAll: 'Todas',
+    labelMap: {
+      'muito mole': 'Muito mole',
+      mole: 'Mole',
+      'semi-dura': 'Semi-dura',
+      dura: 'Dura',
+      'muito dura': 'Muito dura'
+    },
+    sortOrder: ['muito mole', 'mole', 'semi-dura', 'dura', 'muito dura']
+  }
+];
+
+const FISH_FILTER_SELECT_CONFIGS = [
+  {
+    name: 'origin',
+    getValue: (fish) => fish.origin,
+    labelAll: 'Todos'
+  },
+  {
+    name: 'temperament',
+    getValue: (fish) => fish.temperament,
+    labelAll: 'Todos'
+  },
+  {
+    name: 'diet',
+    getValue: (fish) => fish.diet,
+    labelAll: 'Todos'
+  },
+  {
+    name: 'difficulty',
+    getValue: (fish) => fish.difficulty,
+    labelAll: 'Todos'
+  }
+];
+
+const PLANT_FILTER_SELECT_CONFIGS_BY_NAME = Object.fromEntries(
+  PLANT_FILTER_SELECT_CONFIGS.map((config) => [config.name, config])
+);
 
 function populatePlantFilterOptions() {
   if (!filtersForm || !plantCards) {
     return;
   }
 
-  const difficultySelect = filtersForm.querySelector('[name="difficulty"]');
-  const placementSelect = filtersForm.querySelector('[name="placement"]');
-  const growthSelect = filtersForm.querySelector('[name="growthRate"]');
-  const lightSelect = filtersForm.querySelector('[name="light"]');
-  const waterHardnessSelect = filtersForm.querySelector('[name="waterHardness"]');
-  const khRangeSelect = filtersForm.querySelector('[name="khRange"]');
-
-  if (difficultySelect) {
-    difficultySelect.innerHTML = [
-      '<option value="">Todas</option>',
-      '<option value="facil">Fácil</option>',
-      '<option value="moderada">Moderada</option>',
-      '<option value="dificil">Difícil</option>'
-    ].join('');
-  }
-
-  if (placementSelect) {
-    placementSelect.innerHTML = createSelectOptions(state.plants.map((plant) => plant.placement), 'Todas');
-  }
-
-  if (growthSelect) {
-    growthSelect.innerHTML = createSelectOptions(state.plants.map((plant) => plant.growthRate), 'Todas');
-  }
-
-  if (lightSelect) {
-    lightSelect.innerHTML = [
-      '<option value="">Todas</option>',
-      '<option value="baixa">Baixa</option>',
-      '<option value="media">Média</option>',
-      '<option value="alta">Alta</option>'
-    ].join('');
-  }
-
-  const co2Select = filtersForm.querySelector('[name="co2"]');
-  if (co2Select) {
-    co2Select.innerHTML = [
-      '<option value="">Todos</option>',
-      '<option value="opcional">Opcional</option>',
-      '<option value="recomendado">Recomendado</option>'
-    ].join('');
-  }
-
-  const substrateSelect = filtersForm.querySelector('[name="substrate"]');
-  if (substrateSelect) {
-    substrateSelect.innerHTML = [
-      '<option value="">Todos</option>',
-      '<option value="opcional">Opcional</option>',
-      '<option value="recomendado">Recomendado</option>'
-    ].join('');
-  }
-
-  if (waterHardnessSelect) {
-    waterHardnessSelect.innerHTML = [
-      '<option value="">Todas</option>',
-      '<option value="muito mole">Muito mole</option>',
-      '<option value="mole">Mole</option>',
-      '<option value="semi-dura">Semi-dura</option>',
-      '<option value="dura">Dura</option>',
-      '<option value="muito dura">Muito dura</option>'
-    ].join('');
-  }
-
-  if (khRangeSelect) {
-    khRangeSelect.innerHTML = createSelectOptions(
-      state.plants
-        .map((plant) => plant.khRange)
-        .filter((value) => value && normalizeSearchValue(value) !== '1 a 10'),
-      'Todas'
-    );
-  }
+  populateConfiguredFilterOptions(state.plants, filtersForm, PLANT_FILTER_SELECT_CONFIGS);
 }
 
 function syncLowTechToggleUi() {
@@ -2554,7 +2684,7 @@ function applyLowTechPreset(shouldEnable) {
       difficultyField.value = 'facil';
     }
     if (lightField) {
-      lightField.value = 'baixa';
+      lightField.value = 'fraca';
     }
   } else {
     if (co2Field?.value === 'opcional') {
@@ -2566,7 +2696,7 @@ function applyLowTechPreset(shouldEnable) {
     if (difficultyField?.value === 'facil') {
       difficultyField.value = '';
     }
-    if (lightField?.value === 'baixa') {
+    if (lightField?.value === 'fraca') {
       lightField.value = '';
     }
   }
@@ -2580,13 +2710,14 @@ function applyPlantCatalogSearchParams() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'khRange', 'phMin', 'phMax', 'tempMin', 'tempMax'];
+  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'phMin', 'phMax', 'tempMin', 'tempMax'];
 
   fieldNames.forEach((fieldName) => {
     const field = filtersForm.querySelector(`[name="${fieldName}"]`);
     const value = params.get(fieldName);
     if (field && value !== null) {
-      field.value = value;
+      const config = PLANT_FILTER_SELECT_CONFIGS_BY_NAME[fieldName];
+      field.value = config?.normalizeValue ? config.normalizeValue(value) : value;
     }
   });
 
@@ -2614,7 +2745,6 @@ function getPlantFilters() {
     co2: (formData.get('co2') || '').toString(),
     substrate: (formData.get('substrate') || '').toString(),
     waterHardness: (formData.get('waterHardness') || '').toString(),
-    khRange: (formData.get('khRange') || '').toString(),
     phMin: formData.get('phMin') ? Number(formData.get('phMin')) : null,
     phMax: formData.get('phMax') ? Number(formData.get('phMax')) : null,
     tempMin: formData.get('tempMin') ? Number(formData.get('tempMin')) : null,
@@ -2653,10 +2783,6 @@ function matchesPlantFilters(plant, filters) {
   }
 
   if (filters.waterHardness && normalizePlantWaterHardness(plant.waterHardness) !== filters.waterHardness) {
-    return false;
-  }
-
-  if (filters.khRange && plant.khRange !== filters.khRange) {
     return false;
   }
 
@@ -3579,31 +3705,7 @@ function populateFilterOptions() {
     return;
   }
 
-  const originSelect = filtersForm.querySelector('[name="origin"]');
-  const temperamentSelect = filtersForm.querySelector('[name="temperament"]');
-  const dietSelect = filtersForm.querySelector('[name="diet"]');
-  const difficultySelect = filtersForm.querySelector('[name="difficulty"]');
-
-  const origins = [...new Set(state.fishes.map((fish) => fish.origin))];
-  const temperaments = [...new Set(state.fishes.map((fish) => fish.temperament))];
-  const diets = [...new Set(state.fishes.map((fish) => fish.diet))];
-  const difficulties = [...new Set(state.fishes.map((fish) => fish.difficulty))];
-
-  if (originSelect) {
-    originSelect.innerHTML = '<option value="">Todos</option>' + origins.map((value) => `<option value="${value}">${value}</option>`).join('');
-  }
-
-  if (temperamentSelect) {
-    temperamentSelect.innerHTML = '<option value="">Todos</option>' + temperaments.map((value) => `<option value="${value}">${value}</option>`).join('');
-  }
-
-  if (dietSelect) {
-    dietSelect.innerHTML = '<option value="">Todos</option>' + diets.map((value) => `<option value="${value}">${value}</option>`).join('');
-  }
-
-  if (difficultySelect) {
-    difficultySelect.innerHTML = '<option value="">Todos</option>' + difficulties.map((value) => `<option value="${value}">${value}</option>`).join('');
-  }
+  populateConfiguredFilterOptions(state.fishes, filtersForm, FISH_FILTER_SELECT_CONFIGS);
 }
 
 function getFilters() {
