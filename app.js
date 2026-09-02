@@ -870,6 +870,21 @@ function setFilterFieldValue(fieldName, value) {
     return;
   }
 
+  const checkboxFields = filtersForm.querySelectorAll(`input[type="checkbox"][name="${fieldName}"]`);
+  if (checkboxFields.length) {
+    const values = Array.isArray(value)
+      ? value
+      : value === null || value === undefined || value === ''
+        ? []
+        : [value];
+    const normalizedValues = new Set(values.map((item) => String(item)));
+
+    checkboxFields.forEach((field) => {
+      field.checked = normalizedValues.has(field.value);
+    });
+    return;
+  }
+
   const field = filtersForm.querySelector(`[name="${fieldName}"]`);
   if (!field) {
     return;
@@ -2490,6 +2505,19 @@ function createSelectOptions(options, labelAll = 'Todos') {
   return `<option value="">${labelAll}</option>${uniqueOptions.map((option) => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join('')}`;
 }
 
+function createCheckboxOptionsMarkup(fieldName, options) {
+  return options.map((option, index) => {
+    const optionId = `filter-${fieldName}-${index}-${normalizeSearchValue(option.value).replace(/[^a-z0-9]+/g, '-')}`;
+
+    return `
+      <label class="filter-checkbox-option" for="${escapeHtml(optionId)}">
+        <input id="${escapeHtml(optionId)}" type="checkbox" name="${escapeHtml(fieldName)}" value="${escapeHtml(option.value)}" />
+        <span>${escapeHtml(option.label)}</span>
+      </label>
+    `;
+  }).join('');
+}
+
 function buildFilterOptions(records, config) {
   const optionsMap = new Map();
 
@@ -2522,12 +2550,19 @@ function populateConfiguredFilterOptions(records, form, configs) {
   }
 
   configs.forEach((config) => {
+    const options = buildFilterOptions(records, config);
+    const checkboxGroup = form.querySelector(`[data-filter-name="${config.name}"]`);
+    if (checkboxGroup) {
+      checkboxGroup.innerHTML = createCheckboxOptionsMarkup(config.name, options);
+      return;
+    }
+
     const select = form.querySelector(`[name="${config.name}"]`);
     if (!select) {
       return;
     }
 
-    select.innerHTML = createSelectOptions(buildFilterOptions(records, config), config.labelAll || 'Todos');
+    select.innerHTML = createSelectOptions(options, config.labelAll || 'Todos');
   });
 }
 
@@ -2606,11 +2641,6 @@ const PLANT_FILTER_SELECT_CONFIGS = [
 
 const FISH_FILTER_SELECT_CONFIGS = [
   {
-    name: 'origin',
-    getValue: (fish) => fish.origin,
-    labelAll: 'Todos'
-  },
-  {
     name: 'temperament',
     getValue: (fish) => fish.temperament,
     labelAll: 'Todos'
@@ -2630,6 +2660,25 @@ const FISH_FILTER_SELECT_CONFIGS = [
 const PLANT_FILTER_SELECT_CONFIGS_BY_NAME = Object.fromEntries(
   PLANT_FILTER_SELECT_CONFIGS.map((config) => [config.name, config])
 );
+
+const FISH_FILTER_SELECT_CONFIGS_BY_NAME = Object.fromEntries(
+  FISH_FILTER_SELECT_CONFIGS.map((config) => [config.name, config])
+);
+
+function normalizeMultiValueFilterInput(values, config) {
+  return [...new Set(values
+    .map((value) => config?.normalizeValue ? config.normalizeValue(value) : String(value ?? '').trim())
+    .map((value) => String(value ?? '').trim())
+    .filter(Boolean))];
+}
+
+function getMultiValueFilterInput(formData, fieldName, configMap) {
+  return normalizeMultiValueFilterInput(formData.getAll(fieldName), configMap[fieldName]);
+}
+
+function matchesSelectedFilterValues(selectedValues, candidateValue) {
+  return !selectedValues.length || selectedValues.includes(candidateValue);
+}
 
 function populatePlantFilterOptions() {
   if (!filtersForm || !plantCards) {
@@ -2668,37 +2717,16 @@ function applyLowTechPreset(shouldEnable) {
     return;
   }
 
-  const co2Field = filtersForm.querySelector('[name="co2"]');
-  const substrateField = filtersForm.querySelector('[name="substrate"]');
-  const difficultyField = filtersForm.querySelector('[name="difficulty"]');
-  const lightField = filtersForm.querySelector('[name="light"]');
-
   if (shouldEnable) {
-    if (co2Field) {
-      co2Field.value = 'opcional';
-    }
-    if (substrateField) {
-      substrateField.value = 'opcional';
-    }
-    if (difficultyField) {
-      difficultyField.value = 'facil';
-    }
-    if (lightField) {
-      lightField.value = 'fraca';
-    }
+    setFilterFieldValue('co2', ['opcional']);
+    setFilterFieldValue('substrate', ['opcional']);
+    setFilterFieldValue('difficulty', ['facil']);
+    setFilterFieldValue('light', ['fraca']);
   } else {
-    if (co2Field?.value === 'opcional') {
-      co2Field.value = '';
-    }
-    if (substrateField?.value === 'opcional') {
-      substrateField.value = '';
-    }
-    if (difficultyField?.value === 'facil') {
-      difficultyField.value = '';
-    }
-    if (lightField?.value === 'fraca') {
-      lightField.value = '';
-    }
+    setFilterFieldValue('co2', []);
+    setFilterFieldValue('substrate', []);
+    setFilterFieldValue('difficulty', []);
+    setFilterFieldValue('light', []);
   }
 
   syncLowTechToggleUi();
@@ -2710,15 +2738,23 @@ function applyPlantCatalogSearchParams() {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const fieldNames = ['search', 'difficulty', 'placement', 'growthRate', 'light', 'co2', 'substrate', 'waterHardness', 'phMin', 'phMax', 'tempMin', 'tempMax'];
+  const scalarFieldNames = ['search', 'phMin', 'phMax', 'tempMin', 'tempMax'];
 
-  fieldNames.forEach((fieldName) => {
+  scalarFieldNames.forEach((fieldName) => {
     const field = filtersForm.querySelector(`[name="${fieldName}"]`);
     const value = params.get(fieldName);
     if (field && value !== null) {
-      const config = PLANT_FILTER_SELECT_CONFIGS_BY_NAME[fieldName];
-      field.value = config?.normalizeValue ? config.normalizeValue(value) : value;
+      field.value = value;
     }
+  });
+
+  PLANT_FILTER_SELECT_CONFIGS.forEach((config) => {
+    const values = params.getAll(config.name);
+    if (!values.length) {
+      return;
+    }
+
+    setFilterFieldValue(config.name, normalizeMultiValueFilterInput(values, config));
   });
 
   const lowTechParam = params.get('lowTech');
@@ -2738,13 +2774,13 @@ function getPlantFilters() {
   const formData = new FormData(filtersForm);
   return {
     search: (formData.get('search') || '').toString().trim().toLowerCase(),
-    difficulty: (formData.get('difficulty') || '').toString(),
-    placement: (formData.get('placement') || '').toString(),
-    growthRate: (formData.get('growthRate') || '').toString(),
-    light: (formData.get('light') || '').toString(),
-    co2: (formData.get('co2') || '').toString(),
-    substrate: (formData.get('substrate') || '').toString(),
-    waterHardness: (formData.get('waterHardness') || '').toString(),
+    difficulty: getMultiValueFilterInput(formData, 'difficulty', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
+    placement: getMultiValueFilterInput(formData, 'placement', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
+    growthRate: getMultiValueFilterInput(formData, 'growthRate', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
+    light: getMultiValueFilterInput(formData, 'light', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
+    co2: getMultiValueFilterInput(formData, 'co2', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
+    substrate: getMultiValueFilterInput(formData, 'substrate', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
+    waterHardness: getMultiValueFilterInput(formData, 'waterHardness', PLANT_FILTER_SELECT_CONFIGS_BY_NAME),
     phMin: formData.get('phMin') ? Number(formData.get('phMin')) : null,
     phMax: formData.get('phMax') ? Number(formData.get('phMax')) : null,
     tempMin: formData.get('tempMin') ? Number(formData.get('tempMin')) : null,
@@ -2758,31 +2794,31 @@ function matchesPlantFilters(plant, filters) {
     return false;
   }
 
-  if (filters.difficulty && normalizePlantDifficulty(plant.difficulty) !== filters.difficulty) {
+  if (!matchesSelectedFilterValues(filters.difficulty, normalizePlantDifficulty(plant.difficulty))) {
     return false;
   }
 
-  if (filters.placement && plant.placement !== filters.placement) {
+  if (!matchesSelectedFilterValues(filters.placement, plant.placement)) {
     return false;
   }
 
-  if (filters.growthRate && plant.growthRate !== filters.growthRate) {
+  if (!matchesSelectedFilterValues(filters.growthRate, plant.growthRate)) {
     return false;
   }
 
-  if (filters.light && normalizePlantLight(plant.light) !== filters.light) {
+  if (!matchesSelectedFilterValues(filters.light, normalizePlantLight(plant.light))) {
     return false;
   }
 
-  if (filters.co2 && normalizePlantCo2(plant.co2) !== filters.co2) {
+  if (!matchesSelectedFilterValues(filters.co2, normalizePlantCo2(plant.co2))) {
     return false;
   }
 
-  if (filters.substrate && normalizePlantSubstrate(plant.substrate) !== filters.substrate) {
+  if (!matchesSelectedFilterValues(filters.substrate, normalizePlantSubstrate(plant.substrate))) {
     return false;
   }
 
-  if (filters.waterHardness && normalizePlantWaterHardness(plant.waterHardness) !== filters.waterHardness) {
+  if (!matchesSelectedFilterValues(filters.waterHardness, normalizePlantWaterHardness(plant.waterHardness))) {
     return false;
   }
 
@@ -2813,6 +2849,13 @@ function updatePlantCatalogUrl(filters) {
   const params = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value === '' || value === null || value === undefined) {
+      return;
+    }
+
+    if (Array.isArray(value)) {
+      value.filter(Boolean).forEach((item) => {
+        params.append(key, String(item));
+      });
       return;
     }
 
@@ -3716,10 +3759,9 @@ function getFilters() {
   const formData = new FormData(filtersForm);
   return {
     search: (formData.get('search') || '').toString().trim().toLowerCase(),
-    origin: formData.get('origin') || '',
-    temperament: formData.get('temperament') || '',
-    diet: formData.get('diet') || '',
-    difficulty: formData.get('difficulty') || '',
+    temperament: getMultiValueFilterInput(formData, 'temperament', FISH_FILTER_SELECT_CONFIGS_BY_NAME),
+    diet: getMultiValueFilterInput(formData, 'diet', FISH_FILTER_SELECT_CONFIGS_BY_NAME),
+    difficulty: getMultiValueFilterInput(formData, 'difficulty', FISH_FILTER_SELECT_CONFIGS_BY_NAME),
     tempMin: formData.get('tempMin') ? Number(formData.get('tempMin')) : null,
     tempMax: formData.get('tempMax') ? Number(formData.get('tempMax')) : null,
     phMin: formData.get('phMin') ? Number(formData.get('phMin')) : null,
@@ -3738,19 +3780,15 @@ function matchesFilters(fish, filters) {
     return false;
   }
 
-  if (filters.origin && fish.origin !== filters.origin) {
+  if (!matchesSelectedFilterValues(filters.temperament, fish.temperament)) {
     return false;
   }
 
-  if (filters.temperament && fish.temperament !== filters.temperament) {
+  if (!matchesSelectedFilterValues(filters.diet, fish.diet)) {
     return false;
   }
 
-  if (filters.diet && fish.diet !== filters.diet) {
-    return false;
-  }
-
-  if (filters.difficulty && fish.difficulty !== filters.difficulty) {
+  if (!matchesSelectedFilterValues(filters.difficulty, fish.difficulty)) {
     return false;
   }
 

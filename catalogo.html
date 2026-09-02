@@ -45,18 +45,18 @@
         <label>Busca
           <input type="text" name="search" placeholder="Nome, origem ou descrição" />
         </label>
-        <label>Origem
-          <select name="origin"></select>
-        </label>
-        <label>Temperamento
-          <select name="temperament"></select>
-        </label>
-        <label>Alimentação
-          <select name="diet"></select>
-        </label>
-        <label>Nível de dificuldade
-          <select name="difficulty"></select>
-        </label>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Temperamento</legend>
+          <div class="filter-checkbox-group" data-filter-name="temperament"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Alimentação</legend>
+          <div class="filter-checkbox-group" data-filter-name="diet"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Nível de dificuldade</legend>
+          <div class="filter-checkbox-group" data-filter-name="difficulty"></div>
+        </fieldset>
         <label>Temperatura mínima
           <input type="number" name="tempMin" step="0.1" />
         </label>

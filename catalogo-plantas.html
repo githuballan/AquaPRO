@@ -47,27 +47,34 @@
         <label>Busca
           <input type="text" name="search" placeholder="Nome, uso, família ou descrição" />
         </label>
-        <label>Nível de dificuldade
-          <select name="difficulty"></select>
-        </label>
-        <label>Posição indicada
-          <select name="placement"></select>
-        </label>
-        <label>Taxa de crescimento
-          <select name="growthRate"></select>
-        </label>
-        <label>Iluminação
-          <select name="light"></select>
-        </label>
-        <label>CO2
-          <select name="co2"></select>
-        </label>
-        <label>Substrato fértil
-          <select name="substrate"></select>
-        </label>
-        <label>Dureza da água
-          <select name="waterHardness"></select>
-        </label>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Nível de dificuldade</legend>
+          <div class="filter-checkbox-group" data-filter-name="difficulty"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Posição indicada</legend>
+          <div class="filter-checkbox-group" data-filter-name="placement"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Taxa de crescimento</legend>
+          <div class="filter-checkbox-group" data-filter-name="growthRate"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Iluminação</legend>
+          <div class="filter-checkbox-group" data-filter-name="light"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>CO2</legend>
+          <div class="filter-checkbox-group" data-filter-name="co2"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Substrato fértil</legend>
+          <div class="filter-checkbox-group" data-filter-name="substrate"></div>
+        </fieldset>
+        <fieldset class="filter-checkbox-fieldset">
+          <legend>Dureza da água</legend>
+          <div class="filter-checkbox-group" data-filter-name="waterHardness"></div>
+        </fieldset>
         <label>pH mínimo
           <input type="number" name="phMin" step="0.1" />
         </label>
