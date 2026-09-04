@@ -149,20 +149,22 @@ function initTocSmoothScroll() {
 
 function initTocHighlight() {
 	const tocLinks = document.querySelectorAll('.guide-toc-link');
-	if (!tocLinks.length || !('IntersectionObserver' in window)) {
+	if (!tocLinks.length) {
 		return;
 	}
 
-	const linkBySectionId = new Map();
+	const sectionOffset = 120;
+	const sectionLinks = [];
+
 	tocLinks.forEach((link) => {
 		const sectionId = link.getAttribute('href')?.replace('#', '');
 		const section = sectionId ? document.getElementById(sectionId) : null;
 		if (section) {
-			linkBySectionId.set(section, link);
+			sectionLinks.push({ section, link });
 		}
 	});
 
-	if (!linkBySectionId.size) {
+	if (!sectionLinks.length) {
 		return;
 	}
 
@@ -170,24 +172,23 @@ function initTocHighlight() {
 		tocLinks.forEach((link) => link.classList.toggle('is-active', link === activeLink));
 	};
 
-	const observer = new IntersectionObserver(
-		(entries) => {
-			const visibleEntry = entries
-				.filter((entry) => entry.isIntersecting)
-				.sort((first, second) => second.intersectionRatio - first.intersectionRatio)[0];
+	const updateActiveLink = () => {
+		const passedSections = sectionLinks.filter(({ section }) => section.getBoundingClientRect().top <= sectionOffset);
 
-			if (visibleEntry) {
-				setActiveLink(linkBySectionId.get(visibleEntry.target));
-			}
-		},
-		{
-			root: null,
-			rootMargin: '-96px 0px -60% 0px',
-			threshold: [0.1, 0.25, 0.5, 0.75]
+		if (passedSections.length) {
+			setActiveLink(passedSections[passedSections.length - 1].link);
+			return;
 		}
-	);
 
-	linkBySectionId.forEach((_link, section) => observer.observe(section));
+		const nextSection = sectionLinks.find(({ section }) => section.getBoundingClientRect().top > sectionOffset);
+		if (nextSection) {
+			setActiveLink(nextSection.link);
+		}
+	};
+
+	updateActiveLink();
+	window.addEventListener('scroll', updateActiveLink, { passive: true });
+	window.addEventListener('resize', updateActiveLink);
 }
 
 function initGuideTocDrawer() {

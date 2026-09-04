@@ -28,7 +28,7 @@
 
  html {
   /* Adiciona um espaço no topo ao navegar por links âncora (#id) */
-  scroll-padding-top: 100px; 
+  scroll-padding-top: 10px; 
 
   /* Aproveite e adicione a rolagem suave se ainda não tiver! */
   scroll-behavior: smooth; 
