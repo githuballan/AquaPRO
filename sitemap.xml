@@ -360,4 +360,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>  
+  <url>
+    <loc>https://aquaristapro.com//guias/comparativo-testes-de-ph.html</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>  
+  <url>
+    <loc>https://aquaristapro.com//guias/parametros-da-agua-do-aquario</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>  
 </urlset>
