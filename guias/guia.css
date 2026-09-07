@@ -221,7 +221,7 @@ body.guide-page {
    box-shadow: 0 18px 42px rgba(18, 49, 63, 0.12);
    backdrop-filter: blur(10px);
 }
-/*
+
 .guide-intro-kicker,
 .guide-intro-title,
 .guide-intro-summary,
@@ -229,7 +229,7 @@ body.guide-page {
     opacity: 0;
    transform: translateY(14px);
    animation: guideIntroReveal 0.55s ease forwards; 
-}*/
+}
 
 .guide-intro-kicker {
    margin: 0 0 0.55rem;
