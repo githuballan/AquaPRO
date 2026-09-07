@@ -155,7 +155,13 @@ const state = {
     query: '',
     suggestions: [],
     activeIndex: -1,
-    hasGlobalListener: false
+    hasGlobalListener: false,
+    fishEntries: [],
+    plantEntries: [],
+    hasLoadedIndex: false,
+    isLoadingIndex: false,
+    loadPromise: null,
+    loadError: false
   },
   ui: {
     isMobileLayout: null,
@@ -580,6 +586,25 @@ function mapSupabasePlantRow(row) {
   };
 }
 
+function mapSupabaseFishSearchRow(row) {
+  return {
+    slug: row.slug,
+    name: row.name,
+    description: row.description || '',
+    URL: row.detail_url || ''
+  };
+}
+
+function mapSupabasePlantSearchRow(row) {
+  return {
+    slug: row.slug,
+    name: row.nome_comum || '',
+    scientificName: row.nome_cientifico || '',
+    description: row.seo_description || '',
+    URL: row.detail_url || ''
+  };
+}
+
 function normalizeBooleanField(value) {
   const normalized = String(value ?? '').trim().toLowerCase();
 
@@ -786,6 +811,48 @@ function normalizeFishCatalogData(items) {
 
 function normalizePlantSearchData(items) {
   return items.map((item) => (item.name ? item : mapSupabasePlantRow(item)));
+}
+
+function normalizeFishSearchIndexData(items) {
+  return items.map((item) => (Object.prototype.hasOwnProperty.call(item, 'URL') ? item : mapSupabaseFishSearchRow(item)));
+}
+
+function normalizePlantSearchIndexData(items) {
+  return items.map((item) => (Object.prototype.hasOwnProperty.call(item, 'URL') ? item : mapSupabasePlantSearchRow(item)));
+}
+
+async function fetchFishSearchIndexFromSupabase() {
+  if (!supabaseClient) {
+    throw new Error('Cliente Supabase indisponível para carregar o índice de peixes.');
+  }
+
+  const { data, error } = await supabaseClient
+    .from('fishes')
+    .select('slug, name, description, detail_url')
+    .order('name', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return normalizeFishSearchIndexData(data || []);
+}
+
+async function fetchPlantSearchEntriesFromSupabase() {
+  if (!supabaseClient) {
+    throw new Error('Cliente Supabase indisponível para carregar o índice de plantas.');
+  }
+
+  const { data, error } = await supabaseClient
+    .from('plantas')
+    .select('slug, nome_comum, nome_cientifico, seo_description, detail_url')
+    .order('nome_comum', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return normalizePlantSearchIndexData(data || []);
 }
 
 async function fetchFishCatalogFromSupabase() {
@@ -1728,17 +1795,30 @@ function renderNavigation() {
 
 async function init() {
   state.search.query = getInitialSearchQuery();
+  const currentPage = getCurrentPage();
   loadState();
   await syncAuthSession();
   bindEvents();
   bindSupabaseAuthListener();
   renderNavigation();
+
+  if (searchResultsPage && state.search.query.trim()) {
+    await ensureSearchIndexLoaded();
+  }
+
   renderSearchResultsPage();
   renderPlantCatalogPage();
   setupResponsiveSurface();
   registerSiteServiceWorker();
-  loadFishCatalog();
-  loadPlantSearchIndex();
+
+  if (currentPage === 'catalogo' || currentPage === 'members') {
+    loadFishCatalog();
+  }
+
+  if (currentPage === 'catalogo-plantas') {
+    loadPlantSearchIndex();
+  }
+
   renderAuthState();
   renderProducts();
   renderChart();
@@ -2115,25 +2195,92 @@ function getSearchEntries() {
       ...entry,
       href: resolveSitePath(entry.href)
     })),
-    ...state.fishes.map((fish) => ({
+    ...state.search.fishEntries.map((fish) => ({
       id: `fish-${fish.slug}`,
       type: 'fish',
       slug: fish.slug,
       title: fish.name,
       description: fish.description,
       href: fish.URL ? resolveSitePath(fish.URL) : buildCatalogSearchUrl(fish.slug, fish.name),
-      keywords: `${fish.origin} ${fish.temperament} ${fish.diet} ${fish.group} ${fish.careLevel} ${fish.difficulty}`
+      keywords: ''
     })),
-    ...state.plants.map((plant) => ({
+    ...state.search.plantEntries.map((plant) => ({
       id: `plant-${plant.slug}`,
       type: 'plant',
       slug: plant.slug,
       title: plant.name,
       description: plant.description,
       href: resolveSitePath(plant.URL),
-      keywords: `${plant.scientificName} ${plant.difficulty} ${plant.placement} ${plant.growthRate} ${plant.maxHeight} ${plant.co2} ${plant.light} ${plant.substrate} ${plant.usageType} ${plant.setupProfile} ${plant.waterHardness} ${plant.khRange} ${plant.heroSummary}`
+      keywords: plant.scientificName || ''
     }))
   ];
+}
+
+function getFishSearchEntriesFromLoadedState() {
+  if (!state.fishes.length) {
+    return [];
+  }
+
+  return normalizeFishSearchIndexData(state.fishes);
+}
+
+function getPlantSearchEntriesFromLoadedState() {
+  if (!state.plants.length) {
+    return [];
+  }
+
+  return normalizePlantSearchIndexData(state.plants);
+}
+
+async function ensureSearchIndexLoaded() {
+  if (state.search.hasLoadedIndex) {
+    return;
+  }
+
+  if (state.search.loadPromise) {
+    await state.search.loadPromise;
+    return;
+  }
+
+  state.search.isLoadingIndex = true;
+  state.search.loadError = false;
+  renderNavSearchSuggestions();
+  renderSearchResultsPage();
+
+  state.search.loadPromise = Promise.all([
+    state.search.fishEntries.length
+      ? Promise.resolve(state.search.fishEntries)
+      : state.fishes.length
+        ? Promise.resolve(getFishSearchEntriesFromLoadedState())
+        : fetchFishSearchIndexFromSupabase(),
+    state.search.plantEntries.length
+      ? Promise.resolve(state.search.plantEntries)
+      : state.plants.length
+        ? Promise.resolve(getPlantSearchEntriesFromLoadedState())
+        : fetchPlantSearchEntriesFromSupabase()
+  ])
+    .then(([fishEntries, plantEntries]) => {
+      state.search.fishEntries = fishEntries;
+      state.search.plantEntries = plantEntries;
+      state.search.hasLoadedIndex = true;
+    })
+    .catch((error) => {
+      state.search.loadError = true;
+      console.error('Erro ao carregar índice leve da busca', error);
+    })
+    .finally(() => {
+      state.search.isLoadingIndex = false;
+      state.search.loadPromise = null;
+
+      if (state.search.query.trim()) {
+        state.search.suggestions = searchSite(state.search.query, 6);
+      }
+
+      renderNavSearchSuggestions();
+      renderSearchResultsPage();
+    });
+
+  await state.search.loadPromise;
 }
 
 function normalizePlantDifficulty(value) {
@@ -3090,6 +3237,7 @@ function setNavSearchState(isOpen, host = state.search.activeHost) {
   renderNavSearchSuggestions();
 
   if (isOpen) {
+    ensureSearchIndexLoaded();
     const activeInput = getActiveSearchHost()?.querySelector('[data-search-input]');
     window.requestAnimationFrame(() => {
       activeInput?.focus();
@@ -3106,7 +3254,14 @@ function closeNavSearch() {
 
 function updateNavSearch(query) {
   state.search.query = query;
-  state.search.suggestions = searchSite(query, 6);
+
+  if (query.trim() && !state.search.hasLoadedIndex) {
+    state.search.suggestions = [];
+    ensureSearchIndexLoaded();
+  } else {
+    state.search.suggestions = searchSite(query, 6);
+  }
+
   state.search.activeIndex = -1;
   syncSearchInputs();
   renderNavSearchSuggestions();
@@ -3132,6 +3287,27 @@ function renderNavSearchSuggestions() {
     if (!state.search.isOpen || !isActiveHost || !state.search.query.trim()) {
       container.classList.add('hidden');
       container.innerHTML = '';
+      return;
+    }
+
+    if (state.search.isLoadingIndex) {
+      container.classList.remove('hidden');
+      container.innerHTML = `
+        <div class="nav-search-empty">
+          <p>Carregando resultados...</p>
+        </div>
+      `;
+      return;
+    }
+
+    if (state.search.loadError) {
+      container.classList.remove('hidden');
+      container.innerHTML = `
+        <div class="nav-search-empty">
+          <p>Não foi possível carregar a busca agora.</p>
+          <a href="${buildSearchResultsUrl(state.search.query)}" class="nav-search-all-results">Ver página de resultados</a>
+        </div>
+      `;
       return;
     }
 
@@ -3225,6 +3401,10 @@ function bindNavigationSearch() {
 
     input?.addEventListener('input', (event) => {
       updateNavSearch(event.target.value);
+    });
+
+    input?.addEventListener('focus', () => {
+      ensureSearchIndexLoaded();
     });
 
     input?.addEventListener('keydown', (event) => {
@@ -4046,6 +4226,18 @@ function renderSearchResultsPage() {
   if (!query) {
     searchResultsSummary.textContent = 'Digite um termo na busca para ver resultados.';
     searchResultsGrid.innerHTML = '<article class="search-result-card"><h3>Comece sua pesquisa</h3><p>Procure por peixes, áreas do site e conteúdos principais do AquaristaPRO.</p></article>';
+    return;
+  }
+
+  if (state.search.isLoadingIndex) {
+    searchResultsSummary.textContent = `Carregando resultados para "${query}".`;
+    searchResultsGrid.innerHTML = '<article class="search-result-card"><h3>Carregando busca</h3><p>Estamos preparando o índice de peixes e plantas para responder a sua pesquisa.</p></article>';
+    return;
+  }
+
+  if (state.search.loadError) {
+    searchResultsSummary.textContent = 'Não foi possível carregar a busca agora.';
+    searchResultsGrid.innerHTML = '<article class="search-result-card"><h3>Busca temporariamente indisponível</h3><p>Tente novamente em instantes.</p></article>';
     return;
   }
 
