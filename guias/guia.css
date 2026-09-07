@@ -136,9 +136,9 @@ body.guide-page {
    font-size: 1rem;
    font-weight: 700;
    text-align: center;
-   background:
-      radial-gradient(circle at top right, rgba(122, 211, 230, 0.32), transparent 40%),
-      linear-gradient(135deg, rgba(11, 122, 138, 0.08), rgba(138, 216, 231, 0.22));
+   background:#fff
+      /* radial-gradient(circle at top right, rgba(122, 211, 230, 0.32), transparent 40%),
+      linear-gradient(135deg, rgba(11, 122, 138, 0.08), rgba(138, 216, 231, 0.22)); */
    
 }
 
@@ -695,7 +695,7 @@ td[scope="row"] {
    padding: 0.3rem 0.75rem;
    margin: 0 0 0.8rem;
    border-radius: 999px;
-   background: rgba(11, 122, 138, 0.1);
+   background: #E6F1F3;
    color: var(--primary);
    font-size: 0.75rem;
    font-weight: 700;
