@@ -3314,6 +3314,17 @@ function getSearchResultTypeLabel(entry) {
   return 'Página';
 }
 
+function syncSuggestionHighlight(container) {
+  if (!container) {
+    return;
+  }
+
+  container.querySelectorAll('[data-search-suggestion-index]').forEach((link) => {
+    const index = Number(link.getAttribute('data-search-suggestion-index'));
+    link.classList.toggle('is-active', index === state.search.activeIndex);
+  });
+}
+
 function renderNavSearchSuggestions() {
   document.querySelectorAll('[data-search-suggestions]').forEach((container) => {
     const host = container.closest('[data-search-host]');
@@ -3373,13 +3384,13 @@ function renderNavSearchSuggestions() {
 
     container.querySelector('.nav-search-suggestion-list')?.addEventListener('mouseleave', () => {
       state.search.activeIndex = -1;
-      renderNavSearchSuggestions();
+      syncSuggestionHighlight(container);
     });
 
     container.querySelectorAll('[data-search-suggestion-index]').forEach((link) => {
       link.addEventListener('mouseenter', () => {
         state.search.activeIndex = Number(link.getAttribute('data-search-suggestion-index'));
-        renderNavSearchSuggestions();
+        syncSuggestionHighlight(container);
       });
     });
   });
