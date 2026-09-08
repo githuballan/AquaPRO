@@ -1703,6 +1703,23 @@ function renderNavigationItem(item, currentPage) {
   `;
 }
 
+function renderMembersNavButton(currentPage, extraClassName = '') {
+  const classes = ['nav-utility-btn', 'nav-members-btn', extraClassName, currentPage === 'members' ? 'active' : '']
+    .filter(Boolean)
+    .join(' ');
+
+  return `
+    <a href="${resolveSitePath('members.html')}" class="${classes}" aria-label="Abrir área de membros">
+      <span class="nav-members-icon" aria-hidden="true">
+       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="7" r="4" />
+  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+</svg>
+      </span>
+    </a>
+  `;
+}
+
 function closeAllNavSubmenus(exceptElement = null) {
   document.querySelectorAll('[data-nav-parent]').forEach((wrapper) => {
     if (exceptElement && wrapper === exceptElement) {
@@ -1724,27 +1741,13 @@ function renderNavigation() {
   const shouldShowFilterToggle = isCatalogPage(currentPage) && Boolean(filtersCard);
   const currentQuery = escapeHtml(state.search.query);
   const navLinks = navigationItems
-    .filter((item) => item.page !== 'index')
+    .filter((item) => item.page !== 'index' && item.page !== 'members')
     .map((item) => renderNavigationItem(item, currentPage))
     .join('');
 
   nav.innerHTML = `
     <div class="top-nav-mobile-bar">
-      ${shouldShowFilterToggle ? `
-        
-        <button id="mobileFilterToggle" class="nav-utility-btn nav-filter-btn" type="button" aria-expanded="false" aria-controls="catalogFilters" aria-label="Mostrar filtros">
-          <span class="nav-filter-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" role="img" focusable="false">
-              <path d="M3 6h18"></path>
-              <path d="M6 12h12"></path>
-              <path d="M10 18h4"></path>
-              <circle cx="8" cy="6" r="2"></circle>
-              <circle cx="15" cy="12" r="2"></circle>
-              <circle cx="12" cy="18" r="2"></circle>
-            </svg>
-          </span>
-        </button>
-      ` : '<span class="nav-mobile-spacer" aria-hidden="true"></span>'}
+      ${renderMembersNavButton(currentPage, 'nav-mobile-members-btn')}
       <div class="top-nav-search-host top-nav-search-host-mobile" data-search-host="mobile">
         <a href="${resolveSitePath('index.html')}" class="top-nav-brand">AquaristaPRO</a>
         <button type="button" class="nav-utility-btn nav-search-toggle" data-search-toggle aria-expanded="false" aria-label="Abrir pesquisa">
@@ -1769,6 +1772,7 @@ function renderNavigation() {
     </div>
     <div id="siteNavLinks" class="top-nav-links">
       <div class="top-nav-search-host top-nav-search-host-desktop" data-search-host="desktop">
+        ${renderMembersNavButton(currentPage, 'nav-desktop-members-btn')}
         <a href="${resolveSitePath('index.html')}" class="top-nav-site-link ${currentPage === 'index' ? 'active' : ''}">AquaristaPRO</a>
         <button type="button" class="nav-search-toggle" data-search-toggle aria-expanded="false" aria-label="Abrir pesquisa">
           <span class="nav-search-icon" aria-hidden="true">
@@ -1787,6 +1791,26 @@ function renderNavigation() {
       ${navLinks}
     </div>
   `;
+
+  document.getElementById('mobileFilterToggle')?.remove();
+  if (shouldShowFilterToggle) {
+    nav.insertAdjacentHTML('afterend', `
+      <button id="mobileFilterToggle" class="nav-utility-btn nav-filter-btn nav-floating-filter-btn" type="button" aria-expanded="false" aria-controls="catalogFilters" aria-label="Mostrar filtros">
+        <span class="nav-filter-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" role="img" focusable="false">
+            <path d="M3 6h18"></path>
+            <path d="M6 12h12"></path>
+            <path d="M10 18h4"></path>
+            <circle cx="8" cy="6" r="2"></circle>
+            <circle cx="15" cy="12" r="2"></circle>
+            <circle cx="12" cy="18" r="2"></circle>
+          </svg>
+        </span>
+      </button>
+    `);
+  }
+
+  updateFloatingFilterTogglePosition();
 
   bindResponsiveNavigation();
   bindNavigationSearch();
@@ -2105,6 +2129,17 @@ function setMobileNavState(isOpen) {
 
   nav.classList.toggle('menu-open', isOpen);
   toggleButton.setAttribute('aria-expanded', String(isOpen));
+  updateFloatingFilterTogglePosition();
+}
+
+function updateFloatingFilterTogglePosition() {
+  const nav = document.getElementById('site-nav');
+  const toggleButton = document.getElementById('mobileFilterToggle');
+  if (!nav || !toggleButton) {
+    return;
+  }
+
+  toggleButton.style.top = `${Math.ceil(nav.getBoundingClientRect().height) + 8}px`;
 }
 
 function setMobileFilterState(isOpen) {
@@ -3473,6 +3508,8 @@ function setupResponsiveSurface() {
   if (filtersCard && !filtersCard.classList.contains('mobile-open')) {
     setMobileFilterState(false);
   }
+
+  updateFloatingFilterTogglePosition();
 }
 
 function loadState() {

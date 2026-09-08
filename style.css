@@ -296,6 +296,7 @@ header h1 {
   display: inline-flex;
 }
 
+
 .nav-search-icon {
   width: 22px;
   height: 22px;
@@ -303,13 +304,37 @@ header h1 {
 }
 
 .nav-filter-icon svg {
+.nav-members-icon svg {
+  display: block;
   width: 100%;
   height: 100%;
+  overflow: visible;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.nav-floating-filter-btn {
+  display: none;
+}
+
+.top-nav a.nav-members-btn {
+  padding: 0;
+}
+
+.nav-members-btn.active {
+  background: #085469;
+}
+
+.nav-mobile-members-btn {
+  flex-shrink: 0;
+}
+
+.nav-desktop-members-btn {
+  display: inline-flex;
+  margin-right: 0.35rem;
 }
 
 .nav-search-icon svg {
@@ -338,6 +363,16 @@ button,
 
 .top-nav a.active {
   background: #085469;
+}
+
+.top-nav a.nav-members-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  line-height: 0;
 }
 
 .top-nav a.top-nav-brand {
@@ -651,8 +686,8 @@ button,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.6rem;
-  height: 2.6rem;
+  width: 46px;
+  height: 46px;
   padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.38);
   border: 1px solid rgba(255, 255, 255, 0.32);
@@ -688,6 +723,7 @@ button,
 
 .top-nav-search-host.search-active .top-nav-brand,
 .top-nav-search-host.search-active .top-nav-site-link,
+.top-nav-search-host.search-active .nav-members-btn,
 .top-nav-search-host.search-active .nav-search-toggle {
   display: none;
 }
@@ -2184,6 +2220,14 @@ footer {
     top: calc(100% + 0.6rem);
   }
 
+  .nav-floating-filter-btn {
+    position: fixed;
+    left: 1rem;
+    z-index: 28;
+    display: inline-flex;
+    box-shadow: 0 14px 28px rgba(18, 49, 63, 0.18);
+  }
+
   .top-nav-links {
     display: none;
     flex-direction: column;
@@ -2254,6 +2298,10 @@ footer {
     width: 46px;
     height: 46px;
     flex-shrink: 0;
+  }
+
+  .nav-mobile-members-btn {
+    display: inline-flex;
   }
 
   .merchant-card-printable {
