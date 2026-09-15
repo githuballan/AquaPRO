@@ -29,7 +29,7 @@
 
  html {
   /* Adiciona um espaço no topo ao navegar por links âncora (#id) */
-  scroll-padding-top: 10px; 
+  scroll-padding-top: 0px; 
 
   /* Aproveite e adicione a rolagem suave se ainda não tiver! */
   scroll-behavior: smooth; 
@@ -445,11 +445,13 @@ button,
   gap: 1.1rem;
 }
 
+
 .home-section,
 .home-cluster-section,
 .home-member-cta {
   position: relative;
   overflow: hidden;
+
 }
 
 .home-section::before,
@@ -947,6 +949,13 @@ main.catalog-layout {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1rem;
+}
+
+.home-card-link>img{
+  border-radius: 16px;
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 #authCard {
