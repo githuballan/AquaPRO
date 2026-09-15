@@ -409,14 +409,26 @@
     <priority>0.8</priority>
   </url>  
   <url>
-    <loc>https://aquaristapro.com//guias/comparativo-testes-de-ph.html</loc>
+    <loc>https://aquaristapro.com/guias/comparativo-testes-de-ph.html</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>  
   <url>
-    <loc>https://aquaristapro.com//guias/parametros-da-agua-do-aquario</loc>
+    <loc>https://aquaristapro.com/guias/parametros-da-agua-do-aquario.html</loc>
     <lastmod>2026-09-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>   
+  <url>
+    <loc>https://aquaristapro.com/guias/tudo-sobre-ph.html</loc>
+    <lastmod>2026-09-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>  
+  <url>
+    <loc>https://aquaristapro.com/guias/como-baixar-o-ph.html</loc>
+    <lastmod>2026-09-13</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>  
