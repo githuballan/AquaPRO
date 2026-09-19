@@ -908,6 +908,7 @@ main.catalog-layout {
   border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(18, 49, 63, 0.06);
+  padding: 1rem;
 }
 
 .auth-grid,
@@ -2136,7 +2137,7 @@ footer {
   .steps-grid,
   .fish-grid,
   .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 
   .catalog-layout {
