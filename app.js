@@ -1820,10 +1820,10 @@ async function init() {
   state.search.query = getInitialSearchQuery();
   const currentPage = getCurrentPage();
   loadState();
-  await syncAuthSession();
-  bindEvents();
-  bindSupabaseAuthListener();
   renderNavigation();
+  bindEvents();
+  const authSessionSync = syncAuthSession();
+  bindSupabaseAuthListener();
 
   if (searchResultsPage && state.search.query.trim()) {
     await ensureSearchIndexLoaded();
@@ -1842,6 +1842,7 @@ async function init() {
     loadPlantSearchIndex();
   }
 
+  await authSessionSync;
   renderAuthState();
   renderProducts();
   renderChart();
