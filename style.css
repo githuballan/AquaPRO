@@ -944,7 +944,7 @@ main.catalog-layout {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
-.panel,
+
 .feature-card,
 .steps-card,
 .summary article,
@@ -957,7 +957,9 @@ main.catalog-layout {
   border: 1px solid var(--border);
   border-radius: 16px;
 }
-
+.panel{
+  padding: 1rem;
+}
 
 .home-card-link>img{
   border-radius: 16px;

@@ -40,7 +40,6 @@ const navigationItems = [
     ]
   }
 ];
-
 const siteSearchEntries = [
   {
     id: 'page-home',
@@ -4392,8 +4391,9 @@ function renderChart() {
   ctx.stroke();
 
   const param = chartParam ? chartParam.value : 'temperature';
-  const history = state.history.length ? state.history : [{ [param]: state.aquarium?.[param] ?? 0, measuredAt: new Date().toISOString() }];
+  const history = state.history.length ? state.history : [{ [param]: state.aquarium?.[param], measuredAt: new Date().toISOString() }];
   const chartPoints = history
+    .filter((entry) => entry[param] !== null && entry[param] !== undefined)
     .map((entry) => ({
       value: Number(entry[param]),
       measuredAt: entry.measuredAt || entry.savedAt || new Date().toISOString()
