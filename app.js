@@ -2,8 +2,12 @@ const STORAGE_KEYS = {
   users: 'aquainfo-users',
   activeUser: 'aquainfo-active-user',
   aquarium: 'aquainfo-aquarium-data',
-  history: 'aquainfo-aquarium-history'
+  history: 'aquainfo-aquarium-history',
+  memberSnapshot: 'aquainfo-member-snapshot'
 };
+
+const MEMBER_SNAPSHOT_VERSION = 1;
+const MEMBER_SNAPSHOT_MAX_AGE_MS = 30 * 60 * 1000;
 
 const TEXT_LIMITS = {
   email: 120,
@@ -228,6 +232,7 @@ const filtersBackdrop = document.getElementById('filtersBackdrop');
 const searchResultsPage = document.getElementById('searchResultsPage');
 const searchResultsSummary = document.getElementById('searchResultsSummary');
 const searchResultsGrid = document.getElementById('searchResultsGrid');
+const memberLoadingState = document.getElementById('memberLoadingState');
 
 function isMobileLayout() {
   return window.matchMedia('(max-width: 760px)').matches;
@@ -1002,6 +1007,22 @@ function getUserDisplayName(user) {
   return user?.user_metadata?.name || user?.email?.split('@')[0] || 'Aquarista';
 }
 
+function isMembersPage(currentPage = getCurrentPage()) {
+  return currentPage === 'members';
+}
+
+function setAuthBootstrapPending(isPending) {
+  if (!isMembersPage()) {
+    return;
+  }
+
+  document.body.classList.toggle('auth-pending', isPending);
+
+  if (memberLoadingState) {
+    memberLoadingState.setAttribute('aria-hidden', String(!isPending));
+  }
+}
+
 function applySessionUser(user) {
   state.activeUser = user
     ? {
@@ -1018,6 +1039,109 @@ function getScopedStorageKey(key) {
   }
 
   return key;
+}
+
+function getMemberSnapshotStorageKey(userId) {
+  return `${STORAGE_KEYS.memberSnapshot}-${userId}`;
+}
+
+function clearLegacyProtectedStorage(userId) {
+  if (!userId) {
+    return;
+  }
+
+  localStorage.removeItem(`${STORAGE_KEYS.aquarium}-${userId}`);
+  localStorage.removeItem(`${STORAGE_KEYS.history}-${userId}`);
+}
+
+function clearMemberSnapshot(userId = state.activeUser?.id) {
+  if (!userId) {
+    return;
+  }
+
+  localStorage.removeItem(getMemberSnapshotStorageKey(userId));
+  clearLegacyProtectedStorage(userId);
+}
+
+function isValidMemberSnapshot(snapshot, userId) {
+  if (!snapshot || typeof snapshot !== 'object') {
+    return false;
+  }
+
+  if (snapshot.version !== MEMBER_SNAPSHOT_VERSION || snapshot.userId !== userId) {
+    return false;
+  }
+
+  if (!Number.isFinite(snapshot.savedAt)) {
+    return false;
+  }
+
+  if (Date.now() - snapshot.savedAt > MEMBER_SNAPSHOT_MAX_AGE_MS) {
+    return false;
+  }
+
+  if (snapshot.aquarium !== null && (typeof snapshot.aquarium !== 'object' || Array.isArray(snapshot.aquarium))) {
+    return false;
+  }
+
+  if (!Array.isArray(snapshot.history)) {
+    return false;
+  }
+
+  return true;
+}
+
+function loadMemberSnapshot(userId) {
+  if (!userId) {
+    return null;
+  }
+
+  const storageKey = getMemberSnapshotStorageKey(userId);
+
+  try {
+    const rawSnapshot = localStorage.getItem(storageKey);
+    if (!rawSnapshot) {
+      return null;
+    }
+
+    const snapshot = JSON.parse(rawSnapshot);
+    if (!isValidMemberSnapshot(snapshot, userId)) {
+      localStorage.removeItem(storageKey);
+      clearLegacyProtectedStorage(userId);
+      return null;
+    }
+
+    return snapshot;
+  } catch (error) {
+    console.error('Erro ao carregar snapshot da área de membros', error);
+    localStorage.removeItem(storageKey);
+    clearLegacyProtectedStorage(userId);
+    return null;
+  }
+}
+
+function restoreProtectedStateFromSnapshot(snapshot) {
+  if (!snapshot) {
+    return false;
+  }
+
+  state.aquarium = snapshot.aquarium ? { ...snapshot.aquarium } : null;
+  state.history = snapshot.history.map((entry) => ({ ...entry }));
+  return true;
+}
+
+function buildMemberSnapshot() {
+  if (!state.activeUser?.id) {
+    return null;
+  }
+
+  return {
+    version: MEMBER_SNAPSHOT_VERSION,
+    userId: state.activeUser.id,
+    savedAt: Date.now(),
+    aquarium: state.aquarium ? { ...state.aquarium } : null,
+    history: state.history.map((entry) => ({ ...entry }))
+  };
 }
 
 function isEmailConfirmationPending(result) {
@@ -1064,18 +1188,27 @@ function getAuthErrorMessage(error, fallbackMessage) {
 
 async function syncAuthSession() {
   if (!supabaseClient) {
-    return;
+    state.activeUser = null;
+    state.aquarium = null;
+    state.history = [];
+    return null;
   }
 
   const { data, error } = await supabaseClient.auth.getSession();
 
   if (error) {
     showNotice('Não foi possível verificar sua sessão no momento.', 'alert');
-    return;
+    return null;
   }
 
   applySessionUser(data.session?.user || null);
-  await loadProtectedState();
+
+  if (!state.activeUser) {
+    state.aquarium = null;
+    state.history = [];
+  }
+
+  return state.activeUser;
 }
 
 function bindSupabaseAuthListener() {
@@ -1084,9 +1217,21 @@ function bindSupabaseAuthListener() {
   }
 
   supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    if (_event === 'INITIAL_SESSION') {
+      return;
+    }
+
     applySessionUser(session?.user || null);
-    await loadProtectedState();
+
+    if (state.activeUser) {
+      await loadProtectedState();
+    } else {
+      state.aquarium = null;
+      state.history = [];
+    }
+
     refreshProtectedViews();
+    setAuthBootstrapPending(false);
   });
 }
 
@@ -1526,6 +1671,7 @@ async function saveReadingData() {
   state.history = [...state.history, reading]
     .sort((first, second) => new Date(first.measuredAt || 0).getTime() - new Date(second.measuredAt || 0).getTime())
     .slice(-20);
+  saveState();
   readingForm.reset();
   toggleReadingForm(false);
   refreshProtectedViews();
@@ -1563,6 +1709,7 @@ async function deleteReading(readingId) {
   }
 
   state.history = nextHistory;
+  saveState();
   refreshProtectedViews();
   showNotice('Medição excluída com sucesso.', 'success');
 }
@@ -1822,6 +1969,56 @@ async function init() {
   loadState();
   renderNavigation();
   bindEvents();
+
+  if (isMembersPage(currentPage)) {
+    setAuthBootstrapPending(true);
+
+    const activeUser = await syncAuthSession();
+    bindSupabaseAuthListener();
+
+    const hasSnapshot = activeUser
+      ? restoreProtectedStateFromSnapshot(loadMemberSnapshot(activeUser.id))
+      : false;
+
+    if (activeUser && hasSnapshot) {
+      refreshProtectedViews();
+      setAuthBootstrapPending(false);
+      loadProtectedState()
+        .then(() => {
+          refreshProtectedViews();
+        })
+        .finally(() => {
+          setAuthBootstrapPending(false);
+        });
+    } else if (activeUser) {
+      await loadProtectedState();
+      refreshProtectedViews();
+      setAuthBootstrapPending(false);
+    } else {
+      refreshProtectedViews();
+      setAuthBootstrapPending(false);
+    }
+
+    if (searchResultsPage && state.search.query.trim()) {
+      await ensureSearchIndexLoaded();
+    }
+
+    renderSearchResultsPage();
+    renderPlantCatalogPage();
+    setupResponsiveSurface();
+    registerSiteServiceWorker();
+
+    if (currentPage === 'catalogo' || currentPage === 'members') {
+      loadFishCatalog();
+    }
+
+    if (currentPage === 'catalogo-plantas') {
+      loadPlantSearchIndex();
+    }
+
+    return;
+  }
+
   const authSessionSync = syncAuthSession();
   bindSupabaseAuthListener();
 
@@ -1843,6 +2040,9 @@ async function init() {
   }
 
   await authSessionSync;
+  if (state.activeUser) {
+    await loadProtectedState();
+  }
   renderAuthState();
   renderProducts();
   renderChart();
@@ -3525,9 +3725,6 @@ function setupResponsiveSurface() {
 
 function loadState() {
   try {
-    localStorage.removeItem(STORAGE_KEYS.users);
-    localStorage.removeItem(STORAGE_KEYS.activeUser);
-
     if (!supabaseClient) {
       state.activeUser = null;
       state.users = [];
@@ -3544,10 +3741,25 @@ function loadState() {
 
 async function loadProtectedState() {
   await loadPrivateAquariumFromSupabase();
+  saveState();
 }
 
 function saveState() {
-  return;
+  if (!state.activeUser?.id) {
+    return;
+  }
+
+  try {
+    const snapshot = buildMemberSnapshot();
+    if (!snapshot) {
+      return;
+    }
+
+    localStorage.setItem(getMemberSnapshotStorageKey(state.activeUser.id), JSON.stringify(snapshot));
+    clearLegacyProtectedStorage(state.activeUser.id);
+  } catch (error) {
+    console.error('Erro ao salvar snapshot da área de membros', error);
+  }
 }
 
 function refreshProtectedViews() {
@@ -3631,6 +3843,7 @@ async function loginUser(email, password) {
   applySessionUser(result.data.user);
   await loadProtectedState();
   refreshProtectedViews();
+  setAuthBootstrapPending(false);
   showNotice(`Bem-vindo, ${getUserDisplayName(result.data.user)}!`, 'success');
   if (authForm) {
     authForm.reset();
@@ -3638,8 +3851,7 @@ async function loginUser(email, password) {
 }
 
 async function logoutUser() {
-  const aquariumStorageKey = getScopedStorageKey(STORAGE_KEYS.aquarium);
-  const historyStorageKey = getScopedStorageKey(STORAGE_KEYS.history);
+  const currentUserId = state.activeUser?.id;
 
   if (supabaseClient) {
     const { error } = await supabaseClient.auth.signOut();
@@ -3653,8 +3865,7 @@ async function logoutUser() {
   state.activeUser = null;
   state.aquarium = null;
   state.history = [];
-  localStorage.removeItem(aquariumStorageKey);
-  localStorage.removeItem(historyStorageKey);
+  clearMemberSnapshot(currentUserId);
   if (aquariumForm) {
     aquariumForm.reset();
   }
@@ -3705,8 +3916,8 @@ async function deleteAquariumData() {
 
   state.aquarium = null;
   state.history = [];
-  localStorage.removeItem(getScopedStorageKey(STORAGE_KEYS.aquarium));
-  localStorage.removeItem(getScopedStorageKey(STORAGE_KEYS.history));
+  saveState();
+  clearLegacyProtectedStorage(state.activeUser?.id);
   refreshProtectedViews();
   showNotice('Aquário excluído com sucesso.', 'success');
 }
@@ -3822,6 +4033,7 @@ async function saveAquariumData() {
   }
 
   state.aquarium = mapSupabaseAquariumRow(result.data);
+  saveState();
   refreshProtectedViews();
   syncAquariumFormVisibility(false);
   showNotice('Aquário salvo com sucesso.', 'success');

@@ -1041,6 +1041,66 @@ textarea {
   display: none;
 }
 
+.member-loading-state {
+  display: none;
+}
+
+body.auth-pending #authCard,
+body.auth-pending #memberPanel,
+body.auth-pending #aquario,
+body.auth-pending #readingSection,
+body.auth-pending #chartSection {
+  display: none;
+}
+
+body.auth-pending .member-loading-state {
+  display: block;
+}
+
+.member-loading-skeleton {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.25rem;
+}
+
+.member-loading-line,
+.member-loading-block {
+  display: block;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e8f3f7 0%, #f7fbfd 50%, #e8f3f7 100%);
+  background-size: 200% 100%;
+  animation: member-loading-shimmer 1.4s ease-in-out infinite;
+}
+
+.member-loading-line {
+  height: 14px;
+}
+
+.member-loading-line-title {
+  width: 48%;
+  height: 20px;
+}
+
+.member-loading-line-short {
+  width: 62%;
+}
+
+.member-loading-block {
+  min-height: 180px;
+  border-radius: 18px;
+}
+
+@keyframes member-loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 .member-header {
   display: flex;
   justify-content: space-between;
