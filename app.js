@@ -1719,42 +1719,18 @@ function renderReadingSummary() {
     return;
   }
 
-  const latestReading = getLatestReading();
   if (!state.aquarium) {
     latestReadingSummary.innerHTML = '<p>Cadastre um aquário para começar a registrar medições.</p>';
     return;
   }
 
+  const latestReading = getLatestReading();
   if (!latestReading) {
     latestReadingSummary.innerHTML = '<p>Use o botão Nova medição para registrar a primeira leitura do aquário.</p>';
     return;
   }
 
-  latestReadingSummary.innerHTML = `
-    <div class="summary-grid summary-grid-reading">
-      <article>
-        <strong>Última leitura</strong>
-        <p>${formatDateTime(latestReading.measuredAt)}</p>
-      </article>
-      <article>
-        <strong>Temperatura / pH</strong>
-        <p>${latestReading.temperature ?? '--'} °C • ${latestReading.ph ?? '--'}</p>
-      </article>
-      <article>
-        <strong>GH / KH</strong>
-        <p>${getGhDisplayValue(latestReading.gh, latestReading.ghLabel)} / ${latestReading.kh ?? '--'}</p>
-      </article>
-      <article>
-        <strong>Nitrito / Amônia</strong>
-        <p>${latestReading.nitrite ?? '--'} / ${latestReading.ammonia ?? '--'}</p>
-      </article>
-    </div>
-    <div class="reading-meta">
-      <p><strong>CO2:</strong> ${latestReading.co2Enabled || '--'}</p>
-      <p><strong>Drop checker:</strong> ${latestReading.dropCheckerColor || '--'}</p>
-      <p><strong>Observações:</strong> ${latestReading.notes || 'Sem observações.'}</p>
-    </div>
-  `;
+  latestReadingSummary.innerHTML = '';
 }
 
 function renderReadingHistory() {

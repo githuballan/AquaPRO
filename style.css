@@ -856,9 +856,9 @@ button:hover,
 }
 
 main {
-  max-width: 1100px;
+  max-width: 1500px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 0;
 }
 
 main.catalog-layout {
