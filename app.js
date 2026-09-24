@@ -1773,18 +1773,45 @@ function renderReadingHistory() {
 
   readingHistory.innerHTML = `
     <h3>Histórico recente</h3>
-    <div class="reading-history-list">
-      ${items.map((entry) => `
-        <article class="reading-card">
-          <div class="reading-card-header">
-            <strong>${formatDateTime(entry.measuredAt)}</strong>
-            <button type="button" class="button-secondary reading-delete-button" data-reading-id="${entry.id}">Excluir</button>
-          </div>
-          <p>Temp: ${entry.temperature ?? '--'} °C • pH: ${entry.ph ?? '--'} • GH/KH: ${getGhDisplayValue(entry.gh, entry.ghLabel)}/${entry.kh ?? '--'}</p>
-          <p>Nitrito: ${entry.nitrite ?? '--'} • Amônia: ${entry.ammonia ?? '--'}</p>
-          <p>CO2: ${entry.co2Enabled || '--'} • Drop checker: ${entry.dropCheckerColor || '--'}</p>
-        </article>
-      `).join('')}
+    <div class="reading-history-table-wrapper">
+      <table class="reading-history-table">
+        <thead>
+          <tr>
+            <th scope="col">Data e hora</th>
+            <th scope="col">pH</th>
+            <th scope="col">KH</th>
+            <th scope="col">CO2</th>
+            <th scope="col">Drop checker</th>
+            <th scope="col">Temp</th>
+            <th scope="col">GH</th>
+            <th scope="col">Nitrito</th>
+            <th scope="col">Amônia</th>
+            <th scope="col">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map((entry) => `
+            <tr class="reading-history-row-main">
+              <td>${formatDateTime(entry.measuredAt)}</td>
+              <td>${entry.ph ?? '--'}</td>
+              <td>${entry.kh ?? '--'}</td>
+              <td>${entry.co2Enabled || '--'}</td>
+              <td>${entry.dropCheckerColor || '--'}</td>
+              <td>${entry.temperature ?? '--'} °C</td>
+              <td>${getGhDisplayValue(entry.gh, entry.ghLabel)}</td>
+              <td>${entry.nitrite ?? '--'}</td>
+              <td>${entry.ammonia ?? '--'}</td>
+              <td class="reading-history-action-cell" rowspan="2">
+                <button type="button" class="button-secondary reading-delete-button" data-reading-id="${entry.id}">Excluir</button>
+              </td>
+            </tr>
+            <tr class="reading-history-row-note">
+              <td class="reading-history-note-label">Observação</td>
+              <td class="reading-history-note-value" colspan="8">${escapeHtml(entry.notes || 'Sem observações.')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
     </div>
   `;
 

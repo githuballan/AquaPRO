@@ -187,66 +187,67 @@
     <section id="readingSection" class="card hidden">
       <div class="member-header member-header-stack">
         <div>
-          <h2>Registrar leituras</h2>
-          <p>Use este formulário para salvar novas medições e acompanhar a variação real do aquário.</p>
+          <h2>Parâmetros</h2>
         </div>
         <button id="toggleReadingFormButton" type="button">Nova medição</button>
       </div>
 
-      <form id="readingForm" class="panel hidden">
-        <div class="form-grid">
-          <label>Data e hora da medição
-            <input type="datetime-local" name="measuredAt" />
+    
+        <form id="readingForm" class="panel hidden">
+            <p>Use este formulário para salvar novas medições e acompanhar a variação real do aquário.</p>
+          <div class="form-grid">
+            <label>Data e hora da medição
+              <input type="datetime-local" name="measuredAt" />
+            </label>
+            <label>Temperatura
+              <input type="number" name="temperature" step="0.1" min="0" max="40" />
+            </label>
+            <label>pH
+              <input type="number" name="ph" step="0.1" min="0" max="14" />
+            </label>
+            <label>GH
+              <select name="gh">
+                <option value="">Selecione</option>
+                <option value="muito mole">Muito mole</option>
+                <option value="mole">Mole</option>
+                <option value="semi-dura">Semi-dura</option>
+                <option value="dura">Dura</option>
+                <option value="muito dura">Muito dura</option>
+              </select>
+            </label>
+            <label>KH
+              <input type="number" name="kh" step="0.1" min="0" max="40" />
+            </label>
+            <label>Nitrito
+              <input type="number" name="nitrite" step="0.01" min="0" max="10" />
+            </label>
+            <label>Amônia
+              <input type="number" name="ammonia" step="0.01" min="0" max="10" />
+            </label>
+            <label>CO2
+              <select name="co2Enabled">
+                <option value="">Selecione</option>
+                <option value="true">Ligado</option>
+                <option value="false">Desligado</option>
+              </select>
+            </label>
+            <label>Cor do drop checker
+              <select name="dropCheckerColor">
+                <option value="">Selecione</option>
+                <option value="azul">Azul</option>
+                <option value="verde">Verde</option>
+                <option value="amarelo">Amarelo</option>
+              </select>
+            </label>
+          </div>
+          <label>Observações da medição
+            <textarea name="notes" rows="3" maxlength="300"></textarea>
           </label>
-          <label>Temperatura
-            <input type="number" name="temperature" step="0.1" min="0" max="40" />
-          </label>
-          <label>pH
-            <input type="number" name="ph" step="0.1" min="0" max="14" />
-          </label>
-          <label>GH
-            <select name="gh">
-              <option value="">Selecione</option>
-              <option value="muito mole">Muito mole</option>
-              <option value="mole">Mole</option>
-              <option value="semi-dura">Semi-dura</option>
-              <option value="dura">Dura</option>
-              <option value="muito dura">Muito dura</option>
-            </select>
-          </label>
-          <label>KH
-            <input type="number" name="kh" step="0.1" min="0" max="40" />
-          </label>
-          <label>Nitrito
-            <input type="number" name="nitrite" step="0.01" min="0" max="10" />
-          </label>
-          <label>Amônia
-            <input type="number" name="ammonia" step="0.01" min="0" max="10" />
-          </label>
-          <label>CO2
-            <select name="co2Enabled">
-              <option value="">Selecione</option>
-              <option value="true">Ligado</option>
-              <option value="false">Desligado</option>
-            </select>
-          </label>
-          <label>Cor do drop checker
-            <select name="dropCheckerColor">
-              <option value="">Selecione</option>
-              <option value="azul">Azul</option>
-              <option value="verde">Verde</option>
-              <option value="amarelo">Amarelo</option>
-            </select>
-          </label>
-        </div>
-        <label>Observações da medição
-          <textarea name="notes" rows="3" maxlength="300"></textarea>
-        </label>
-        <div class="inline-actions">
-          <button type="submit">Salvar medição</button>
-          <button id="cancelReadingFormButton" type="button" class="button-secondary">Cancelar</button>
-        </div>
-      </form>
+          <div class="inline-actions">
+            <button type="submit">Salvar medição</button>
+            <button id="cancelReadingFormButton" type="button" class="button-secondary">Cancelar</button>
+          </div>
+        </form>
 
       <div id="latestReadingSummary" class="summary"></div>
       <div id="readingHistory" class="reading-history"></div>
