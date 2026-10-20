@@ -217,6 +217,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://aquaristapro.com/peixes/tetra-neon-innesi.html</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://aquaristapro.com/peixes/tetra-rosa.html</loc>
     <lastmod>2026-10-18</lastmod>
     <changefreq>monthly</changefreq>
@@ -446,7 +452,7 @@
   </url>  
   <url>
     <loc>https://aquaristapro.com/guias/comparativo-testes-de-ph.html</loc>
-    <lastmod>2026-09-05</lastmod>
+    <lastmod>2026-10-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>  
