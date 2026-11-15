@@ -2240,7 +2240,7 @@ footer {
   .steps-grid,
   .fish-grid,
   .product-grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(197px, 1fr));
   }
 
   .catalog-layout {
