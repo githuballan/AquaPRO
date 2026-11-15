@@ -956,6 +956,7 @@ main.catalog-layout {
   background: #f7fdff;
   border: 1px solid var(--border);
   border-radius: 16px;
+  padding: 8px;
 }
 .panel{
   padding: 1rem;
