@@ -1971,6 +1971,7 @@ async function init() {
   const currentPage = getCurrentPage();
   loadState();
   renderNavigation();
+  bindHomeCarousels();
   bindEvents();
 
   if (isMembersPage(currentPage)) {
@@ -3724,6 +3725,42 @@ function setupResponsiveSurface() {
   }
 
   updateFloatingFilterTogglePosition();
+}
+
+function bindHomeCarousels() {
+  document.querySelectorAll('[data-home-carousel]').forEach((carousel) => {
+    if (carousel.dataset.carouselBound === 'true') {
+      return;
+    }
+
+    const viewport = carousel.querySelector('[data-carousel-viewport]');
+    const previousButton = carousel.querySelector('[data-carousel-prev]');
+    const nextButton = carousel.querySelector('[data-carousel-next]');
+
+    if (!viewport || !previousButton || !nextButton) {
+      return;
+    }
+
+    const updateButtons = () => {
+      const maxScrollLeft = viewport.scrollWidth - viewport.clientWidth;
+      previousButton.disabled = viewport.scrollLeft <= 1;
+      nextButton.disabled = viewport.scrollLeft >= maxScrollLeft - 1;
+    };
+
+    const scrollCarousel = (direction) => {
+      viewport.scrollBy({
+        left: direction * viewport.clientWidth * 0.85,
+        behavior: 'smooth'
+      });
+    };
+
+    previousButton.addEventListener('click', () => scrollCarousel(-1));
+    nextButton.addEventListener('click', () => scrollCarousel(1));
+    viewport.addEventListener('scroll', updateButtons, { passive: true });
+    window.addEventListener('resize', updateButtons);
+    carousel.dataset.carouselBound = 'true';
+    updateButtons();
+  });
 }
 
 function loadState() {
