@@ -512,7 +512,7 @@ button,
 .home-content-grid,
 .home-faq-grid,
 .home-tools-grid {
-  grid-template-columns:  repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns:  repeat(auto-fit, minmax(197px, 1fr));
 }
 
 .home-cluster-card,
@@ -917,7 +917,6 @@ main.catalog-layout {
 .steps-grid,
 .fish-grid {
   display: grid;
-  gap: 1rem;
 }
 
 .auth-grid {
@@ -955,6 +954,7 @@ main.catalog-layout {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 8px;
+  margin:5px;
 }
 .panel{
   padding: 1rem;
@@ -2212,12 +2212,9 @@ footer {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .home-content-grid-fishes {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
+  .home-content-grid-fishes,
   .home-content-grid-plants {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
 
   .home-tools-grid {
