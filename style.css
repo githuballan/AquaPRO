@@ -974,6 +974,20 @@ main.catalog-layout {
   padding: 1.2rem;
 }
 
+.search-result-photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.search-result-category {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .search-result-card h3,
 .search-result-card p {
   margin-top: 0;

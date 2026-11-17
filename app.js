@@ -117,22 +117,6 @@ const siteSearchEntries = [
     href: 'index.html#produtos-home',
     keywords: 'produtos recomendados afiliados filtros termostatos low tech compras'
   },
-  {
-    id: 'guide-nitrogen-cycle',
-    type: 'page',
-    title: 'Ciclo do nitrogênio no aquário',
-    description: 'Guia sobre amônia, nitrito, nitrato e estabilidade biológica no aquário.',
-    href: 'guias/ciclo-do-nitrogenio-no-aquario.html',
-    keywords: 'ciclo nitrogenio ciclagem amonia nitrito nitrato aquario'
-  },
-  {
-    id: 'guide-filtration-stages',
-    type: 'page',
-    title: 'Estágios da filtragem',
-    description: 'Guia sobre filtragem mecânica, biológica e química em aquários de água doce.',
-    href: 'guias/estagios-da-filtragem.html',
-    keywords: 'filtragem filtro biologica mecanica quimica aquario'
-  }
 ];
 
 const state = {
@@ -161,6 +145,7 @@ const state = {
     hasGlobalListener: false,
     fishEntries: [],
     plantEntries: [],
+    guideEntries: [],
     hasLoadedIndex: false,
     isLoadingIndex: false,
     loadPromise: null,
@@ -825,6 +810,18 @@ function normalizePlantSearchIndexData(items) {
   return items.map((item) => (Object.prototype.hasOwnProperty.call(item, 'URL') ? item : mapSupabasePlantSearchRow(item)));
 }
 
+function normalizeGuideSearchIndexData(items) {
+  return items.map((item) => ({
+    slug: item.slug || '',
+    title: item.title || '',
+    description: item.description || '',
+    category: item.category || '',
+    keywords: Array.isArray(item.keywords) ? item.keywords.filter(Boolean) : [],
+    detailUrl: item.detail_url || '',
+    photoUrl: item.photo_url || ''
+  }));
+}
+
 async function fetchFishSearchIndexFromSupabase() {
   if (!supabaseClient) {
     throw new Error('Cliente Supabase indisponível para carregar o índice de peixes.');
@@ -857,6 +854,23 @@ async function fetchPlantSearchEntriesFromSupabase() {
   }
 
   return normalizePlantSearchIndexData(data || []);
+}
+
+async function fetchGuideSearchEntriesFromSupabase() {
+  if (!supabaseClient) {
+    throw new Error('Cliente Supabase indisponível para carregar o índice de guias.');
+  }
+
+  const { data, error } = await supabaseClient
+    .from('guias')
+    .select('slug, title, description, category, keywords, detail_url, photo_url')
+    .order('title', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  return normalizeGuideSearchIndexData(data || []);
 }
 
 async function fetchFishCatalogFromSupabase() {
@@ -2451,6 +2465,17 @@ function getSearchEntries() {
       description: plant.description,
       href: resolveSitePath(plant.URL),
       keywords: plant.scientificName || ''
+    })),
+    ...state.search.guideEntries.map((guide) => ({
+      id: `guide-${guide.slug}`,
+      type: 'guide',
+      slug: guide.slug,
+      title: guide.title,
+      description: guide.description,
+      category: guide.category,
+      photoUrl: guide.photoUrl,
+      href: resolveSitePath(guide.detailUrl),
+      keywords: guide.keywords
     }))
   ];
 }
@@ -2496,11 +2521,15 @@ async function ensureSearchIndexLoaded() {
       ? Promise.resolve(state.search.plantEntries)
       : state.plants.length
         ? Promise.resolve(getPlantSearchEntriesFromLoadedState())
-        : fetchPlantSearchEntriesFromSupabase()
+        : fetchPlantSearchEntriesFromSupabase(),
+    state.search.guideEntries.length
+      ? Promise.resolve(state.search.guideEntries)
+      : fetchGuideSearchEntriesFromSupabase()
   ])
-    .then(([fishEntries, plantEntries]) => {
+    .then(([fishEntries, plantEntries, guideEntries]) => {
       state.search.fishEntries = fishEntries;
       state.search.plantEntries = plantEntries;
+      state.search.guideEntries = guideEntries;
       state.search.hasLoadedIndex = true;
     })
     .catch((error) => {
@@ -3515,6 +3544,10 @@ function getSearchResultTypeLabel(entry) {
     return 'Planta';
   }
 
+  if (entry.type === 'guide') {
+    return 'Guia';
+  }
+
   return 'Página';
 }
 
@@ -3580,6 +3613,7 @@ function renderNavSearchSuggestions() {
             <span class="nav-search-suggestion-type">${getSearchResultTypeLabel(entry)}</span>
             <strong>${escapeHtml(entry.title)}</strong>
             <span>${escapeHtml(entry.description)}</span>
+            ${entry.type === 'guide' ? `<span>Categoria: ${escapeHtml(entry.category || 'Não informada')}</span>` : ''}
           </a>
         `).join('')}
         <a href="${buildSearchResultsUrl(state.search.query)}" class="nav-search-all-results">Ver todos os resultados</a>
@@ -4552,9 +4586,11 @@ function renderSearchResultsPage() {
 
   searchResultsGrid.innerHTML = results.map((entry) => `
     <article class="search-result-card">
+      ${entry.type === 'guide' && entry.photoUrl ? `<img src="${escapeHtml(entry.photoUrl)}" alt="" class="search-result-photo" loading="lazy">` : ''}
       <p class="search-result-type">${getSearchResultTypeLabel(entry)}</p>
       <h3>${escapeHtml(entry.title)}</h3>
       <p>${escapeHtml(entry.description)}</p>
+      ${entry.type === 'guide' ? `<p class="search-result-category"><strong>Categoria:</strong> ${escapeHtml(entry.category || 'Não informada')}</p>` : ''}
       <a href="${entry.href}" class="search-result-link">Abrir resultado</a>
     </article>
   `).join('');
