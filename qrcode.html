@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de QR Code</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    input[type="url"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="url"]:focus {
+      border-color: #0066ff;
+    }
+
+    button {
+      background-color: #0066ff;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0052cc;
+    }
+
+    #qrcode-container {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    #qrcode-img {
+      padding: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-width: 200px;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Gerador de QR Code</h1>
+    
+    <div class="input-group">
+      <input type="url" id="url-input" placeholder="https://exemplo.com" required>
+      <button type="button" onclick="gerarQRCode()">Gerar QR Code</button>
+    </div>
+
+    <div id="qrcode-container">
+      <img id="qrcode-img" src="" alt="QR Code Gerado">
+    </div>
+  </div>
+
+  <script>
+    function gerarQRCode() {
+      const input = document.getElementById('url-input');
+      const container = document.getElementById('qrcode-container');
+      const img = document.getElementById('qrcode-img');
+      let url = input.value.trim();
+
+      if (!url) {
+        alert('Por favor, insira um link válido!');
+        return;
+      }
+
+      // Adiciona https:// se o usuário não digitar
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+        input.value = url;
+      }
+
+      // Utiliza API confiável para gerar o QR Code diretamente como imagem
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`;
+      
+      img.src = qrApiUrl;
+      container.style.display = 'flex';
+    }
+  </script>
+
+</body>
+</html>
