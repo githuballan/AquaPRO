@@ -123,6 +123,7 @@
   border-radius: 20px;
   background: linear-gradient(180deg, rgba(247, 253, 255, 0.98), rgba(233, 248, 252, 0.9));
   box-shadow: 0 12px 26px rgba(18, 49, 63, 0.07);
+  margin-bottom: 1rem;
 }
 
 .fish-feed-section h3 {
