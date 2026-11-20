@@ -2511,7 +2511,7 @@ async function ensureSearchIndexLoaded() {
   renderNavSearchSuggestions();
   renderSearchResultsPage();
 
-  state.search.loadPromise = Promise.all([
+  state.search.loadPromise = Promise.allSettled([
     state.search.fishEntries.length
       ? Promise.resolve(state.search.fishEntries)
       : state.fishes.length
@@ -2526,11 +2526,22 @@ async function ensureSearchIndexLoaded() {
       ? Promise.resolve(state.search.guideEntries)
       : fetchGuideSearchEntriesFromSupabase()
   ])
-    .then(([fishEntries, plantEntries, guideEntries]) => {
-      state.search.fishEntries = fishEntries;
-      state.search.plantEntries = plantEntries;
-      state.search.guideEntries = guideEntries;
-      state.search.hasLoadedIndex = true;
+    .then((results) => {
+      const [fishResult, plantResult, guideResult] = results;
+      const successfulResults = results.filter((result) => result.status === 'fulfilled');
+
+      state.search.fishEntries = fishResult.status === 'fulfilled' ? fishResult.value : [];
+      state.search.plantEntries = plantResult.status === 'fulfilled' ? plantResult.value : [];
+      state.search.guideEntries = guideResult.status === 'fulfilled' ? guideResult.value : [];
+      state.search.loadError = successfulResults.length === 0;
+      state.search.hasLoadedIndex = !state.search.loadError;
+
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          const sourceNames = ['peixes', 'plantas', 'guias'];
+          console.error(`Erro ao carregar índice de ${sourceNames[index]}`, result.reason);
+        }
+      });
     })
     .catch((error) => {
       state.search.loadError = true;
