@@ -661,14 +661,8 @@ button,
 
 .home-carousel {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-areas:
-    "viewport viewport"
-    "previous next";
-  align-items: center;
-  gap: 0.55rem;
-  padding: 1rem;
+  display: block;
+  padding: 1rem 0.25rem;
 }
 
 .home-carousel-viewport {
@@ -699,41 +693,58 @@ button,
   scroll-snap-align: start;
 }
 
+
 .home-carousel-button {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
   display: inline-flex;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.65rem;
+  height: 2.65rem;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 0;
   border-radius: 50%;
-  background: var(--surface);
-  color: var(--primary-dark);
-  box-shadow: 0 8px 18px rgba(18, 49, 63, 0.1);
+  background: #0A6C7B2b;
+  color: #3f454a;
+  box-shadow: 0 3px 8px rgba(18, 49, 63, 0.12);
   cursor: pointer;
   font: inherit;
-  font-size: 1.35rem;
+  font-size: 0;
   line-height: 1;
+  transform: translateY(-50%);
   transition: background 180ms ease, color 180ms ease, opacity 180ms ease, transform 180ms ease;
 }
 
 .home-carousel-button-prev {
-  grid-area: previous;
-  justify-self: start;
+  left: 0.35rem;
 }
 
 .home-carousel-button-next {
-  grid-area: next;
-  justify-self: end;
+  right: 0.35rem;
+}
+
+.home-carousel-button::before {
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 0.7;
+}
+
+.home-carousel-button-prev::before {
+  content: '\2039';
+}
+
+.home-carousel-button-next::before {
+  content: '\203A';
 }
 
 .home-carousel-button:hover:not(:disabled),
 .home-carousel-button:focus-visible:not(:disabled) {
-  background: var(--primary);
-  color: white;
-  transform: scale(1.05);
+  background: #c8c8c82b;
+  color: #273038;
+  transform: translateY(-50%) scale(1.05);
 }
 
 .home-carousel-button:disabled {
@@ -972,20 +983,6 @@ main.catalog-layout {
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 1.2rem;
-}
-
-.search-result-photo {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-}
-
-.search-result-category {
-  color: var(--muted);
-  font-size: 0.9rem;
 }
 
 .search-result-card h3,

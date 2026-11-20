@@ -90,130 +90,114 @@
         <article>
           <h3>Alimentação &amp; Dieta</h3>
           <p>Barbo Cereja tem hábito alimentar onívoro. Excelente. 1 a 2 vezes ao dia. Alimenta-se facilmente de rações secas em flocos ou micro-grãos, devendo receber complementação com pequenos alimentos vivos para intensificar o tom vermelho.</p>
-          <h3>Rações recomendadas para Barbo Cereja</h3>
-          <div class="home-carousel fish-feed-carousel" data-home-carousel>
-            <button class="home-carousel-button home-carousel-button-prev" type="button" data-carousel-prev aria-label="Ver rações anteriores">&#8592;</button>
-            <div class="home-carousel-viewport" data-carousel-viewport>
-  <div class="home-carousel-track" id="fish-feed-track">
-    <!-- Os cards de ração serão injetados dinamicamente aqui -->
-  </div>
-</div>
-<button class="home-carousel-button home-carousel-button-next" type="button" data-carousel-next aria-label="Ver mais rações">&#8594;</button>
-
-<script>
-(async function () {
-  const SUPABASE_URL = "https://xktobjguguvvoagyteke.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrdG9iamd1Z3V2dm9hZ3l0ZWtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzNzczMDIsImV4cCI6MjEwMTk1MzMwMn0.TtraDjiNvNra7-aUtbDQUeVSfZAMACFBG4lakZ6dRD4";
-
-  const headers = {
-    "apikey": SUPABASE_ANON_KEY,
-    "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-    "Content-Type": "application/json"
-  };
-
-  // 1. Extrai o slug do nome do arquivo na URL (ex: /peixes/barbo-cereja.html -> barbo-cereja)
-  const pathname = window.location.pathname;
-  const filename = pathname.substring(pathname.lastIndexOf("/") + 1);
-  const fishSlug = filename.replace(/\.html$/i, "").trim();
-
-  const trackEl = document.getElementById("fish-feed-track");
-  if (!trackEl || !fishSlug) return;
-
-  // Normaliza strings para evitar problemas com acentos ou maiúsculas (ex: "Onívoro" -> "onivoro")
-  const normalizeText = (str) => {
-    if (!str) return "";
-    return str
-      .toString()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim();
-  };
-
-  try {
-    // 2. Busca 'diet' na tabela fishes e 'scientific_name' na tabela fish_page pelo slug
-    const [fishRes, fishPageRes] = await Promise.all([
-      fetch(`${SUPABASE_URL}/rest/v1/fishes?slug=eq.${encodeURIComponent(fishSlug)}&select=diet`, { headers }),
-      fetch(`${SUPABASE_URL}/rest/v1/fish_page?slug=eq.${encodeURIComponent(fishSlug)}&select=scientific_name`, { headers })
-    ]);
-
-    const fishData = await fishRes.json();
-    const fishPageData = await fishPageRes.json();
-
-    const rawDiet = fishData?.[0]?.diet || "";
-    const scientificName = (fishPageData?.[0]?.scientific_name || "").trim();
-    const normalizedDiet = normalizeText(rawDiet);
-
-    let selectedProducts = [];
-
-    // 3. CAMADA 1: type1 = racao E type3 contém o scientific_name
-    if (scientificName) {
-      // Usa ilike para encontrar o nome científico mesmo que type3 tenha mais de um item separado por vírgula/texto
-      const layer1Url = `${SUPABASE_URL}/rest/v1/produtos?is_active=eq.true&type1=eq.racao&type3=ilike.*${encodeURIComponent(scientificName)}*&order=featured_priority.desc&limit=5`;
-      const layer1Res = await fetch(layer1Url, { headers });
-      if (layer1Res.ok) {
-        const layer1Data = await layer1Res.json();
-        selectedProducts.push(...layer1Data);
-      }
-    }
-
-    // 4. CAMADA 2 (Fallback): Completa até 5 itens onde type2 = diet
-    if (selectedProducts.length < 5 && normalizedDiet) {
-      const remaining = 5 - selectedProducts.length;
-      const existingIds = selectedProducts.map(p => p.id);
-
-      // Busca um pouco a mais caso precise filtrar IDs já selecionados na Camada 1
-      const layer2Url = `${SUPABASE_URL}/rest/v1/produtos?is_active=eq.true&type1=eq.racao&type2=ilike.${encodeURIComponent(normalizedDiet)}&order=featured_priority.desc&limit=${remaining + existingIds.length}`;
-      const layer2Res = await fetch(layer2Url, { headers });
-
-      if (layer2Res.ok) {
-        const layer2Data = await layer2Res.json();
-        for (const item of layer2Data) {
-          if (selectedProducts.length >= 5) break;
-          if (!existingIds.includes(item.id)) {
-            selectedProducts.push(item);
-            existingIds.push(item.id);
-          }
-        }
-      }
-    }
-
-    // 5. Renderiza os cards no DOM mantendo exatamente as classes do seu protótipo
-    if (selectedProducts.length > 0) {
-      trackEl.innerHTML = selectedProducts.map(product => {
-        const stores = [
-          { name: "Amazon", url: product.url_amazon },
-          { name: "Mercado Livre", url: product.url_mercadolivre },
-          { name: "Shopee", url: product.url_shopee },
-          { name: "Magalu", url: product.url_magalu }
-        ].filter(s => s.url && s.url.trim() !== "");
-
-        // Gera os botões de oferta das lojas cadastradas
-        const buttonsHtml = stores.map((store, index) => {
-          const label = stores.length === 1 ? "Ver oferta" : `Ver na ${store.name}`;
-          const extraClass = index > 0 ? " button-link-secondary" : "";
-          return `<a class="button-link${extraClass}" href="${store.url}" target="_blank" rel="nofollow sponsored noopener">${label}</a>`;
-        }).join("");
-
-        return `
+          <div class="fish-feed-section">
+            
+          <article class="fish-feed-racao-card">
+            <h3>Rações para Barbo Cereja</h3>
+            <div class="home-carousel fish-feed-carousel" data-home-carousel>
+              <button class="home-carousel-button home-carousel-button-prev" type="button" data-carousel-prev aria-label="Ver itens anteriores">&#8592;</button>
+              <div class="home-carousel-viewport" data-carousel-viewport>
+                <div class="home-carousel-track">
+                  
           <article class="product-card home-product-card fish-feed-card">
             <div class="home-card-media fish-feed-card-media">
-              <img src="${product.photo_url || '../images/placeholder-produto.webp'}" alt="${product.title}" loading="lazy" />
+              <img src="/images/tetra-color-bits-tropical-granules-75g.webp" alt="Ração Tetra Color Bits Tropical Granules 75g" loading="lazy" />
             </div>
-            <h4>${product.title}</h4>
-            <p>${product.description || ''}</p>
+            <h4>Ração Tetra Color Bits Tropical Granules 75g</h4>
+            <p>Alimento completo em grânulos de afundamento lento com fórmula ProCare e carotenoides naturais, ideal para realçar as cores naturais e fortalecer a imunidade de peixes tropicais de meia-água e fundo.</p>
             <div class="fish-feed-card-actions">
-              ${buttonsHtml}
+              <a class="button-link" href="https://meli.la/31KdWes" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
             </div>
           </article>
-        `;
-      }).join("");
-    }
-  } catch (err) {
-    console.error("Erro ao carregar rações recomendadas:", err);
-  }
-})();
-</script>
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/tetra-color-tropical-granules.webp" alt="Ração Tetra Color Tropical Granules (Color Bits)" loading="lazy" />
+            </div>
+            <h4>Ração Tetra Color Tropical Granules (Color Bits)</h4>
+            <p>Ração premium em grânulos de afundamento lento para peixes tropicais, Acarás-Disco e Bandeiras. Fórmula nutritiva que fortalece a imunidade e realça as cores vibrantes.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/1jARvRC" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/poytara-black-line-discos-natural-95g.webp" alt="Ração Poytara Black Line Discos Natural 95g" loading="lazy" />
+            </div>
+            <h4>Ração Poytara Black Line Discos Natural 95g</h4>
+            <p>Ração super premium em crisps para Acarás-Disco claros, livre de transgênicos. Com 50% de proteínas marinhas e alho, promove o crescimento e preserva as cores naturais.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/1cRV96B" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/poytara-discos-black-line-95g.webp" alt="Ração Poytara Discos Black Line 95g" loading="lazy" />
+            </div>
+            <h4>Ração Poytara Discos Black Line 95g</h4>
+            <p>Ração super premium em crisps para Acarás-Disco, livre de transgênicos. Com 50% de proteínas marinhas nobres, promove crescimento, imunidade e cores naturais vibrantes.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/2e8eYWK" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/poytara-acara-disco-dia-a-dia.webp" alt="Ração Poytara Acará Disco Dia a Dia" loading="lazy" />
+            </div>
+            <h4>Ração Poytara Acará Disco Dia a Dia</h4>
+            <p>Ração extrusada de alta palatabilidade desenvolvida especialmente para Acarás-Disco. Garante nutrição completa e promove o realce vibrante das cores naturais dos seus peixes.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/1eA4NLo" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+                </div>
+              </div>
+              <button class="home-carousel-button home-carousel-button-next" type="button" data-carousel-next aria-label="Ver mais itens">&#8594;</button>
+            </div>
+          </article>
+            
+          <article class="fish-feed-complemento-card">
+            <h3>Complementos alimentares para Barbo Cereja</h3>
+            <div class="home-carousel fish-feed-carousel" data-home-carousel>
+              <button class="home-carousel-button home-carousel-button-prev" type="button" data-carousel-prev aria-label="Ver itens anteriores">&#8592;</button>
+              <div class="home-carousel-viewport" data-carousel-viewport>
+                <div class="home-carousel-track">
+                  
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/poytara-garlic-black-line-90g.webp" alt="Ração Poytara Garlic Black Line 90g" loading="lazy" />
+            </div>
+            <h4>Ração Poytara Garlic Black Line 90g</h4>
+            <p>Ração super premium em crisps de 1,5 mm para peixes ornamentais, livre de transgênicos. Com 42% de proteína, alho, prebióticos e vitamina C, estimula o apetite e fortalece a imunidade.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/16E5jin" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/poytara-black-line-immunity-90g.webp" alt="Ração Poytara Black Line Immunity 90g" loading="lazy" />
+            </div>
+            <h4>Ração Poytara Black Line Immunity 90g</h4>
+            <p>Ração super premium em crisps de 1,5 mm para peixes, livre de transgênicos. Com 42% de proteína, probióticos e prebióticos, fortalece a imunidade e auxilia na recuperação de estresse.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/2J6AZRW" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+          <article class="product-card home-product-card fish-feed-card">
+            <div class="home-card-media fish-feed-card-media">
+              <img src="/images/poytara-colors-black-line-95g.webp" alt="Ração Poytara Colors Black Line 95g" loading="lazy" />
+            </div>
+            <h4>Ração Poytara Colors Black Line 95g</h4>
+            <p>Ração super premium em crisps de afundamento lento, livre de transgênicos. Com 42% de proteína bruta, proteínas marinhas e astaxantina, realça a coloração natural dos peixes.</p>
+            <div class="fish-feed-card-actions">
+              <a class="button-link" href="https://meli.la/1yK4jFm" target="_blank" rel="nofollow sponsored noopener">Ver oferta</a>
+            </div>
+          </article>
+                </div>
+              </div>
+              <button class="home-carousel-button home-carousel-button-next" type="button" data-carousel-next aria-label="Ver mais itens">&#8594;</button>
+            </div>
+          </article>
+          </div>
         </article>
       <div class="fish-copy-grid">
         <article>
