@@ -2454,6 +2454,7 @@ function getSearchEntries() {
       slug: fish.slug,
       title: fish.name,
       description: fish.description,
+      photoUrl: `/images/${fish.slug}.webp`,
       href: fish.URL ? resolveSitePath(fish.URL) : buildCatalogSearchUrl(fish.slug, fish.name),
       keywords: ''
     })),
@@ -2463,6 +2464,7 @@ function getSearchEntries() {
       slug: plant.slug,
       title: plant.name,
       description: plant.description,
+      photoUrl: `/images/${plant.slug}.webp`,
       href: resolveSitePath(plant.URL),
       keywords: plant.scientificName || ''
     })),
@@ -4596,14 +4598,14 @@ function renderSearchResultsPage() {
   }
 
   searchResultsGrid.innerHTML = results.map((entry) => `
-    <article class="search-result-card">
-      ${entry.type === 'guide' && entry.photoUrl ? `<img src="${escapeHtml(entry.photoUrl)}" alt="" class="search-result-photo" loading="lazy">` : ''}
-      <p class="search-result-type">${getSearchResultTypeLabel(entry)}</p>
+  
+    <a href="${escapeHtml(entry.href)}" class="search-result-card">
+      ${entry.photoUrl ? `<img src="${escapeHtml(entry.photoUrl)}" alt="${escapeHtml(entry.title)}" class="search-result-photo" loading="lazy">` : ''}
       <h3>${escapeHtml(entry.title)}</h3>
-      <p>${escapeHtml(entry.description)}</p>
-      ${entry.type === 'guide' ? `<p class="search-result-category"><strong>Categoria:</strong> ${escapeHtml(entry.category || 'Não informada')}</p>` : ''}
-      <a href="${entry.href}" class="search-result-link">Abrir resultado</a>
-    </article>
+      <div class="search-result-card-content">
+        <p>${escapeHtml(entry.description)}</p>
+      </div>
+    </a>
   `).join('');
 }
 

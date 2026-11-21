@@ -976,13 +976,25 @@ main.catalog-layout {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem;
+  align-items: start;
 }
 
 .search-result-card {
+  display: block;
   background: #f7fdff;
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 1.2rem;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.search-result-card:hover,
+.search-result-card:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 10px 24px rgba(18, 49, 63, 0.1);
+  transform: translateY(-2px);
 }
 
 .search-result-card h3,
@@ -999,9 +1011,25 @@ main.catalog-layout {
   color: var(--primary);
 }
 
-.search-result-link {
-  color: var(--primary);
-  font-weight: 700;
+.search-result-photo {
+  display: block;
+  width: 100%;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 0.85rem;
+}
+
+.search-result-card-content {
+  min-width: 0;
+}
+
+.search-result-card h3 {
+  color: var(--text);
+}
+
+.search-result-card p {
+  color: var(--muted);
 }
 
 .card {
