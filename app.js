@@ -35,14 +35,9 @@ const NUMERIC_LIMITS = {
 const navigationItems = [
   { label: 'AquaristaPRO', href: 'index.html', page: 'index' },
   { label: 'Área de membros', href: 'members.html', page: 'members' },
-  {
-    label: 'Catalogos',
-    page: 'catalogos',
-    children: [
-      { label: 'Peixes', href: 'catalogo.html', page: 'catalogo' },
-      { label: 'Plantas', href: 'catalogo-plantas.html', page: 'catalogo-plantas' }
-    ]
-  }
+  { label: 'Peixes', href: 'catalogo.html', page: 'catalogo' },
+  { label: 'Plantas', href: 'catalogo-plantas.html', page: 'catalogo-plantas' }
+    
 ];
 const siteSearchEntries = [
   {
